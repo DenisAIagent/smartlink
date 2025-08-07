@@ -74,8 +74,10 @@ const authRoutes = require('../backend/routes/auth.routes.js');
 app.use('/api/auth', authRoutes);
 
 // --- New Dashboard Routes ---
-const dashboardRoutes = require('../backend/routes/dashboard.routes.js');
-app.use('/api/dashboard', dashboardRoutes);
+// The old /dashboard route is now handled by the static server via frontend/dashboard.html
+// The new API routes for the dashboard are served from /api/dashboard
+const dashboardApiRoutes = require('../backend/routes/dashboard.routes.js');
+app.use('/api/dashboard', dashboardApiRoutes);
 
 // --- New Smartlink API Routes ---
 const smartlinkApiRoutes = require('../backend/routes/smartlink.routes.js');
@@ -83,11 +85,11 @@ app.use('/api/smartlinks', smartlinkApiRoutes);
 
 
 // --- Debug Routes (temporaire from old structure) ---
-const debugRoutes = require('../routes/debug');
-app.use(debugRoutes);
+// const debugRoutes = require('../routes/debug');
+// app.use(debugRoutes);
 
-// The old /login route is now replaced by serving login.html from the /frontend static directory.
-// The old logic for redirecting if already logged in will be moved to the frontend.
+// The old /login and /dashboard routes are now replaced by serving static files from the /frontend directory.
+// The new system uses client-side routing and API calls.
 
 // --- Routes pour SmartLinks HTML statiques (EN DERNIER car catch-all) ---
 const smartlinkRoutes = require('../routes/smartlinks');
