@@ -2,11 +2,11 @@
   "name": "mdmc-smartlinks-service",
   "version": "1.0.0",
   "description": "Service dédié pour SmartLinks HTML statiques MDMC Music Ads",
-  "main": "src/app.js",
+  "main": "backend/server.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js",
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
     "generate": "node scripts/generate-smartlinks.js",
     "test": "node scripts/test-service.js"
   },
@@ -15,14 +15,20 @@
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "dompurify": "^3.2.6",
     "dotenv": "^16.3.1",
     "ejs": "^3.1.10",
     "express": "^4.18.2",
+    "express-rate-limit": "^8.0.1",
     "helmet": "^7.0.0",
+    "jsdom": "^26.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.5.0",
     "morgan": "^1.10.0",
-    "multer": "^2.0.2"
+    "multer": "^2.0.2",
+    "nanoid": "^5.1.5",
+    "pg": "^8.16.3",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

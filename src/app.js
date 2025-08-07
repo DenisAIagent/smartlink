@@ -54,58 +54,40 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '../views'));
 
 // --- Servir les fichiers statiques ---
+// Serves the new frontend application
+app.use(express.static(path.join(__dirname, '../frontend')));
+// Serves existing public assets
 app.use(express.static(path.join(__dirname, '../public'), {
   maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
   etag: true,
   lastModified: true
 }));
 
-// --- API Routes (AVANT les routes SmartLinks génériques) ---
-const apiRoutes = require('../routes/api');
-app.use('/api', apiRoutes);
+// --- API Routes ---
+// Note: The user's new structure centralizes routes in /backend/routes.
+// We will use these new routes. The old /routes/api.js is preserved but not used by new features.
+const oldApiRoutes = require('../routes/api');
+app.use('/api/v1', oldApiRoutes); // Keep old routes on a versioned path
 
-// --- Authentication Routes ---
-const { router: authRoutes } = require('../routes/auth');
+// --- New Authentication Routes ---
+const authRoutes = require('../backend/routes/auth.routes.js');
 app.use('/api/auth', authRoutes);
 
-// --- Dashboard Routes ---
-const dashboardRoutes = require('../routes/dashboard');
-app.use('/dashboard', dashboardRoutes);
+// --- New Dashboard Routes ---
+const dashboardRoutes = require('../backend/routes/dashboard.routes.js');
+app.use('/api/dashboard', dashboardRoutes);
 
-// --- Debug Routes (temporaire) ---
+// --- New Smartlink API Routes ---
+const smartlinkApiRoutes = require('../backend/routes/smartlink.routes.js');
+app.use('/api/smartlinks', smartlinkApiRoutes);
+
+
+// --- Debug Routes (temporaire from old structure) ---
 const debugRoutes = require('../routes/debug');
 app.use(debugRoutes);
 
-// --- Login Page Route avec vérification d'authentification ---
-app.get('/login', (req, res) => {
-  // Vérifier d'abord si l'utilisateur est déjà connecté
-  const token = req.cookies?.mdmc_token || req.query?.token;
-  
-  if (token) {
-    try {
-      const jwt = require('jsonwebtoken');
-      const JWT_SECRET = process.env.JWT_SECRET || 'mdmc_smartlinks_secret_key_2025';
-      const decoded = jwt.verify(token, JWT_SECRET);
-      
-      // Token valide, rediriger vers le dashboard
-      console.log('🔄 Utilisateur déjà connecté, redirection depuis /login vers /dashboard');
-      const redirectUrl = req.query.redirect || '/dashboard';
-      return res.redirect(redirectUrl);
-    } catch (error) {
-      // Token invalide, supprimer le cookie et continuer vers login
-      console.log('🗑️ Token invalide détecté, suppression du cookie');
-      res.clearCookie('mdmc_token', {
-        path: '/',
-        httpOnly: false,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax'
-      });
-    }
-  }
-  
-  // Pas de token ou token invalide, afficher la page de login
-  res.render('login');
-});
+// The old /login route is now replaced by serving login.html from the /frontend static directory.
+// The old logic for redirecting if already logged in will be moved to the frontend.
 
 // --- Routes pour SmartLinks HTML statiques (EN DERNIER car catch-all) ---
 const smartlinkRoutes = require('../routes/smartlinks');
@@ -141,13 +123,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// --- Démarrage du serveur ---
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`🎵 MDMC SmartLinks Service démarré sur le port ${PORT}`);
-  console.log(`🌐 Environnement: ${process.env.NODE_ENV}`);
-  console.log(`🔗 URLs: http://localhost:${PORT}`);
-  console.log(`🚀 Service dédié HTML statique pour SEO optimal`);
-});
-
+// The server startup logic has been moved to /backend/server.js
+// This allows attaching a WebSocket server to the same HTTP instance.
 module.exports = app;
