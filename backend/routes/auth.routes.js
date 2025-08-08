@@ -65,6 +65,9 @@ router.post('/login', loginLimiter, async (req, res) => {
     await client.query('UPDATE users SET last_login = NOW() WHERE id = $1', [user.id]);
 
     // 6. Send tokens to client
+    // As a defensive measure, clear any old, potentially conflicting cookie.
+    res.clearCookie('mdmc_token');
+
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
