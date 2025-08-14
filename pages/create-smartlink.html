@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Créer SmartLink | MDMC Admin</title>
+    <link rel="stylesheet" href="/assets/css/admin.css">
+    <link rel="icon" href="/assets/images/favicon.ico">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <header class="admin-header">
+            <nav class="navbar">
+                <a href="/" class="admin-logo">MDMC Admin</a>
+                <ul class="admin-nav">
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/smartlinks">SmartLinks</a></li>
+                    <li><a href="/smartlinks/create">Créer</a></li>
+                    <li><a href="/smartlinks/list">Liste</a></li>
+                </ul>
+                <div class="user-info">
+                    <span class="user-name">Admin</span>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Contenu principal -->
+        <main class="admin-main">
+            <!-- Étapes -->
+            <div class="steps-indicator mb-3">
+                <div class="step active" data-step="1">
+                    <span class="step-number">1</span>
+                    <span class="step-label">URL Source</span>
+                </div>
+                <div class="step" data-step="2">
+                    <span class="step-number">2</span>
+                    <span class="step-label">Métadonnées</span>
+                </div>
+                <div class="step" data-step="3">
+                    <span class="step-number">3</span>
+                    <span class="step-label">Finalisation</span>
+                </div>
+            </div>
+
+            <!-- Formulaire étape 1 : URL Source -->
+            <div class="card" id="step1">
+                <div class="card-header">
+                    <h1 class="card-title">Étape 1 : URL Source</h1>
+                    <p class="text-muted">Collez l'URL Spotify, Apple Music, Deezer ou autre plateforme</p>
+                </div>
+
+                <form id="urlForm">
+                    <div class="form-group">
+                        <label class="form-label" for="sourceUrl">URL de la musique *</label>
+                        <input type="url" id="sourceUrl" name="sourceUrl" class="form-control" 
+                               placeholder="https://open.spotify.com/track/..." required>
+                        <small class="text-muted">Supports : Spotify, Apple Music, Deezer, YouTube Music, etc.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" id="fetchMetadataBtn">
+                            <span class="btn-text">Récupérer les métadonnées</span>
+                            <div class="loading d-none"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Formulaire étape 2 : Métadonnées -->
+            <div class="card d-none" id="step2">
+                <div class="card-header">
+                    <h2 class="card-title">Étape 2 : Métadonnées</h2>
+                    <p class="text-muted">Vérifiez et modifiez les informations si nécessaire</p>
+                </div>
+
+                <form id="metadataForm">
+                    <div style="display: grid; grid-template-columns: auto 1fr; gap: 2rem; align-items: start;">
+                        <!-- Preview de la pochette -->
+                        <div class="cover-preview">
+                            <img id="coverPreview" src="" alt="Pochette" style="width: 150px; height: 150px; border-radius: 12px; object-fit: cover; box-shadow: var(--shadow);">
+                        </div>
+
+                        <!-- Métadonnées -->
+                        <div>
+                            <div class="form-group">
+                                <label class="form-label" for="trackTitle">Titre du morceau *</label>
+                                <input type="text" id="trackTitle" name="trackTitle" class="form-control" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="artistName">Nom de l'artiste *</label>
+                                <input type="text" id="artistName" name="artistName" class="form-control" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="description">Description (optionnelle)</label>
+                                <textarea id="description" name="description" class="form-control" rows="3" 
+                                         placeholder="Décrivez ce morceau..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload audio optionnel -->
+                    <div class="form-group">
+                        <label class="form-label" for="audioFile">Extrait audio (optionnel)</label>
+                        <input type="file" id="audioFile" name="audioFile" class="form-control" accept="audio/*">
+                        <small class="text-muted">Format MP3, maximum 30 secondes recommandé</small>
+                        <div id="audioUploadStatus" class="mt-1"></div>
+                    </div>
+
+                    <!-- Plateformes détectées -->
+                    <div class="form-group">
+                        <label class="form-label">Plateformes détectées</label>
+                        <div id="platformsList" class="platforms-grid">
+                            <!-- Sera rempli dynamiquement -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="button" class="btn btn-secondary me-2" onclick="goToStep(1)">
+                            ← Retour
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="createSmartLinkBtn">
+                            <span class="btn-text">Créer le SmartLink</span>
+                            <div class="loading d-none"></div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Étape 3 : Résultat -->
+            <div class="card d-none" id="step3">
+                <div class="card-header">
+                    <h2 class="card-title">✅ SmartLink créé avec succès !</h2>
+                    <p class="text-muted">Votre SmartLink est prêt à être partagé</p>
+                </div>
+
+                <div id="resultContent">
+                    <!-- Sera rempli après création -->
+                </div>
+
+                <div class="form-group">
+                    <button type="button" class="btn btn-outline me-2" onclick="resetForm()">
+                        Créer un nouveau SmartLink
+                    </button>
+                    <a href="/smartlinks/list" class="btn btn-secondary">
+                        Voir tous les SmartLinks
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/config.js"></script>
+    <script src="/assets/js/admin.js"></script>
+    <script>
+        // Gestion des étapes
+        let currentStep = 1;
+        let currentMetadata = null;
+        let uploadedAudioUrl = null;
+
+        function goToStep(step) {
+            // Masquer toutes les étapes
+            document.querySelectorAll('[id^="step"]').forEach(el => el.classList.add('d-none'));
+            
+            // Afficher l'étape demandée
+            document.getElementById(`step${step}`).classList.remove('d-none');
+            
+            // Mettre à jour l'indicateur
+            document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+            document.querySelector(`[data-step="${step}"]`).classList.add('active');
+            
+            currentStep = step;
+        }
+
+        // Étape 1 : Récupération métadonnées
+        document.getElementById('urlForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const sourceUrl = document.getElementById('sourceUrl').value.trim();
+            if (!sourceUrl) return;
+
+            const btn = document.getElementById('fetchMetadataBtn');
+            const btnText = btn.querySelector('.btn-text');
+            const loading = btn.querySelector('.loading');
+            
+            // État de chargement
+            btn.disabled = true;
+            btnText.textContent = 'Récupération...';
+            loading.classList.remove('d-none');
+
+            try {
+                const response = await mdmcAdmin.apiCall(`/api/proxy/fetch-metadata?url=${encodeURIComponent(sourceUrl)}`);
+                
+                if (response.success) {
+                    currentMetadata = response.data;
+                    populateMetadataForm(currentMetadata);
+                    goToStep(2);
+                    mdmcAdmin.showNotification('Métadonnées récupérées avec succès !', 'success');
+                } else {
+                    mdmcAdmin.showNotification('Erreur lors de la récupération des métadonnées', 'danger');
+                }
+            } catch (error) {
+                console.error('Erreur fetch metadata:', error);
+                mdmcAdmin.showNotification('Impossible de récupérer les métadonnées', 'danger');
+            } finally {
+                // Remettre le bouton à l'état normal
+                btn.disabled = false;
+                btnText.textContent = 'Récupérer les métadonnées';
+                loading.classList.add('d-none');
+            }
+        });
+
+        function populateMetadataForm(metadata) {
+            // Remplir les champs
+            document.getElementById('trackTitle').value = metadata.title || '';
+            document.getElementById('artistName').value = metadata.artistName || '';
+            document.getElementById('description').value = metadata.description || `Écoutez "${metadata.title}" par ${metadata.artistName} sur votre plateforme préférée`;
+            
+            // Afficher la pochette
+            if (metadata.thumbnailUrl) {
+                document.getElementById('coverPreview').src = metadata.thumbnailUrl;
+            }
+            
+            // Afficher les plateformes
+            displayPlatforms(metadata.links);
+        }
+
+        function displayPlatforms(links) {
+            const container = document.getElementById('platformsList');
+            
+            if (!links || Object.keys(links).length === 0) {
+                container.innerHTML = '<p class="text-muted">Aucune plateforme détectée</p>';
+                return;
+            }
+
+            const platformsHTML = Object.entries(links).map(([name, data]) => {
+                const cleanName = name.replace(/([A-Z])/g, ' $1').trim();
+                return `
+                    <div class="platform-item">
+                        <div class="platform-info">
+                            <strong>${cleanName}</strong>
+                            <small class="text-muted">${data.url}</small>
+                        </div>
+                        <span class="platform-status">✅</span>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = platformsHTML;
+        }
+
+        // Upload audio
+        document.getElementById('audioFile').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const statusDiv = document.getElementById('audioUploadStatus');
+            statusDiv.innerHTML = '<div class="loading"></div> Upload en cours...';
+
+            try {
+                const response = await mdmcAdmin.uploadFile(file, '/api/upload/audio');
+                
+                if (response.success) {
+                    uploadedAudioUrl = response.data.url;
+                    statusDiv.innerHTML = '<span class="text-success">✅ Audio uploadé avec succès</span>';
+                } else {
+                    statusDiv.innerHTML = '<span class="text-danger">❌ Erreur upload audio</span>';
+                }
+            } catch (error) {
+                console.error('Erreur upload audio:', error);
+                statusDiv.innerHTML = '<span class="text-danger">❌ Erreur upload audio</span>';
+            }
+        });
+
+        // Étape 2 : Création SmartLink
+        document.getElementById('metadataForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!mdmcAdmin.validateForm(e.target)) {
+                mdmcAdmin.showNotification('Veuillez remplir tous les champs requis', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('createSmartLinkBtn');
+            const btnText = btn.querySelector('.btn-text');
+            const loading = btn.querySelector('.loading');
+            
+            // État de chargement
+            btn.disabled = true;
+            btnText.textContent = 'Création...';
+            loading.classList.remove('d-none');
+
+            try {
+                const formData = new FormData(e.target);
+                const smartlinkData = {
+                    trackTitle: formData.get('trackTitle'),
+                    artistName: formData.get('artistName'),
+                    description: formData.get('description'),
+                    coverImageUrl: currentMetadata?.thumbnailUrl,
+                    previewAudioUrl: uploadedAudioUrl,
+                    platformLinks: Object.entries(currentMetadata?.links || {}).map(([platform, data]) => ({
+                        platform: platform.replace(/([A-Z])/g, ' $1').trim(),
+                        url: data.url
+                    })),
+                    isPublished: true
+                };
+
+                const response = await mdmcAdmin.apiCall('/api/proxy/create-smartlink', {
+                    method: 'POST',
+                    body: JSON.stringify(smartlinkData)
+                });
+
+                if (response.success) {
+                    displayResult(response.data);
+                    goToStep(3);
+                    mdmcAdmin.showNotification('SmartLink créé avec succès !', 'success');
+                } else {
+                    mdmcAdmin.showNotification('Erreur lors de la création du SmartLink', 'danger');
+                }
+            } catch (error) {
+                console.error('Erreur création SmartLink:', error);
+                mdmcAdmin.showNotification('Impossible de créer le SmartLink', 'danger');
+            } finally {
+                // Remettre le bouton à l'état normal
+                btn.disabled = false;
+                btnText.textContent = 'Créer le SmartLink';
+                loading.classList.add('d-none');
+            }
+        });
+
+        function displayResult(smartlinkData) {
+            const smartlinkUrl = `https://www.mdmcmusicads.com/smartlinks/${smartlinkData.artistId.slug}/${smartlinkData.slug}`;
+            
+            document.getElementById('resultContent').innerHTML = `
+                <div class="result-display">
+                    <div class="form-group">
+                        <label class="form-label">URL de votre SmartLink :</label>
+                        <div class="url-display">
+                            <input type="text" class="form-control" value="${smartlinkUrl}" readonly id="smartlinkUrl">
+                            <button type="button" class="btn btn-outline" onclick="mdmcAdmin.copyToClipboard('${smartlinkUrl}')">
+                                📋 Copier
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Aperçu :</label>
+                        <div class="smartlink-preview">
+                            <div class="preview-header">
+                                <img src="${smartlinkData.coverImageUrl || ''}" alt="Cover" style="width: 60px; height: 60px; border-radius: 8px;">
+                                <div>
+                                    <h4>${smartlinkData.trackTitle}</h4>
+                                    <p class="text-muted">${smartlinkData.artistId.name}</p>
+                                </div>
+                            </div>
+                            <p class="mt-2">${smartlinkData.platformLinks.length} plateforme(s) disponible(s)</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <a href="${smartlinkUrl}" target="_blank" class="btn btn-primary me-2">
+                            👁️ Voir le SmartLink
+                        </a>
+                        <button type="button" class="btn btn-outline" onclick="shareSmartLink('${smartlinkUrl}', '${smartlinkData.trackTitle}', '${smartlinkData.artistId.name}')">
+                            📤 Partager
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function shareSmartLink(url, title, artist) {
+            if (navigator.share) {
+                navigator.share({
+                    title: `${title} - ${artist}`,
+                    text: `Écoutez "${title}" par ${artist} sur votre plateforme préférée`,
+                    url: url
+                });
+            } else {
+                mdmcAdmin.copyToClipboard(url);
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('urlForm').reset();
+            document.getElementById('metadataForm').reset();
+            document.getElementById('coverPreview').src = '';
+            document.getElementById('platformsList').innerHTML = '';
+            document.getElementById('audioUploadStatus').innerHTML = '';
+            currentMetadata = null;
+            uploadedAudioUrl = null;
+            goToStep(1);
+        }
+    </script>
+
+    <style>
+        .steps-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            opacity: 0.6;
+            transition: var(--transition);
+        }
+
+        .step.active {
+            opacity: 1;
+            background: var(--primary);
+            color: white;
+        }
+
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .step.active .step-number {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .platforms-grid {
+            display: grid;
+            gap: 0.5rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .platform-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: var(--light);
+            border-radius: var(--border-radius);
+            border: 1px solid #dee2e6;
+        }
+
+        .platform-info strong {
+            display: block;
+        }
+
+        .platform-info small {
+            display: block;
+            word-break: break-all;
+        }
+
+        .url-display {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .url-display input {
+            flex: 1;
+        }
+
+        .smartlink-preview {
+            padding: 1rem;
+            background: var(--light);
+            border-radius: var(--border-radius);
+            border: 1px solid #dee2e6;
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .preview-header h4 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .preview-header p {
+            margin: 0;
+        }
+
+        .me-2 {
+            margin-right: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .steps-indicator {
+                gap: 1rem;
+            }
+            
+            .step-label {
+                display: none;
+            }
+            
+            .url-display {
+                flex-direction: column;
+            }
+        }
+    </style>
+</body>
+</html>

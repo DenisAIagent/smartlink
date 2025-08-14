@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste SmartLinks | MDMC Admin</title>
+    <link rel="stylesheet" href="/assets/css/admin.css">
+    <link rel="icon" href="/assets/images/favicon.ico">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <header class="admin-header">
+            <nav class="navbar">
+                <a href="/" class="admin-logo">MDMC Admin</a>
+                <ul class="admin-nav">
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/smartlinks">SmartLinks</a></li>
+                    <li><a href="/smartlinks/create">Créer</a></li>
+                    <li><a href="/smartlinks/list">Liste</a></li>
+                </ul>
+                <div class="user-info">
+                    <span class="user-name">Admin</span>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Contenu principal -->
+        <main class="admin-main">
+            <div class="card">
+                <div class="card-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h1 class="card-title">Tous les SmartLinks</h1>
+                            <p class="text-muted">Gérez vos SmartLinks existants</p>
+                        </div>
+                        <a href="/smartlinks/create" class="btn btn-primary">
+                            ➕ Nouveau SmartLink
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Filtres et recherche -->
+                <div class="filters-section mb-3">
+                    <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 1rem; align-items: end;">
+                        <div class="form-group mb-0">
+                            <label class="form-label" for="searchFilter">Rechercher</label>
+                            <input type="text" id="searchFilter" class="form-control" 
+                                   placeholder="Titre, artiste, slug...">
+                        </div>
+                        <div class="form-group mb-0">
+                            <label class="form-label" for="statusFilter">Statut</label>
+                            <select id="statusFilter" class="form-control">
+                                <option value="">Tous</option>
+                                <option value="published">Publiés</option>
+                                <option value="draft">Brouillons</option>
+                            </select>
+                        </div>
+                        <button onclick="refreshList()" class="btn btn-secondary">
+                            🔄 Actualiser
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Liste des SmartLinks -->
+                <div id="smartlinks-container">
+                    <div class="text-center">
+                        <div class="loading"></div>
+                        <p>Chargement des SmartLinks...</p>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div id="pagination-container" class="d-none">
+                    <div class="pagination-info">
+                        <span id="pagination-info-text"></span>
+                    </div>
+                    <div class="pagination-controls">
+                        <button onclick="previousPage()" class="btn btn-outline" id="prev-btn" disabled>
+                            ← Précédent
+                        </button>
+                        <span id="page-numbers"></span>
+                        <button onclick="nextPage()" class="btn btn-outline" id="next-btn">
+                            Suivant →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de confirmation -->
+    <div id="deleteModal" class="modal d-none">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirmer la suppression</h3>
+                <button onclick="closeDeleteModal()" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer ce SmartLink ?</p>
+                <p><strong id="deleteItemName"></strong></p>
+                <p class="text-muted">Cette action est irréversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeDeleteModal()" class="btn btn-secondary">Annuler</button>
+                <button onclick="confirmDelete()" class="btn btn-danger">Supprimer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/config.js"></script>
+    <script src="/assets/js/admin.js"></script>
+    <script>
+        // Variables globales
+        let allSmartLinks = [];
+        let filteredSmartLinks = [];
+        let currentPage = 1;
+        let itemsPerPage = 10;
+        let deleteTargetId = null;
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSmartLinks();
+            setupFilters();
+        });
+
+        // Chargement des SmartLinks
+        async function loadSmartLinks() {
+            try {
+                const response = await mdmcAdmin.apiCall('/api/smartlinks');
+                
+                if (response.success) {
+                    allSmartLinks = response.data.sort((a, b) => 
+                        new Date(b.createdAt) - new Date(a.createdAt)
+                    );
+                    filteredSmartLinks = [...allSmartLinks];
+                    renderSmartLinks();
+                    updatePagination();
+                } else {
+                    showError('Erreur lors du chargement des SmartLinks');
+                }
+            } catch (error) {
+                console.error('Erreur chargement SmartLinks:', error);
+                showError('Impossible de charger les SmartLinks');
+            }
+        }
+
+        // Configuration des filtres
+        function setupFilters() {
+            const searchFilter = document.getElementById('searchFilter');
+            const statusFilter = document.getElementById('statusFilter');
+
+            searchFilter.addEventListener('input', mdmcAdmin.debounce(applyFilters, 300));
+            statusFilter.addEventListener('change', applyFilters);
+        }
+
+        // Application des filtres
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchFilter').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            filteredSmartLinks = allSmartLinks.filter(sl => {
+                // Filtre de recherche
+                const matchesSearch = !searchTerm || 
+                    sl.trackTitle.toLowerCase().includes(searchTerm) ||
+                    sl.artistId.name.toLowerCase().includes(searchTerm) ||
+                    sl.slug.toLowerCase().includes(searchTerm);
+
+                // Filtre de statut
+                const matchesStatus = !statusFilter || 
+                    (statusFilter === 'published' && sl.isPublished) ||
+                    (statusFilter === 'draft' && !sl.isPublished);
+
+                return matchesSearch && matchesStatus;
+            });
+
+            currentPage = 1;
+            renderSmartLinks();
+            updatePagination();
+        }
+
+        // Rendu de la liste
+        function renderSmartLinks() {
+            const container = document.getElementById('smartlinks-container');
+            
+            if (filteredSmartLinks.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted">
+                        <p>Aucun SmartLink trouvé</p>
+                        <a href="/smartlinks/create" class="btn btn-primary mt-2">Créer votre premier SmartLink</a>
+                    </div>
+                `;
+                return;
+            }
+
+            // Calcul de la pagination
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageItems = filteredSmartLinks.slice(startIndex, endIndex);
+
+            const html = `
+                <div class="smartlinks-grid">
+                    ${pageItems.map(sl => renderSmartLinkCard(sl)).join('')}
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        // Rendu d'une carte SmartLink
+        function renderSmartLinkCard(smartlink) {
+            const smartlinkUrl = `https://www.mdmcmusicads.com/smartlinks/${smartlink.artistId.slug}/${smartlink.slug}`;
+            
+            return `
+                <div class="smartlink-card">
+                    <div class="smartlink-cover">
+                        <img src="${smartlink.coverImageUrl || '/assets/images/default-cover.jpg'}" 
+                             alt="${smartlink.trackTitle}" loading="lazy">
+                        <div class="smartlink-overlay">
+                            <div class="smartlink-actions">
+                                <button onclick="copySmartLinkUrl('${smartlinkUrl}')" 
+                                        class="action-btn" title="Copier le lien">
+                                    📋
+                                </button>
+                                <a href="${smartlinkUrl}" target="_blank" 
+                                   class="action-btn" title="Voir">
+                                    👁️
+                                </a>
+                                <button onclick="deleteSmartLink('${smartlink._id}', '${smartlink.trackTitle} - ${smartlink.artistId.name}')" 
+                                        class="action-btn action-btn-danger" title="Supprimer">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="smartlink-info">
+                        <h3 class="smartlink-title">${smartlink.trackTitle}</h3>
+                        <p class="smartlink-artist">${smartlink.artistId.name}</p>
+                        
+                        <div class="smartlink-meta">
+                            <span class="smartlink-status ${smartlink.isPublished ? 'status-published' : 'status-draft'}">
+                                ${smartlink.isPublished ? '🟢 Publié' : '🟡 Brouillon'}
+                            </span>
+                            <span class="smartlink-date">
+                                ${mdmcAdmin.formatDate(smartlink.createdAt, { month: 'short', day: 'numeric' })}
+                            </span>
+                        </div>
+                        
+                        <div class="smartlink-stats">
+                            <span class="stat-item">
+                                👁️ ${mdmcAdmin.formatNumber(smartlink.viewCount || 0)} vues
+                            </span>
+                            <span class="stat-item">
+                                🔗 ${smartlink.platformLinks.length} plateformes
+                            </span>
+                        </div>
+                        
+                        <div class="smartlink-url">
+                            <input type="text" value="${smartlinkUrl}" readonly 
+                                   onclick="this.select(); mdmcAdmin.copyToClipboard('${smartlinkUrl}')">
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Gestion de la pagination
+        function updatePagination() {
+            const container = document.getElementById('pagination-container');
+            const totalPages = Math.ceil(filteredSmartLinks.length / itemsPerPage);
+            
+            if (totalPages <= 1) {
+                container.classList.add('d-none');
+                return;
+            }
+
+            container.classList.remove('d-none');
+            
+            // Info pagination
+            const startItem = (currentPage - 1) * itemsPerPage + 1;
+            const endItem = Math.min(currentPage * itemsPerPage, filteredSmartLinks.length);
+            document.getElementById('pagination-info-text').textContent = 
+                `${startItem}-${endItem} sur ${filteredSmartLinks.length}`;
+
+            // Boutons précédent/suivant
+            document.getElementById('prev-btn').disabled = currentPage === 1;
+            document.getElementById('next-btn').disabled = currentPage === totalPages;
+
+            // Numéros de pages
+            const pageNumbers = document.getElementById('page-numbers');
+            let pagesHTML = '';
+            
+            for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+                pagesHTML += `
+                    <button onclick="goToPage(${i})" 
+                            class="page-btn ${i === currentPage ? 'active' : ''}">
+                        ${i}
+                    </button>
+                `;
+            }
+            
+            pageNumbers.innerHTML = pagesHTML;
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderSmartLinks();
+                updatePagination();
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Math.ceil(filteredSmartLinks.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderSmartLinks();
+                updatePagination();
+            }
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            renderSmartLinks();
+            updatePagination();
+        }
+
+        // Actions
+        function copySmartLinkUrl(url) {
+            mdmcAdmin.copyToClipboard(url);
+        }
+
+        function deleteSmartLink(id, name) {
+            deleteTargetId = id;
+            document.getElementById('deleteItemName').textContent = name;
+            document.getElementById('deleteModal').classList.remove('d-none');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.add('d-none');
+            deleteTargetId = null;
+        }
+
+        async function confirmDelete() {
+            if (!deleteTargetId) return;
+
+            try {
+                const response = await mdmcAdmin.apiCall(`/api/v1/smartlinks/${deleteTargetId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.success) {
+                    mdmcAdmin.showNotification('SmartLink supprimé avec succès', 'success');
+                    closeDeleteModal();
+                    loadSmartLinks(); // Recharger la liste
+                } else {
+                    mdmcAdmin.showNotification('Erreur lors de la suppression', 'danger');
+                }
+            } catch (error) {
+                console.error('Erreur suppression:', error);
+                mdmcAdmin.showNotification('Impossible de supprimer le SmartLink', 'danger');
+            }
+        }
+
+        function refreshList() {
+            loadSmartLinks();
+        }
+
+        function showError(message) {
+            document.getElementById('smartlinks-container').innerHTML = `
+                <div class="alert alert-danger">
+                    ${message}
+                </div>
+            `;
+        }
+    </script>
+
+    <style>
+        .filters-section {
+            padding: 1rem;
+            background: var(--light);
+            border-radius: var(--border-radius);
+            border: 1px solid #dee2e6;
+        }
+
+        .smartlinks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .smartlink-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .smartlink-card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .smartlink-cover {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .smartlink-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .smartlink-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .smartlink-card:hover .smartlink-overlay {
+            opacity: 1;
+        }
+
+        .smartlink-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.9);
+            color: var(--dark);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+
+        .action-btn-danger:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .smartlink-info {
+            padding: 1rem;
+        }
+
+        .smartlink-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem 0;
+            color: var(--dark);
+        }
+
+        .smartlink-artist {
+            color: var(--primary);
+            margin: 0 0 0.75rem 0;
+            font-weight: 500;
+        }
+
+        .smartlink-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .smartlink-status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 500;
+        }
+
+        .status-published {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-draft {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .smartlink-stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+            color: var(--secondary);
+        }
+
+        .smartlink-url input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            font-family: monospace;
+            background: var(--light);
+            cursor: pointer;
+        }
+
+        .smartlink-url input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Pagination */
+        .pagination-info {
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+            font-size: 0.875rem;
+        }
+
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .page-btn {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #dee2e6;
+            background: white;
+            color: var(--dark);
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .page-btn:hover {
+            background: var(--light);
+        }
+
+        .page-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--secondary);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #dee2e6;
+        }
+
+        @media (max-width: 768px) {
+            .smartlinks-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .pagination-controls {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</body>
+</html>

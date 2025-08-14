@@ -1,0 +1,24 @@
+{
+  "name": "mdmc-admin",
+  "version": "1.0.0",
+  "description": "Interface d'administration MDMC SmartLinks",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "echo 'Interface admin HTML/CSS/JS - Pas de build nécessaire'",
+    "deploy": "npm run build && echo 'Prêt pour déploiement sur admin.mdmcmusicads.com'"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^6.0.1",
+    "express-rate-limit": "^6.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  },
+  "keywords": ["mdmc", "smartlinks", "admin", "music", "marketing"],
+  "author": "MDMC Music Ads",
+  "license": "ISC"
+}

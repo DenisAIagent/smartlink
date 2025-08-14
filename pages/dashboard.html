@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | MDMC Admin</title>
+    <link rel="stylesheet" href="/assets/css/admin.css">
+    <link rel="icon" href="/assets/images/favicon.ico">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <header class="admin-header">
+            <nav class="navbar">
+                <a href="/" class="admin-logo">MDMC Admin</a>
+                <ul class="admin-nav">
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/smartlinks">SmartLinks</a></li>
+                    <li><a href="/smartlinks/create">Créer</a></li>
+                    <li><a href="/smartlinks/list">Liste</a></li>
+                </ul>
+                <div class="user-info">
+                    <span class="user-name">Admin</span>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Contenu principal -->
+        <main class="admin-main">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="card-title">Tableau de bord MDMC</h1>
+                    <p class="text-muted">Vue d'ensemble de votre activité SmartLinks</p>
+                </div>
+
+                <!-- Statistiques -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-number" data-stat="total_smartlinks">-</span>
+                        <span class="stat-label">SmartLinks créés</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" data-stat="total_clicks">-</span>
+                        <span class="stat-label">Clics totaux</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" data-stat="total_artists">-</span>
+                        <span class="stat-label">Artistes</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" data-stat="active_campaigns">-</span>
+                        <span class="stat-label">Campagnes actives</span>
+                    </div>
+                </div>
+
+                <!-- Actions rapides -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h2 class="card-title">Actions rapides</h2>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <a href="/smartlinks/create" class="btn btn-primary">
+                            🎵 Nouveau SmartLink
+                        </a>
+                        <a href="/smartlinks/list" class="btn btn-outline">
+                            📋 Voir tous les SmartLinks
+                        </a>
+                        <button onclick="refreshDashboard()" class="btn btn-secondary">
+                            🔄 Actualiser
+                        </button>
+                        <button onclick="exportData()" class="btn btn-outline">
+                            📊 Exporter données
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SmartLinks récents -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">SmartLinks récents</h2>
+                    </div>
+                    <div id="recent-smartlinks">
+                        <div class="text-center">
+                            <div class="loading"></div>
+                            <p>Chargement des SmartLinks récents...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/config.js"></script>
+    <script src="/assets/js/admin.js"></script>
+    <script>
+        // Dashboard spécifique
+        class Dashboard {
+            constructor() {
+                this.loadStats();
+                this.loadRecentSmartLinks();
+            }
+
+            async loadStats() {
+                try {
+                    const response = await mdmcAdmin.apiCall('/api/smartlinks');
+                    if (response.success) {
+                        const smartlinks = response.data;
+                        
+                        // Calculer les statistiques
+                        const stats = {
+                            total_smartlinks: smartlinks.length,
+                            total_clicks: smartlinks.reduce((sum, sl) => sum + (sl.viewCount || 0), 0),
+                            total_artists: new Set(smartlinks.map(sl => sl.artistId._id)).size,
+                            active_campaigns: smartlinks.filter(sl => sl.isPublished).length
+                        };
+
+                        // Mettre à jour l'affichage
+                        Object.entries(stats).forEach(([key, value]) => {
+                            const element = document.querySelector(`[data-stat="${key}"]`);
+                            if (element) {
+                                element.textContent = mdmcAdmin.formatNumber(value);
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error('Erreur chargement stats:', error);
+                    mdmcAdmin.showNotification('Erreur lors du chargement des statistiques', 'danger');
+                }
+            }
+
+            async loadRecentSmartLinks() {
+                try {
+                    const response = await mdmcAdmin.apiCall('/api/smartlinks');
+                    if (response.success) {
+                        const recentSmartLinks = response.data
+                            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                            .slice(0, 5);
+
+                        const container = document.getElementById('recent-smartlinks');
+                        
+                        if (recentSmartLinks.length === 0) {
+                            container.innerHTML = `
+                                <div class="text-center text-muted">
+                                    <p>Aucun SmartLink créé pour le moment</p>
+                                    <a href="/smartlinks/create" class="btn btn-primary mt-2">Créer votre premier SmartLink</a>
+                                </div>
+                            `;
+                            return;
+                        }
+
+                        container.innerHTML = `
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Titre</th>
+                                        <th>Artiste</th>
+                                        <th>Créé le</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${recentSmartLinks.map(sl => `
+                                        <tr>
+                                            <td><strong>${sl.trackTitle}</strong></td>
+                                            <td>${sl.artistId.name}</td>
+                                            <td>${mdmcAdmin.formatDate(sl.createdAt)}</td>
+                                            <td>
+                                                <span class="badge ${sl.isPublished ? 'bg-success' : 'bg-warning'}">
+                                                    ${sl.isPublished ? 'Publié' : 'Brouillon'}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <button onclick="copySmartLinkUrl('${sl.artistId.slug}', '${sl.slug}')" 
+                                                        class="btn btn-sm btn-outline" title="Copier le lien">
+                                                    📋
+                                                </button>
+                                                <a href="https://www.mdmcmusicads.com/smartlinks/${sl.artistId.slug}/${sl.slug}" 
+                                                   target="_blank" class="btn btn-sm btn-outline" title="Voir">
+                                                    👁️
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        `;
+                    }
+                } catch (error) {
+                    console.error('Erreur chargement SmartLinks récents:', error);
+                    document.getElementById('recent-smartlinks').innerHTML = `
+                        <div class="alert alert-danger">
+                            Erreur lors du chargement des SmartLinks récents
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Fonctions globales
+        function refreshDashboard() {
+            window.location.reload();
+        }
+
+        function exportData() {
+            mdmcAdmin.showNotification('Fonctionnalité d\'export en cours de développement', 'info');
+        }
+
+        function copySmartLinkUrl(artistSlug, trackSlug) {
+            const url = `https://www.mdmcmusicads.com/smartlinks/${artistSlug}/${trackSlug}`;
+            mdmcAdmin.copyToClipboard(url);
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            new Dashboard();
+        });
+    </script>
+
+    <style>
+        .badge {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 0.25rem;
+            color: white;
+        }
+        .bg-success { background-color: var(--success); }
+        .bg-warning { background-color: var(--warning); }
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            min-width: auto;
+        }
+    </style>
+</body>
+</html>
