@@ -6,7 +6,10 @@ const rateLimit = require('express-rate-limit');
 
 const app = express();
 const PORT = process.env.PORT || 3003;
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3002';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5001';
+
+// Configuration trust proxy pour Railway et autres proxies
+app.set('trust proxy', true);
 
 // Middleware de sécurité
 app.use(helmet({
@@ -61,6 +64,10 @@ app.get('/smartlinks', (req, res) => {
   res.sendFile(path.join(__dirname, 'pages', 'smartlinks.html'));
 });
 
+app.get('/smartlinks.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'pages', 'smartlinks.html'));
+});
+
 app.get('/smartlinks/create', (req, res) => {
   res.sendFile(path.join(__dirname, 'pages', 'create-smartlink.html'));
 });
@@ -71,18 +78,20 @@ app.get('/smartlinks/list', (req, res) => {
 
 // Configuration dynamique pour le frontend
 app.get('/config.js', (req, res) => {
-  res.setHeader('Content-Type', 'application/javascript');
-  res.send(`
-    window.MDMC_CONFIG = {
-      API_BASE_URL: '${BACKEND_URL}',
+  const config = {
+      API_BASE_URL: BACKEND_URL,
       ADMIN_VERSION: '1.0.0',
-      ENVIRONMENT: '${process.env.NODE_ENV || 'development'}',
+      ENVIRONMENT: process.env.NODE_ENV || 'development',
       FEATURES: {
         AUDIO_UPLOAD: true,
         ANALYTICS: true,
         BULK_OPERATIONS: true
       }
     };
+  console.log('Generated config:', config);
+  res.setHeader('Content-Type', 'application/javascript');
+  res.send(`
+    window.MDMC_CONFIG = ${JSON.stringify(config)};
   `);
 });
 
