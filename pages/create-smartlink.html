@@ -389,7 +389,14 @@
                 });
 
                 if (createResponse.success) {
-                    const generatedLink = `https://mdmc.li/${createResponse.data.artist.slug}/${createResponse.data.slug}`;
+                    // Le backend retourne le SmartLink avec artistId (ObjectId), il faut récupérer l'artiste
+                    const smartlink = createResponse.data;
+                    console.log('🔍 DEBUG - SmartLink créé:', smartlink);
+                    
+                    // Utiliser l'artistName pour générer un slug temporaire ou attendre que le backend retourne l'artiste populé
+                    const artistSlug = trackData.artistName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                    const generatedLink = `https://smartlink.mdmcmusicads.com/${artistSlug}/${smartlink.slug}`;
+                    
                     document.getElementById('step2').classList.add('d-none');
                     document.getElementById('step3').classList.remove('d-none');
                     document.getElementById('result-content').innerHTML = `
