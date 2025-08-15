@@ -2,12 +2,26 @@
 
 class MDMCAdmin {
     constructor() {
-        this.config = window.MDMC_CONFIG || {
-            API_BASE_URL: 'http://localhost:3002',
-            ENVIRONMENT: 'development'
+        // Configuration dynamique basée sur l'environnement
+        this.config = window.MDMC_CONFIG || { 
+            API_BASE_URL: this.detectBackendUrl()
         };
         
         this.init();
+        console.log('🔧 MDMC Admin initialized with config:', this.config);
+    }
+
+    detectBackendUrl() {
+        // Détection automatique de l'URL backend
+        const hostname = window.location.hostname;
+        if (hostname.includes('smartlink.mdmcmusicads.com')) {
+            return 'https://mdmcv7-backend-production.up.railway.app';
+        }
+        if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
+            return 'http://localhost:5001';
+        }
+        // Fallback pour d'autres environnements
+        return 'https://mdmcv7-backend-production.up.railway.app';
     }
 
     init() {
@@ -71,17 +85,34 @@ class MDMCAdmin {
             defaultOptions.headers['Authorization'] = `Bearer ${token}`;
         }
 
+        console.log('🌐 API Call:', url, options.method || 'GET');
+        if (options.body) {
+            console.log('📤 Request payload:', JSON.parse(options.body));
+        }
+        
         try {
             const response = await fetch(url, { ...defaultOptions, ...options });
             
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                // Récupérer le message d'erreur du serveur si possible
+                let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+                try {
+                    const errorData = await response.json();
+                    if (errorData.message) {
+                        errorMessage = errorData.message;
+                    }
+                } catch (e) {
+                    // Ignorer les erreurs de parsing JSON
+                }
+                throw new Error(errorMessage);
             }
 
-            return await response.json();
+            const data = await response.json();
+            console.log('✅ API Response:', data);
+            return data;
         } catch (error) {
             console.error('❌ API Error:', error);
-            this.showNotification('Erreur de communication avec le serveur', 'danger');
+            this.showNotification(`Erreur: ${error.message}`, 'danger');
             throw error;
         }
     }
@@ -161,9 +192,11 @@ class MDMCAdmin {
             
             if (!field.value.trim()) {
                 field.classList.add('is-invalid');
+                this.showFieldError(field, 'Ce champ est requis');
                 isValid = false;
             } else {
                 field.classList.add('is-valid');
+                this.clearFieldError(field);
             }
         });
 
@@ -171,6 +204,7 @@ class MDMCAdmin {
         form.querySelectorAll('input[type="email"]').forEach(email => {
             if (email.value && !this.isValidEmail(email.value)) {
                 email.classList.add('is-invalid');
+                this.showFieldError(email, 'Format email invalide');
                 isValid = false;
             }
         });
@@ -178,11 +212,28 @@ class MDMCAdmin {
         form.querySelectorAll('input[type="url"]').forEach(url => {
             if (url.value && !this.isValidUrl(url.value)) {
                 url.classList.add('is-invalid');
+                this.showFieldError(url, 'Format URL invalide');
                 isValid = false;
             }
         });
 
         return isValid;
+    }
+
+    showFieldError(field, message) {
+        this.clearFieldError(field);
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback';
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        field.parentNode.appendChild(errorDiv);
+    }
+
+    clearFieldError(field) {
+        const existingError = field.parentNode.querySelector('.invalid-feedback');
+        if (existingError) {
+            existingError.remove();
+        }
     }
 
     isValidEmail(email) {
@@ -310,6 +361,23 @@ class MDMCAdmin {
             document.body.removeChild(textArea);
             this.showNotification('Copié dans le presse-papiers', 'success', 2000);
         }
+    }
+
+    // Debug helper pour inspecter les données
+    debugData(label, data) {
+        console.group(`🔍 DEBUG: ${label}`);
+        console.log('Type:', typeof data);
+        console.log('Data:', data);
+        if (data && typeof data === 'object') {
+            console.log('Keys:', Object.keys(data));
+            if (Array.isArray(data)) {
+                console.log('Length:', data.length);
+                if (data.length > 0) {
+                    console.log('First item:', data[0]);
+                }
+            }
+        }
+        console.groupEnd();
     }
 }
 
