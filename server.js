@@ -9,7 +9,11 @@ const PORT = process.env.PORT || 3003;
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5001';
 
 // Configuration trust proxy pour Railway et autres proxies
-app.set('trust proxy', true);
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1); // Railway utilise 1 proxy
+} else {
+  app.set('trust proxy', true); // Local development
+}
 
 // Middleware de sécurité
 app.use(helmet({
