@@ -60,6 +60,10 @@ app.get('/', (req, res) => {
 });
 
 // Routes admin
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'pages', 'dashboard.html'));
+});
+
 app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'pages', 'dashboard.html'));
 });
@@ -84,18 +88,21 @@ app.get('/smartlinks/list', (req, res) => {
 app.get('/config.js', (req, res) => {
   const config = {
       API_BASE_URL: BACKEND_URL,
-      ADMIN_VERSION: '1.0.0',
+      ADMIN_VERSION: '1.0.1',
       ENVIRONMENT: process.env.NODE_ENV || 'development',
       FEATURES: {
         AUDIO_UPLOAD: true,
         ANALYTICS: true,
-        BULK_OPERATIONS: true
+        BULK_OPERATIONS: true,
+        DEBUG_MODE: process.env.NODE_ENV === 'development'
       }
     };
   console.log('Generated config:', config);
   res.setHeader('Content-Type', 'application/javascript');
   res.send(`
-    window.MDMC_CONFIG = ${JSON.stringify(config)};
+    // MDMC Admin Configuration
+    window.MDMC_CONFIG = ${JSON.stringify(config, null, 2)};
+    console.log('📋 MDMC Config loaded:', window.MDMC_CONFIG);
   `);
 });
 
