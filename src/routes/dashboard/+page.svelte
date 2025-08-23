@@ -5,9 +5,9 @@
 	
 	let loading = true;
 	let user = {
-		name: 'Demo User',
-		email: 'demo@smartlink.fr',
-		plan: 'Gratuit',
+		name: 'Denis Adam',
+		email: 'denis@mdmcmusicads.com',
+		plan: 'Pro',
 		linksCreated: 3,
 		totalClicks: 1247,
 		thisMonth: 342

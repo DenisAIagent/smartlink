@@ -9,7 +9,7 @@
 
 	// Faux identifiants pour test
 	const FAKE_CREDENTIALS = {
-		'demo@smartlink.fr': 'demo123',
+		'denis@mdmcmusicads.com': 'Printani@001',
 		'artiste@smartlink.fr': 'artiste123',
 		'marie.dubois@gmail.com': 'marie123',
 		'admin@smartlink.fr': 'admin123'
@@ -132,46 +132,6 @@
 			</button>
 		</div>
 
-		{#if isLogin}
-			<div class="demo-section">
-				<div class="demo-header">
-					<span class="demo-icon">🧪</span>
-					<span>Comptes de démonstration</span>
-				</div>
-				<div class="demo-accounts">
-					<button 
-						type="button" 
-						class="demo-account"
-						on:click={() => useDemo('demo@smartlink.fr', 'demo123')}
-					>
-						<div class="demo-info">
-							<div class="demo-email">demo@smartlink.fr</div>
-							<div class="demo-label">Compte démo général</div>
-						</div>
-					</button>
-					<button 
-						type="button" 
-						class="demo-account"
-						on:click={() => useDemo('artiste@smartlink.fr', 'artiste123')}
-					>
-						<div class="demo-info">
-							<div class="demo-email">artiste@smartlink.fr</div>
-							<div class="demo-label">Profil artiste</div>
-						</div>
-					</button>
-					<button 
-						type="button" 
-						class="demo-account"
-						on:click={() => useDemo('marie.dubois@gmail.com', 'marie123')}
-					>
-						<div class="demo-info">
-							<div class="demo-email">marie.dubois@gmail.com</div>
-							<div class="demo-label">Artiste indépendante</div>
-						</div>
-					</button>
-				</div>
-			</div>
-		{/if}
 
 		<div class="auth-footer">
 			<p>
