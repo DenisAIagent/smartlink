@@ -24,15 +24,21 @@
 		loading = true;
 		error = '';
 		
+		console.log('Tentative de connexion:', { email, password });
+		console.log('Identifiants disponibles:', Object.keys(FAKE_CREDENTIALS));
+		
 		setTimeout(() => {
 			if (isLogin) {
 				// Vérifier les identifiants
+				console.log('Vérification:', email, 'attendu:', FAKE_CREDENTIALS[email], 'reçu:', password);
 				if (FAKE_CREDENTIALS[email] === password) {
+					console.log('✅ Connexion réussie');
 					alert(`✅ Connexion réussie ! Bienvenue ${email}`);
 					// Redirection vers le dashboard
 					window.location.href = '/dashboard';
 				} else {
-					error = '❌ Email ou mot de passe incorrect. Essayez un des comptes de démonstration.';
+					console.log('❌ Échec de connexion');
+					error = `❌ Email ou mot de passe incorrect. Email: "${email}", essayez: denis@mdmcmusicads.com`;
 				}
 			} else {
 				// Inscription simulée
