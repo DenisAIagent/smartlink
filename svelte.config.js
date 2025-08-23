@@ -1,13 +1,10 @@
-import adapter from '@sveltejs/adapter-vercel';
+import adapter from '@sveltejs/adapter-node';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	kit: {
 		adapter: adapter({
-			runtime: 'edge',
-			regions: ['fra1', 'cdg1'], // Europe optimization for French users
-			memory: 128,
-			maxDuration: 30
+			out: 'build'
 		}),
 		files: {
 			assets: 'static',
