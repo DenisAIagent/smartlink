@@ -1,0 +1,116 @@
+// Firestore Security Rules for SmartLink
+// Optimized for performance and security
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isValidEmail(email) {
+      return email is string && email.matches('.*@.*\\..*');
+    }
+    
+    function isValidString(field, minLen, maxLen) {
+      return field is string 
+        && field.size() >= minLen 
+        && field.size() <= maxLen;
+    }
+    
+    function isValidUrl(url) {
+      return url is string 
+        && url.matches('https?://.*')
+        && url.size() <= 2048;
+    }
+    
+    function hasValidUserData() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['email', 'createdAt', 'plan']) &&
+             isValidEmail(data.email) &&
+             data.createdAt is timestamp &&
+             data.plan in ['free', 'pro'];
+    }
+    
+    function hasValidSmartLinkData() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['title', 'description', 'platforms', 'createdAt', 'userId']) &&
+             isValidString(data.title, 1, 100) &&
+             isValidString(data.description, 0, 500) &&
+             data.platforms is list &&
+             data.platforms.size() >= 1 &&
+             data.platforms.size() <= 20 &&
+             data.createdAt is timestamp &&
+             data.userId is string;
+    }
+    
+    function hasValidPlatformData(platform) {
+      return platform.keys().hasAll(['name', 'url']) &&
+             isValidString(platform.name, 1, 50) &&
+             isValidUrl(platform.url);
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      allow read, write: if isAuthenticated() && isOwner(userId);
+      allow create: if isAuthenticated() && 
+                    isOwner(userId) && 
+                    hasValidUserData();
+      allow update: if isAuthenticated() && 
+                    isOwner(userId) && 
+                    hasValidUserData() &&
+                    // Prevent email changes after creation
+                    request.resource.data.email == resource.data.email;
+    }
+    
+    // SmartLinks collection
+    match /smartlinks/{linkId} {
+      allow read: if true; // Public read for redirect functionality
+      allow create: if isAuthenticated() && 
+                    hasValidSmartLinkData() &&
+                    isOwner(request.resource.data.userId) &&
+                    // Validate all platform entries
+                    request.resource.data.platforms.hasAll([hasValidPlatformData]);
+      allow update: if isAuthenticated() && 
+                    isOwner(resource.data.userId) &&
+                    hasValidSmartLinkData() &&
+                    // Prevent userId changes
+                    request.resource.data.userId == resource.data.userId;
+      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
+      
+      // Analytics subcollection
+      match /analytics/{analyticsId} {
+        allow read: if isAuthenticated() && isOwner(resource.data.userId);
+        allow create: if request.resource.data.keys().hasAll(['timestamp', 'platform', 'country', 'device']) &&
+                      request.resource.data.timestamp is timestamp &&
+                      isValidString(request.resource.data.platform, 1, 50) &&
+                      isValidString(request.resource.data.country, 2, 3) &&
+                      isValidString(request.resource.data.device, 1, 20);
+        // Analytics are append-only, no updates or deletes
+      }
+    }
+    
+    // Templates collection (read-only for users)
+    match /templates/{templateId} {
+      allow read: if true;
+      // Only admin can write templates (handled server-side)
+    }
+    
+    // Global analytics collection (aggregated data)
+    match /globalAnalytics/{date} {
+      allow read: if false; // Private analytics
+      // Only server can write
+    }
+    
+    // Rate limiting collection
+    match /rateLimits/{userId} {
+      allow read, write: if isAuthenticated() && isOwner(userId);
+    }
+  }
+}

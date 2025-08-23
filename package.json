@@ -1,0 +1,44 @@
+{
+	"name": "smartlink-app",
+	"private": true,
+	"version": "1.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev --host",
+		"build": "vite build",
+		"preview": "vite preview --host",
+		"test": "vitest",
+		"test:e2e": "playwright test",
+		"lint": "eslint .",
+		"format": "prettier --write .",
+		"deploy": "npm run build && vercel --prod"
+	},
+	"dependencies": {
+		"chart.js": "^4.4.4",
+		"chartjs-adapter-date-fns": "^3.0.0",
+		"cloudinary": "^1.41.3",
+		"date-fns": "^4.1.0",
+		"firebase": "^10.14.0",
+		"ua-parser-js": "^1.0.39"
+	},
+	"devDependencies": {
+		"@picocss/pico": "^2.0.6",
+		"@playwright/test": "^1.47.2",
+		"@sveltejs/adapter-vercel": "^5.4.4",
+		"@sveltejs/kit": "^2.8.5",
+		"@sveltejs/vite-plugin-svelte": "^3.1.2",
+		"@vitest/ui": "^1.6.0",
+		"eslint": "^8.57.1",
+		"eslint-plugin-svelte": "^2.44.1",
+		"jsdom": "^25.0.1",
+		"prettier": "^3.3.3",
+		"prettier-plugin-svelte": "^3.2.8",
+		"svelte": "^4.2.19",
+		"svelte-check": "^4.0.4",
+		"typescript": "^5.6.3",
+		"vite": "^5.4.8",
+		"vite-plugin-pwa": "^0.20.5",
+		"vitest": "^1.6.0",
+		"workbox-window": "^7.1.0"
+	}
+}

@@ -1,0 +1,424 @@
+/**
+ * SmartLink Global Styles
+ * French design system with blue-white-red accents and performance optimizations
+ */
+
+/* CSS Custom Properties - French Color System */
+:root {
+  /* Primary colors - French Blue */
+  --smartlink-primary: #1976d2;
+  --smartlink-primary-hover: #1565c0;
+  --smartlink-primary-light: #bbdefb;
+  --smartlink-primary-dark: #0d47a1;
+  
+  /* Secondary colors - French Red accents */
+  --smartlink-secondary: #d32f2f;
+  --smartlink-secondary-hover: #c62828;
+  --smartlink-secondary-light: #ffcdd2;
+  
+  /* Success - Green */
+  --smartlink-success: #2e7d32;
+  --smartlink-success-light: #c8e6c9;
+  
+  /* Warning - Orange */
+  --smartlink-warning: #f57c00;
+  --smartlink-warning-light: #ffe0b2;
+  
+  /* Error - Red */
+  --smartlink-error: #d32f2f;
+  --smartlink-error-light: #ffcdd2;
+  
+  /* Neutral grays */
+  --smartlink-gray-50: #fafafa;
+  --smartlink-gray-100: #f5f5f5;
+  --smartlink-gray-200: #eeeeee;
+  --smartlink-gray-300: #e0e0e0;
+  --smartlink-gray-400: #bdbdbd;
+  --smartlink-gray-500: #9e9e9e;
+  --smartlink-gray-600: #757575;
+  --smartlink-gray-700: #616161;
+  --smartlink-gray-800: #424242;
+  --smartlink-gray-900: #212121;
+  
+  /* Spacing */
+  --smartlink-spacing-xs: 0.25rem;
+  --smartlink-spacing-sm: 0.5rem;
+  --smartlink-spacing-md: 1rem;
+  --smartlink-spacing-lg: 1.5rem;
+  --smartlink-spacing-xl: 2rem;
+  --smartlink-spacing-xxl: 3rem;
+  
+  /* Border radius */
+  --smartlink-radius-sm: 0.25rem;
+  --smartlink-radius-md: 0.5rem;
+  --smartlink-radius-lg: 0.75rem;
+  --smartlink-radius-xl: 1rem;
+  --smartlink-radius-2xl: 1.5rem;
+  --smartlink-radius-full: 9999px;
+  
+  /* Additional spacing */
+  --smartlink-spacing-2xs: 0.125rem;
+  --smartlink-spacing-2xl: 2.5rem;
+  --smartlink-spacing-3xl: 3rem;
+  
+  /* Shadows */
+  --smartlink-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --smartlink-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --smartlink-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --smartlink-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --smartlink-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  
+  /* Focus ring */
+  --smartlink-focus-ring: 0 0 0 3px rgba(25, 118, 210, 0.1);
+  
+  /* Typography */
+  --smartlink-font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --smartlink-font-mono: 'SF Mono', Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  
+  /* Z-index scale */
+  --smartlink-z-dropdown: 1000;
+  --smartlink-z-sticky: 1020;
+  --smartlink-z-fixed: 1030;
+  --smartlink-z-modal-backdrop: 1040;
+  --smartlink-z-modal: 1050;
+  --smartlink-z-popover: 1060;
+  --smartlink-z-tooltip: 1070;
+  --smartlink-z-toast: 1080;
+}
+
+/* Dark theme overrides */
+[data-theme="dark"] {
+  --smartlink-primary-light: #1976d2;
+  --smartlink-gray-50: var(--smartlink-gray-900);
+  --smartlink-gray-100: var(--smartlink-gray-800);
+  --smartlink-gray-200: var(--smartlink-gray-700);
+}
+
+/* Pico CSS customizations for French design */
+:root:not([data-theme="dark"]) {
+  --pico-primary: var(--smartlink-primary);
+  --pico-primary-hover: var(--smartlink-primary-hover);
+  --pico-primary-focus: var(--smartlink-primary-light);
+  --pico-primary-inverse: #ffffff;
+  --pico-secondary: var(--smartlink-secondary);
+  --pico-color: var(--smartlink-gray-800);
+  --pico-muted-color: var(--smartlink-gray-600);
+  --pico-muted-border-color: var(--smartlink-gray-300);
+  --pico-border-color: var(--smartlink-gray-300);
+  --pico-background-color: #ffffff;
+  --pico-card-background-color: #ffffff;
+  --pico-card-border-color: var(--smartlink-gray-200);
+  --pico-card-box-shadow: var(--smartlink-shadow-md);
+  --pico-form-element-background-color: #ffffff;
+  --pico-form-element-border-color: var(--smartlink-gray-300);
+  --pico-form-element-focus-color: var(--smartlink-primary);
+}
+
+/* Typography improvements */
+body {
+  font-family: var(--smartlink-font-family);
+  line-height: 1.6;
+  color: var(--pico-color);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+  color: var(--smartlink-gray-900);
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.125rem; }
+h6 { font-size: 1rem; }
+
+/* Improved buttons with French design */
+button, [type="button"], [type="submit"], [type="reset"] {
+  font-weight: 500;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--smartlink-radius-md);
+  box-shadow: var(--smartlink-shadow-sm);
+}
+
+button:hover, [type="button"]:hover, [type="submit"]:hover, [type="reset"]:hover {
+  box-shadow: var(--smartlink-shadow-md);
+  transform: translateY(-1px);
+}
+
+/* French flag accent utility */
+.french-accent {
+  position: relative;
+  overflow: hidden;
+}
+
+.french-accent::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #002395 33.33%, #ffffff 33.33% 66.66%, #ed2939 66.66%);
+}
+
+/* Form improvements */
+input, select, textarea {
+  border-radius: var(--smartlink-radius-md);
+  border: 1px solid var(--smartlink-gray-300);
+  transition: all 0.15s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--smartlink-primary);
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+  outline: none;
+}
+
+/* Card improvements */
+.card {
+  background: var(--pico-card-background-color);
+  border: 1px solid var(--pico-card-border-color);
+  border-radius: var(--smartlink-radius-lg);
+  box-shadow: var(--smartlink-shadow-sm);
+  padding: var(--smartlink-spacing-lg);
+  transition: all 0.15s ease;
+}
+
+.card:hover {
+  box-shadow: var(--smartlink-shadow-md);
+  transform: translateY(-2px);
+}
+
+/* Loading states */
+.loading {
+  position: relative;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Status indicators */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--smartlink-spacing-xs);
+  padding: var(--smartlink-spacing-xs) var(--smartlink-spacing-sm);
+  border-radius: var(--smartlink-radius-lg);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.status-indicator.success {
+  background: var(--smartlink-success-light);
+  color: var(--smartlink-success);
+}
+
+.status-indicator.warning {
+  background: var(--smartlink-warning-light);
+  color: var(--smartlink-warning);
+}
+
+.status-indicator.error {
+  background: var(--smartlink-error-light);
+  color: var(--smartlink-error);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 0.4s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.4s ease-out;
+}
+
+/* Utility classes */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.flex { display: flex; }
+.inline-flex { display: inline-flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.gap-xs { gap: var(--smartlink-spacing-xs); }
+.gap-sm { gap: var(--smartlink-spacing-sm); }
+.gap-md { gap: var(--smartlink-spacing-md); }
+.gap-lg { gap: var(--smartlink-spacing-lg); }
+
+.mb-xs { margin-bottom: var(--smartlink-spacing-xs); }
+.mb-sm { margin-bottom: var(--smartlink-spacing-sm); }
+.mb-md { margin-bottom: var(--smartlink-spacing-md); }
+.mb-lg { margin-bottom: var(--smartlink-spacing-lg); }
+.mb-xl { margin-bottom: var(--smartlink-spacing-xl); }
+
+.text-xs { font-size: 0.75rem; }
+.text-sm { font-size: 0.875rem; }
+.text-base { font-size: 1rem; }
+.text-lg { font-size: 1.125rem; }
+.text-xl { font-size: 1.25rem; }
+.text-2xl { font-size: 1.5rem; }
+
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+.text-primary { color: var(--smartlink-primary); }
+.text-secondary { color: var(--smartlink-secondary); }
+.text-success { color: var(--smartlink-success); }
+.text-warning { color: var(--smartlink-warning); }
+.text-error { color: var(--smartlink-error); }
+.text-muted { color: var(--pico-muted-color); }
+
+.bg-primary { background-color: var(--smartlink-primary); }
+.bg-primary-light { background-color: var(--smartlink-primary-light); }
+.bg-gray-50 { background-color: var(--smartlink-gray-50); }
+.bg-gray-100 { background-color: var(--smartlink-gray-100); }
+
+.border { border: 1px solid var(--smartlink-gray-300); }
+.border-primary { border-color: var(--smartlink-primary); }
+.rounded { border-radius: var(--smartlink-radius-md); }
+.rounded-lg { border-radius: var(--smartlink-radius-lg); }
+
+.shadow-sm { box-shadow: var(--smartlink-shadow-sm); }
+.shadow-md { box-shadow: var(--smartlink-shadow-md); }
+.shadow-lg { box-shadow: var(--smartlink-shadow-lg); }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.75rem; }
+  h3 { font-size: 1.375rem; }
+  
+  .card {
+    padding: var(--smartlink-spacing-md);
+    border-radius: var(--smartlink-radius-md);
+  }
+  
+  /* Reduce animations on mobile for performance */
+  * {
+    animation-duration: 0.2s !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --pico-border-color: #000000;
+    --smartlink-gray-300: #000000;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print { display: none !important; }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+}
+
+/* Focus visible improvements */
+:focus-visible {
+  outline: 2px solid var(--smartlink-primary);
+  outline-offset: 2px;
+}
+
+/* Skip to content link for accessibility */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--smartlink-primary);
+  color: white;
+  padding: 8px;
+  border-radius: 4px;
+  text-decoration: none;
+  z-index: 100;
+  transition: top 0.3s;
+}
+
+.skip-to-content:focus {
+  top: 6px;
+}
