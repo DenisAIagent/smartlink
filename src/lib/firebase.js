@@ -21,25 +21,39 @@ const firebaseConfig = {
 	measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-// Validate Firebase configuration
-const requiredKeys = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
-for (const key of requiredKeys) {
-	if (!firebaseConfig[key] || firebaseConfig[key].includes('your_') || firebaseConfig[key].includes('demo')) {
-		console.warn(`Firebase ${key} is not properly configured`);
-	}
+// Check if Firebase is properly configured
+function isFirebaseConfigured() {
+	const requiredKeys = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
+	return requiredKeys.every(key => 
+		firebaseConfig[key] && 
+		!firebaseConfig[key].includes('your_') && 
+		!firebaseConfig[key].includes('demo')
+	);
 }
 
-// Initialize Firebase App
-export const app = initializeApp(firebaseConfig);
+// Initialize Firebase only if properly configured and not during build
+let app = null;
+let auth = null;
+let db = null;
+let storage = null;
 
-// Initialize Firebase Auth
-export const auth = getAuth(app);
+if (typeof window !== 'undefined' && isFirebaseConfigured()) {
+	// Initialize Firebase App
+	app = initializeApp(firebaseConfig);
 
-// Initialize Firestore
-export const db = getFirestore(app);
+	// Initialize Firebase Auth
+	auth = getAuth(app);
 
-// Initialize Firebase Storage
-export const storage = getStorage(app);
+	// Initialize Firestore
+	db = getFirestore(app);
+
+	// Initialize Firebase Storage
+	storage = getStorage(app);
+} else {
+	console.warn('Firebase not initialized: Either running in build mode or configuration is incomplete');
+}
+
+export { app, auth, db, storage };
 
 // Initialize Firebase Analytics (only in production and if supported)
 export let analytics = null;

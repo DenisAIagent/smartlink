@@ -27,8 +27,10 @@ class AuthService {
 		this.initialized = false;
 		this.authStateListeners = new Set();
 		
-		// Initialize auth state listener
-		this.initAuthStateListener();
+		// Initialize auth state listener only if Firebase is available
+		if (auth) {
+			this.initAuthStateListener();
+		}
 	}
 
 	/**
