@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { createSmartLink } from '$lib/smartlinks.js';
 	import { uploadAudio } from '$lib/cloudinary.js';
+	import { requireAuth, getCurrentUser } from '$lib/auth.js';
 	
 	// Form data
 	let formData = {
@@ -71,6 +72,11 @@
 		backgroundColor: '#ffffff',
 		textColor: '#333333'
 	};
+	
+	// Vérification d'authentification
+	onMount(() => {
+		requireAuth();
+	});
 	
 	// Step navigation
 	function nextStep() {

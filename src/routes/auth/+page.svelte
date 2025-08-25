@@ -33,6 +33,12 @@
 				console.log('Vérification:', email, 'attendu:', FAKE_CREDENTIALS[email], 'reçu:', password);
 				if (FAKE_CREDENTIALS[email] === password) {
 					console.log('✅ Connexion réussie');
+					// Stocker la session dans localStorage
+					localStorage.setItem('smartlink_user', JSON.stringify({
+						email: email,
+						name: email.split('@')[0],
+						loggedAt: Date.now()
+					}));
 					alert(`✅ Connexion réussie ! Bienvenue ${email}`);
 					// Redirection vers le dashboard
 					window.location.href = '/dashboard';

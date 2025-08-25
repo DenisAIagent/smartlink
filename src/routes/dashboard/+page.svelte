@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { getAllSmartLinksStats, debugStorage, clearAllSmartLinks } from '$lib/smartlinks.js';
 	import { getShortUrl, getFullUrlFromShort } from '$lib/config.js';
+	import { requireAuth, getCurrentUser } from '$lib/auth.js';
 	
 	let loading = true;
 	let user = {
@@ -16,6 +17,9 @@
 	let smartLinks = [];
 	
 	onMount(() => {
+		// Vérification d'authentification
+		requireAuth();
+		
 		// Load SmartLinks from storage
 		const links = getAllSmartLinksStats();
 		
