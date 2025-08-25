@@ -97,12 +97,12 @@ export default defineConfig({
 		minify: 'terser',
 		terserOptions: {
 			compress: {
-				drop_console: true,
-				drop_debugger: true,
-				pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn']
+				drop_console: false,
+				drop_debugger: false,
+				pure_funcs: []
 			}
 		},
-		sourcemap: false, // Disable in production
+		sourcemap: true, // Enable sourcemaps for debugging
 		outDir: 'build',
 		emptyOutDir: true,
 		assetsInlineLimit: 4096, // Inline assets smaller than 4kb
