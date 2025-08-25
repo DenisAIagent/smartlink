@@ -2,8 +2,6 @@
  * Configuration Cloudinary pour uploads audio
  */
 
-import { v2 as cloudinary } from 'cloudinary';
-
 // Configuration (à mettre dans .env en production)
 const CLOUDINARY_CONFIG = {
 	cloud_name: 'your_cloud_name',
@@ -11,8 +9,8 @@ const CLOUDINARY_CONFIG = {
 	api_secret: 'your_api_secret'
 };
 
-// Configuration Cloudinary
-cloudinary.config(CLOUDINARY_CONFIG);
+// Initialize only on server-side
+let cloudinary = null;
 
 /**
  * Upload un fichier audio vers Cloudinary
@@ -20,7 +18,20 @@ cloudinary.config(CLOUDINARY_CONFIG);
  * @returns {Promise<string>} URL du fichier uploadé
  */
 export async function uploadAudio(audioFile) {
+	// Skip upload on client-side for now
+	if (typeof window !== 'undefined') {
+		console.warn('Audio upload not available on client-side');
+		return null;
+	}
+	
 	try {
+		// Initialize cloudinary if not done
+		if (!cloudinary) {
+			const { v2 } = await import('cloudinary');
+			cloudinary = v2;
+			cloudinary.config(CLOUDINARY_CONFIG);
+		}
+		
 		// Convertir le fichier en base64 pour l'upload
 		const buffer = await audioFile.arrayBuffer();
 		const base64 = Buffer.from(buffer).toString('base64');
