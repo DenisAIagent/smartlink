@@ -24,45 +24,69 @@
 		}
 		
 		try {
-			console.log('Dashboard: Loading SmartLinks...');
+			console.log('Dashboard: Starting data load...');
 			
 			// Load SmartLinks from storage
-			const links = getAllSmartLinksStats();
-			console.log('Dashboard: Links loaded:', links);
+			let links = [];
+			try {
+				links = getAllSmartLinksStats() || [];
+				console.log('Dashboard: Links loaded:', links.length, 'items');
+			} catch (linkError) {
+				console.error('Dashboard: Error loading SmartLinks:', linkError);
+				links = []; // Fallback to empty array
+			}
 			
 			// Transform data for dashboard display
-			smartLinks = links.map(link => ({
-				id: link.slug,
-				title: link.title,
-				shortUrl: getShortUrl(link.slug),
-				clicks: link.clicks,
-				created: new Date(link.createdAt).toLocaleDateString('fr-FR', { 
-					day: 'numeric', 
-					month: 'long', 
-					year: 'numeric' 
-				}),
-				platforms: [], // For now, just empty array since we don't have platform names in stats
-				platformCount: link.platforms, // This is the actual number
-				artist: link.artist
-			}));
+			smartLinks = links.map((link, index) => {
+				try {
+					return {
+						id: link.slug || `link-${index}`,
+						title: link.title || 'Titre non disponible',
+						shortUrl: link.slug ? getShortUrl(link.slug) : '#',
+						clicks: link.clicks || 0,
+						created: link.createdAt ? new Date(link.createdAt).toLocaleDateString('fr-FR', { 
+							day: 'numeric', 
+							month: 'long', 
+							year: 'numeric' 
+						}) : 'Date inconnue',
+						platforms: [],
+						platformCount: link.platforms || 0,
+						artist: link.artist || 'Artiste inconnu'
+					};
+				} catch (transformError) {
+					console.error('Dashboard: Error transforming link:', transformError, link);
+					return {
+						id: `error-${index}`,
+						title: 'Erreur de chargement',
+						shortUrl: '#',
+						clicks: 0,
+						created: 'N/A',
+						platforms: [],
+						platformCount: 0,
+						artist: 'N/A'
+					};
+				}
+			});
 			
 			// Update user stats
-			const totalClicks = links.reduce((sum, link) => sum + link.clicks, 0);
-			user.linksCreated = links.length;
+			const totalClicks = smartLinks.reduce((sum, link) => sum + (link.clicks || 0), 0);
+			user.linksCreated = smartLinks.length;
 			user.totalClicks = totalClicks;
-			user.thisMonth = Math.floor(totalClicks * 0.3); // Simulate monthly stats
+			user.thisMonth = Math.floor(totalClicks * 0.3);
 			
-			console.log('Dashboard: Data processed successfully');
+			console.log('Dashboard: Data processed successfully, smartLinks:', smartLinks.length);
 		} catch (error) {
-			console.error('Dashboard: Error loading data:', error);
-			// En cas d'erreur, on initialise quand même avec des données vides
+			console.error('Dashboard: Critical error:', error);
+			// Données par défaut en cas d'erreur critique
 			smartLinks = [];
+			user.linksCreated = 0;
+			user.totalClicks = 0;
+			user.thisMonth = 0;
 		}
 		
-		setTimeout(() => {
-			loading = false;
-			console.log('Dashboard: Loading completed');
-		}, 500);
+		// TOUJOURS mettre loading à false
+		loading = false;
+		console.log('Dashboard: Loading completed, loading =', loading);
 	});
 	
 	function createNewLink() {
