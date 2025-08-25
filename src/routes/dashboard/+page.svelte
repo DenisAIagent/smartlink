@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { getAllSmartLinksStats, debugStorage, clearAllSmartLinks } from '$lib/smartlinks.js';
 	import { getShortUrl, getFullUrlFromShort } from '$lib/config.js';
-	import { requireAuth, getCurrentUser } from '$lib/auth.js';
+	import { requireAuth, getCurrentUser, isAuthenticated } from '$lib/auth.js';
 	
 	let loading = true;
 	let user = {
@@ -17,36 +17,51 @@
 	let smartLinks = [];
 	
 	onMount(() => {
-		// Vérification d'authentification
-		requireAuth();
+		// Vérification d'authentification - si non connecté, on sera redirigé
+		if (!isAuthenticated()) {
+			requireAuth();
+			return; // Empêcher l'exécution du reste si redirection
+		}
 		
-		// Load SmartLinks from storage
-		const links = getAllSmartLinksStats();
-		
-		// Transform data for dashboard display
-		smartLinks = links.map(link => ({
-			id: link.slug,
-			title: link.title,
-			shortUrl: getShortUrl(link.slug),
-			clicks: link.clicks,
-			created: new Date(link.createdAt).toLocaleDateString('fr-FR', { 
-				day: 'numeric', 
-				month: 'long', 
-				year: 'numeric' 
-			}),
-			platforms: [], // For now, just empty array since we don't have platform names in stats
-			platformCount: link.platforms, // This is the actual number
-			artist: link.artist
-		}));
-		
-		// Update user stats
-		const totalClicks = links.reduce((sum, link) => sum + link.clicks, 0);
-		user.linksCreated = links.length;
-		user.totalClicks = totalClicks;
-		user.thisMonth = Math.floor(totalClicks * 0.3); // Simulate monthly stats
+		try {
+			console.log('Dashboard: Loading SmartLinks...');
+			
+			// Load SmartLinks from storage
+			const links = getAllSmartLinksStats();
+			console.log('Dashboard: Links loaded:', links);
+			
+			// Transform data for dashboard display
+			smartLinks = links.map(link => ({
+				id: link.slug,
+				title: link.title,
+				shortUrl: getShortUrl(link.slug),
+				clicks: link.clicks,
+				created: new Date(link.createdAt).toLocaleDateString('fr-FR', { 
+					day: 'numeric', 
+					month: 'long', 
+					year: 'numeric' 
+				}),
+				platforms: [], // For now, just empty array since we don't have platform names in stats
+				platformCount: link.platforms, // This is the actual number
+				artist: link.artist
+			}));
+			
+			// Update user stats
+			const totalClicks = links.reduce((sum, link) => sum + link.clicks, 0);
+			user.linksCreated = links.length;
+			user.totalClicks = totalClicks;
+			user.thisMonth = Math.floor(totalClicks * 0.3); // Simulate monthly stats
+			
+			console.log('Dashboard: Data processed successfully');
+		} catch (error) {
+			console.error('Dashboard: Error loading data:', error);
+			// En cas d'erreur, on initialise quand même avec des données vides
+			smartLinks = [];
+		}
 		
 		setTimeout(() => {
 			loading = false;
+			console.log('Dashboard: Loading completed');
 		}, 500);
 	});
 	
