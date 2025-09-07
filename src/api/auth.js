@@ -2,6 +2,14 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { queryOne, query } = require('../lib/db');
 
+// Debug: Check if we have required environment variables
+if (!process.env.JWT_SECRET) {
+  console.error('❌ MISSING JWT_SECRET environment variable');
+}
+if (!process.env.DATABASE_URL) {
+  console.error('❌ MISSING DATABASE_URL environment variable');
+}
+
 /**
  * POST /api/auth/login - User login
  */
