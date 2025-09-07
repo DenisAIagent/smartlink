@@ -4,8 +4,9 @@
   "description": "MDMC SmartLinks - PostgreSQL + Odesli Integration",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "npm run db:ensure && node server.js",
     "dev": "nodemon server.js",
+    "db:ensure": "node scripts/ensure-db.js",
     "build": "echo 'Interface admin HTML/CSS/JS - Pas de build nécessaire'",
     "deploy": "npm run build && echo 'Prêt pour déploiement sur admin.mdmcmusicads.com'",
     "db:setup": "node scripts/setup.js",
