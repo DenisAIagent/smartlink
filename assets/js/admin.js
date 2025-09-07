@@ -76,11 +76,12 @@ class MDMCAdmin {
         const defaultOptions = {
             headers: {
                 'Content-Type': 'application/json',
-            }
+            },
+            credentials: 'include' // Important pour les cookies
         };
 
-        // Ajouter token si disponible
-        const token = localStorage.getItem('adminToken');
+        // Ajouter token si disponible (backup via localStorage)
+        const token = localStorage.getItem('authToken');
         if (token) {
             defaultOptions.headers['Authorization'] = `Bearer ${token}`;
         }

@@ -65,9 +65,22 @@ app.use(cookieParser());
 // Servir les fichiers statiques
 app.use(express.static(path.join(__dirname)));
 
-// Route principale - Dashboard
+// Route principale - Dashboard (with auth check)
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'pages', 'dashboard.html'));
+  // Check if user is authenticated
+  const token = req.cookies?.auth_token;
+  if (!token) {
+    return res.redirect('/login');
+  }
+  
+  try {
+    const jwt = require('jsonwebtoken');
+    jwt.verify(token, process.env.JWT_SECRET);
+    res.sendFile(path.join(__dirname, 'pages', 'dashboard.html'));
+  } catch (error) {
+    res.clearCookie('auth_token');
+    res.redirect('/login');
+  }
 });
 
 // Routes admin
@@ -93,6 +106,11 @@ app.get('/smartlinks/create', (req, res) => {
 
 app.get('/smartlinks/list', (req, res) => {
   res.sendFile(path.join(__dirname, 'pages', 'list-smartlinks.html'));
+});
+
+// Route de connexion
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'pages', 'login.html'));
 });
 
 // Configuration dynamique pour le frontend
