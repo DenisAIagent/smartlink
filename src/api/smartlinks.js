@@ -1,31 +1,7 @@
 const { smartlinks } = require('../lib/smartlinks');
 const jwt = require('jsonwebtoken');
 
-/**
- * Auth middleware - Extract user from JWT token
- */
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
-  
-  if (!token) {
-    return res.status(401).json({ 
-      success: false, 
-      error: 'Token d\'authentification requis' 
-    });
-  }
-  
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (error) {
-    return res.status(403).json({ 
-      success: false, 
-      error: 'Token invalide' 
-    });
-  }
-}
+// Auth middleware is now handled by authController
 
 /**
  * POST /api/smartlinks - Create new SmartLink
@@ -259,7 +235,6 @@ async function getPublicSmartLink(req, res) {
 }
 
 module.exports = {
-  authenticateToken,
   createSmartLink,
   listSmartLinks,
   getSmartLink,

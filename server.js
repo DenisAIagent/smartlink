@@ -9,6 +9,7 @@ const rateLimit = require('express-rate-limit');
 const { healthCheck } = require('./src/lib/db');
 const odesliController = require('./src/api/odesli');
 const smartlinksController = require('./src/api/smartlinks');
+const authController = require('./src/api/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3003;
@@ -57,6 +58,10 @@ app.use(limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Cookie parser for authentication
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
 // Servir les fichiers statiques
 app.use(express.static(path.join(__dirname)));
 
@@ -93,14 +98,18 @@ app.get('/smartlinks/list', (req, res) => {
 // Configuration dynamique pour le frontend
 app.get('/config.js', (req, res) => {
   const config = {
-      API_BASE_URL: process.env.BACKEND_URL || 'https://mdmcv7-backend-production.up.railway.app',
-      ADMIN_VERSION: '1.0.1',
+      API_BASE_URL: process.env.NODE_ENV === 'production' 
+        ? `https://${req.get('host')}` // Use same domain in production
+        : 'http://localhost:3003', // Local development
+      ADMIN_VERSION: '2.0.0',
       ENVIRONMENT: process.env.NODE_ENV || 'development',
       FEATURES: {
         AUDIO_UPLOAD: true,
         ANALYTICS: true,
         BULK_OPERATIONS: true,
-        DEBUG_MODE: process.env.NODE_ENV === 'development'
+        DEBUG_MODE: process.env.NODE_ENV === 'development',
+        POSTGRESQL_BACKEND: true,
+        ODESLI_INTEGRATION: true
       }
     };
   console.log('Generated config:', config);
@@ -112,18 +121,23 @@ app.get('/config.js', (req, res) => {
   `);
 });
 
+// API Routes - Authentication
+app.post('/api/auth/login', authController.login);
+app.post('/api/auth/logout', authController.logout);
+app.get('/api/auth/me', authController.getCurrentUser);
+
 // API Routes - Odesli Integration
 app.post('/api/odesli', odesliController.fetchMetadata);
 app.get('/api/odesli/stats', odesliController.getCacheStats);
 app.delete('/api/odesli/cache', odesliController.cleanCache);
 
 // API Routes - SmartLinks (protected with JWT)
-app.post('/api/smartlinks', smartlinksController.authenticateToken, smartlinksController.createSmartLink);
-app.get('/api/smartlinks', smartlinksController.authenticateToken, smartlinksController.listSmartLinks);
-app.get('/api/smartlinks/:id', smartlinksController.authenticateToken, smartlinksController.getSmartLink);
-app.put('/api/smartlinks/:id', smartlinksController.authenticateToken, smartlinksController.updateSmartLink);
-app.delete('/api/smartlinks/:id', smartlinksController.authenticateToken, smartlinksController.deleteSmartLink);
-app.get('/api/smartlinks/:id/analytics', smartlinksController.authenticateToken, smartlinksController.getSmartLinkAnalytics);
+app.post('/api/smartlinks', authController.authMiddleware, smartlinksController.createSmartLink);
+app.get('/api/smartlinks', authController.authMiddleware, smartlinksController.listSmartLinks);
+app.get('/api/smartlinks/:id', authController.authMiddleware, smartlinksController.getSmartLink);
+app.put('/api/smartlinks/:id', authController.authMiddleware, smartlinksController.updateSmartLink);
+app.delete('/api/smartlinks/:id', authController.authMiddleware, smartlinksController.deleteSmartLink);
+app.get('/api/smartlinks/:id/analytics', authController.authMiddleware, smartlinksController.getSmartLinkAnalytics);
 
 // Public SmartLink pages (no auth required)
 app.get('/s/:slug', smartlinksController.getPublicSmartLink);

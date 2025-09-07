@@ -28,7 +28,8 @@
       "Bash(psql:*)",
       "Bash(brew services:*)",
       "Bash(createdb:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []
