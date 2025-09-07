@@ -216,10 +216,11 @@ const smartlinks = {
       );
       
       if (smartlink) {
-        smartlink.platforms = JSON.parse(smartlink.platforms || '[]');
-        smartlink.customization = JSON.parse(smartlink.customization || '{}');
+        // Handle JSONB fields that might already be parsed by PostgreSQL
+        smartlink.platforms = typeof smartlink.platforms === 'string' ? JSON.parse(smartlink.platforms || '[]') : smartlink.platforms || [];
+        smartlink.customization = typeof smartlink.customization === 'string' ? JSON.parse(smartlink.customization || '{}') : smartlink.customization || {};
         if (smartlink.odesli_data) {
-          smartlink.odesli_data = JSON.parse(smartlink.odesli_data);
+          smartlink.odesli_data = typeof smartlink.odesli_data === 'string' ? JSON.parse(smartlink.odesli_data) : smartlink.odesli_data;
         }
       }
       
