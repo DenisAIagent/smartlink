@@ -14,7 +14,7 @@ class MDMCAdmin {
     detectBackendUrl() {
         // Détection automatique de l'URL backend
         const hostname = window.location.hostname;
-        if (hostname.includes('smartlink.mdmcmusicads.com')) {
+        if (hostname.includes('mdmcmusicads.com')) {
             return 'https://mdmcv7-backend-production.up.railway.app';
         }
         if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {

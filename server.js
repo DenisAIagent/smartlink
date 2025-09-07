@@ -1,18 +1,24 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
+// Import our new services
+const { healthCheck } = require('./src/lib/db');
+const odesliController = require('./src/api/odesli');
+const smartlinksController = require('./src/api/smartlinks');
+
 const app = express();
 const PORT = process.env.PORT || 3003;
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5001';
+const BACKEND_URL = process.env.BACKEND_URL || 'https://mdmcv7-backend-production.up.railway.app';
 
 // Configuration trust proxy pour Railway et autres proxies
 if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1); // Railway utilise 1 proxy
 } else {
-  app.set('trust proxy', true); // Local development
+  app.set('trust proxy', 1); // Local development - fixed for rate limiting
 }
 
 // Middleware de sécurité
@@ -87,7 +93,7 @@ app.get('/smartlinks/list', (req, res) => {
 // Configuration dynamique pour le frontend
 app.get('/config.js', (req, res) => {
   const config = {
-      API_BASE_URL: BACKEND_URL,
+      API_BASE_URL: process.env.BACKEND_URL || 'https://mdmcv7-backend-production.up.railway.app',
       ADMIN_VERSION: '1.0.1',
       ENVIRONMENT: process.env.NODE_ENV || 'development',
       FEATURES: {
@@ -106,15 +112,50 @@ app.get('/config.js', (req, res) => {
   `);
 });
 
-// Health check
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'OK',
-    service: 'MDMC Admin Interface',
-    version: '1.0.0',
-    timestamp: new Date().toISOString(),
-    backend: BACKEND_URL
-  });
+// API Routes - Odesli Integration
+app.post('/api/odesli', odesliController.fetchMetadata);
+app.get('/api/odesli/stats', odesliController.getCacheStats);
+app.delete('/api/odesli/cache', odesliController.cleanCache);
+
+// API Routes - SmartLinks (protected with JWT)
+app.post('/api/smartlinks', smartlinksController.authenticateToken, smartlinksController.createSmartLink);
+app.get('/api/smartlinks', smartlinksController.authenticateToken, smartlinksController.listSmartLinks);
+app.get('/api/smartlinks/:id', smartlinksController.authenticateToken, smartlinksController.getSmartLink);
+app.put('/api/smartlinks/:id', smartlinksController.authenticateToken, smartlinksController.updateSmartLink);
+app.delete('/api/smartlinks/:id', smartlinksController.authenticateToken, smartlinksController.deleteSmartLink);
+app.get('/api/smartlinks/:id/analytics', smartlinksController.authenticateToken, smartlinksController.getSmartLinkAnalytics);
+
+// Public SmartLink pages (no auth required)
+app.get('/s/:slug', smartlinksController.getPublicSmartLink);
+
+// Enhanced Health check with database status
+app.get('/health', async (req, res) => {
+  try {
+    const dbHealth = await healthCheck();
+    res.json({
+      status: 'OK',
+      service: 'MDMC Admin Interface',
+      version: '2.0.0',
+      timestamp: new Date().toISOString(),
+      backend: BACKEND_URL,
+      database: dbHealth,
+      features: {
+        postgresql: true,
+        odesli_integration: true,
+        cache_system: true,
+        jwt_auth: true
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'ERROR',
+      service: 'MDMC Admin Interface',
+      version: '2.0.0',
+      timestamp: new Date().toISOString(),
+      error: 'Database connection failed',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
 });
 
 // Gestion 404
@@ -131,15 +172,61 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`
-🎯 MDMC Admin Interface démarrée
+🎯 MDMC Admin Interface v2.0 démarrée
 📍 Port: ${PORT}
 🔗 URL locale: http://localhost:${PORT}
 🌐 URL production: https://admin.mdmcmusicads.com
 🔧 Backend: ${BACKEND_URL}
 📊 Environnement: ${process.env.NODE_ENV || 'development'}
+🗄️  PostgreSQL: ${process.env.DATABASE_URL ? '✅ Configuré' : '❌ Non configuré'}
+🎵 Odesli: ✅ Intégré avec cache
+🔐 Auth: JWT + bcrypt
   `);
+});
+
+// Graceful shutdown
+const gracefulShutdown = async (signal) => {
+  console.log(`\n🛑 Received ${signal}. Starting graceful shutdown...`);
+  
+  server.close(async () => {
+    console.log('📡 HTTP server closed');
+    
+    try {
+      // Close database connections
+      const { close } = require('./src/lib/db');
+      await close();
+      console.log('🗄️  Database connections closed');
+      
+      console.log('✅ Graceful shutdown completed');
+      process.exit(0);
+    } catch (error) {
+      console.error('❌ Error during shutdown:', error);
+      process.exit(1);
+    }
+  });
+  
+  // Force close after 10 seconds
+  setTimeout(() => {
+    console.error('⏰ Forced shutdown after timeout');
+    process.exit(1);
+  }, 10000);
+};
+
+// Handle shutdown signals
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+// Handle uncaught errors
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (error) => {
+  console.error('❌ Unhandled Rejection:', error);
+  process.exit(1);
 });
 
 module.exports = app;

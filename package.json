@@ -1,24 +1,40 @@
 {
   "name": "mdmc-admin",
-  "version": "1.0.0",
-  "description": "Interface d'administration MDMC SmartLinks",
+  "version": "2.0.0",
+  "description": "MDMC SmartLinks - PostgreSQL + Odesli Integration",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
     "build": "echo 'Interface admin HTML/CSS/JS - Pas de build nécessaire'",
-    "deploy": "npm run build && echo 'Prêt pour déploiement sur admin.mdmcmusicads.com'"
+    "deploy": "npm run build && echo 'Prêt pour déploiement sur admin.mdmcmusicads.com'",
+    "db:setup": "node scripts/setup.js",
+    "db:migrate": "psql $DATABASE_URL < schema.sql",
+    "db:seed": "node scripts/seed.js",
+    "db:reset": "psql $DATABASE_URL -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;' && npm run db:migrate",
+    "test:odesli": "node scripts/test-odesli.js",
+    "cache:clean": "node scripts/clean-cache.js"
   },
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5",
     "helmet": "^6.0.1",
-    "express-rate-limit": "^6.7.0"
+    "express-rate-limit": "^6.7.0",
+    "pg": "^8.11.3",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "cookie": "^0.6.0",
+    "dotenv": "^16.3.1",
+    "node-fetch": "^2.7.0",
+    "ua-parser-js": "^1.0.37"
   },
   "devDependencies": {
-    "nodemon": "^2.0.20"
+    "nodemon": "^2.0.20",
+    "@types/pg": "^8.10.9",
+    "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.5"
   },
-  "keywords": ["mdmc", "smartlinks", "admin", "music", "marketing"],
+  "keywords": ["mdmc", "smartlinks", "admin", "music", "marketing", "postgresql", "odesli"],
   "author": "MDMC Music Ads",
   "license": "ISC"
 }

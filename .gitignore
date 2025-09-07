@@ -111,4 +111,9 @@ temp/
 *.swo
 
 # PM2 logs
-pm2.log
+pm2.log# MDMC SmartLink - Ignore sensitive files
+.env
+node_modules/
+*.log
+.DS_Store
+*.tmp

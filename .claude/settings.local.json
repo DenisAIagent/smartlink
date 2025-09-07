@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node server.js)",
+      "Bash(cd:*)",
+      "Bash(node:*)",
+      "Bash(lsof:*)",
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "Bash(cd:*)",
+      "Bash(git stash:*)",
+      "Bash(git pull:*)",
+      "Bash(cp:*)",
+      "Bash(git commit:*)",
+      "Bash(curl:*)",
+      "Bash(npm run restart:*)",
+      "Bash(rm:*)",
+      "Bash(mkdir:*)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(git clone:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(grep:*)",
+      "Bash(npm install)",
+      "Bash(timeout 5 npm start)",
+      "Bash(npm start)",
+      "Bash(psql:*)",
+      "Bash(brew services:*)",
+      "Bash(createdb:*)",
+      "Bash(npm run:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -393,9 +393,9 @@
                     const smartlink = createResponse.data;
                     console.log('🔍 DEBUG - SmartLink créé:', smartlink);
                     
-                    // Utiliser l'artistName pour générer un slug temporaire ou attendre que le backend retourne l'artiste populé
-                    const artistSlug = trackData.artistName.toLowerCase().replace(/[^a-z0-9]/g, '-');
-                    const generatedLink = `https://smartlink.mdmcmusicads.com/${artistSlug}/${smartlink.slug}`;
+                    // Utiliser le vrai slug d'artiste retourné par le backend
+                    const artistSlug = smartlink.artistId?.slug || trackData.artistName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                    const generatedLink = `https://smartlink.mdmcmusicads.com/smartlinks/${artistSlug}/${smartlink.slug}`;
                     
                     document.getElementById('step2').classList.add('d-none');
                     document.getElementById('step3').classList.remove('d-none');

@@ -691,7 +691,7 @@
                                             class="btn btn-sm btn-outline" title="Copier le lien">
                                         📋
                                     </button>
-                                    <a href="https://smartlink.mdmcmusicads.com/${sl.artistId.slug}/${sl.slug}" 
+                                    <a href="https://smartlink.mdmcmusicads.com/smartlinks/${sl.artistId.slug}/${sl.slug}" 
                                        target="_blank" class="btn btn-sm btn-outline" title="Voir">
                                         👁️
                                     </a>
@@ -713,7 +713,7 @@
         }
 
         function copySmartLinkUrl(artistSlug, trackSlug) {
-            const url = `https://smartlink.mdmcmusicads.com/${artistSlug}/${trackSlug}`;
+            const url = `https://smartlink.mdmcmusicads.com/smartlinks/${artistSlug}/${trackSlug}`;
             mdmcAdmin.copyToClipboard(url);
         }
 
