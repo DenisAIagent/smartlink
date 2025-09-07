@@ -149,6 +149,19 @@ app.post('/api/odesli', odesliController.fetchMetadata);
 app.get('/api/odesli/stats', odesliController.getCacheStats);
 app.delete('/api/odesli/cache', odesliController.cleanCache);
 
+// Compatibility route for old frontend (proxy/fetch-metadata -> odesli)
+app.get('/api/proxy/fetch-metadata', (req, res) => {
+  // Convert GET with query params to POST with body for odesli endpoint
+  const url = req.query.url;
+  if (!url) {
+    return res.status(400).json({ error: 'URL parameter required' });
+  }
+  
+  // Create a fake req/res to pass to odesli controller
+  const odesliReq = { body: { url } };
+  odesliController.fetchMetadata(odesliReq, res);
+});
+
 // API Routes - SmartLinks (protected with JWT)
 app.post('/api/smartlinks', authController.authMiddleware, smartlinksController.createSmartLink);
 app.get('/api/smartlinks', authController.authMiddleware, smartlinksController.listSmartLinks);
