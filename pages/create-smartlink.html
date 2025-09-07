@@ -260,6 +260,20 @@
             <!-- Étape 2: Personnalisation -->
             <div class="card d-none" id="step2">
                 <h2>Étape 2: Personnalisation et Tracking</h2>
+                
+                <!-- Aperçu des données récupérées -->
+                <div id="trackPreview" class="alert alert-info mb-4" style="display: none;">
+                    <h5>📀 Données récupérées :</h5>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <img id="previewCover" src="" alt="Cover" style="width: 80px; height: 80px; border-radius: 8px; display: none;">
+                        <div>
+                            <strong id="previewTitle">-</strong><br>
+                            <span id="previewArtist" class="text-muted">-</span><br>
+                            <small id="previewPlatforms" class="text-success">-</small>
+                        </div>
+                    </div>
+                </div>
+                
                 <form id="customizationForm">
                     <div class="form-group">
                         <label for="metaDescription">Meta description (150 caractères max)</label>
@@ -311,7 +325,24 @@
             try {
                 const response = await mdmcAdmin.apiCall(`/api/proxy/fetch-metadata?url=${encodeURIComponent(url)}`);
                 if (response.success) {
-                    trackData = response.data;
+                    // Adapter les données de notre API Odesli au format attendu par le frontend
+                    trackData = {
+                        title: response.title,
+                        artistName: response.artist,
+                        album: response.album || '',
+                        thumbnailUrl: response.coverUrl,
+                        isrc: response.isrc || '',
+                        type: response.type || 'song',
+                        links: response.platforms ? response.platforms.reduce((acc, platform) => {
+                            acc[platform.name.toLowerCase().replace(/\s+/g, '')] = platform.url;
+                            return acc;
+                        }, {}) : {},
+                        platforms: response.platforms || []
+                    };
+                    
+                    // Afficher un aperçu des données récupérées
+                    displayTrackPreview(response);
+                    
                     document.getElementById('step1').classList.add('d-none');
                     document.getElementById('step2').classList.remove('d-none');
                     mdmcAdmin.showNotification('Données récupérées !', 'success');
@@ -360,21 +391,19 @@
                 return;
             }
 
+            // Adapter les données au format de notre API PostgreSQL
             const smartlinkData = {
                 title: trackData.title,
-                artistName: trackData.artistName,
-                album: trackData.album || '',
-                thumbnailUrl: trackData.thumbnailUrl,
-                isrc: trackData.isrc,
-                type: trackData.type || 'song',
-                links: trackData.links,
-                metaDescription: document.getElementById('metaDescription').value,
+                artist: trackData.artistName,
+                description: document.getElementById('metaDescription').value,
+                coverUrl: trackData.thumbnailUrl,
                 previewAudioUrl: audioPreviewUrl,
-                tracking: {
-                    ga4: document.getElementById('ga4').value,
-                    gtm: document.getElementById('gtm').value,
-                    metaPixel: document.getElementById('metaPixel').value,
-                    tiktokPixel: document.getElementById('tiktokPixel').value
+                platforms: trackData.platforms || [],
+                odesliUrl: document.getElementById('sourceUrl').value, // URL originale pour Odesli
+                customization: {
+                    primaryColor: '#1976d2',
+                    backgroundColor: '#ffffff',
+                    textColor: '#333333'
                 }
             };
 
@@ -383,19 +412,17 @@
 
             mdmcAdmin.showNotification('Création du SmartLink en cours...', 'info');
             try {
-                const createResponse = await mdmcAdmin.apiCall('/api/proxy/create-smartlink', {
+                const createResponse = await mdmcAdmin.apiCall('/api/smartlinks', {
                     method: 'POST',
                     body: JSON.stringify(smartlinkData)
                 });
 
                 if (createResponse.success) {
-                    // Le backend retourne le SmartLink avec artistId (ObjectId), il faut récupérer l'artiste
-                    const smartlink = createResponse.data;
+                    // Notre API PostgreSQL retourne le SmartLink et l'URL directement
+                    const smartlink = createResponse.smartlink;
+                    const generatedLink = createResponse.url;
                     console.log('🔍 DEBUG - SmartLink créé:', smartlink);
-                    
-                    // Utiliser le vrai slug d'artiste retourné par le backend
-                    const artistSlug = smartlink.artistId?.slug || trackData.artistName.toLowerCase().replace(/[^a-z0-9]/g, '-');
-                    const generatedLink = `https://smartlink.mdmcmusicads.com/smartlinks/${artistSlug}/${smartlink.slug}`;
+                    console.log('🔗 DEBUG - URL générée:', generatedLink);
                     
                     document.getElementById('step2').classList.add('d-none');
                     document.getElementById('step3').classList.remove('d-none');
@@ -418,6 +445,35 @@
                 mdmcAdmin.showNotification(`Impossible de créer le SmartLink: ${error.message}`, 'danger');
             }
         });
+
+        // Fonction pour afficher l'aperçu des données récupérées
+        function displayTrackPreview(data) {
+            const preview = document.getElementById('trackPreview');
+            const coverImg = document.getElementById('previewCover');
+            const titleSpan = document.getElementById('previewTitle');
+            const artistSpan = document.getElementById('previewArtist');
+            const platformsSpan = document.getElementById('previewPlatforms');
+
+            // Afficher les données
+            titleSpan.textContent = data.title || 'Titre non disponible';
+            artistSpan.textContent = data.artist || 'Artiste non disponible';
+            
+            if (data.coverUrl) {
+                coverImg.src = data.coverUrl;
+                coverImg.style.display = 'block';
+            } else {
+                coverImg.style.display = 'none';
+            }
+            
+            if (data.platforms && data.platforms.length > 0) {
+                const platformCount = data.platforms.length;
+                platformsSpan.textContent = `✅ ${platformCount} plateforme${platformCount > 1 ? 's' : ''} trouvée${platformCount > 1 ? 's' : ''} (${data.platforms.slice(0, 3).map(p => p.name).join(', ')}${platformCount > 3 ? ', ...' : ''})`;
+            } else {
+                platformsSpan.textContent = '❌ Aucune plateforme trouvée';
+            }
+            
+            preview.style.display = 'block';
+        }
     </script>
 </body>
 </html>
