@@ -242,6 +242,19 @@ app.post('/api/emergency-setup-admin', async (req, res) => {
   }
 });
 
+// Emergency database initialization route (temporary for Railway)
+app.post('/api/emergency-init-db', async (req, res) => {
+  try {
+    console.log('🚨 Emergency database initialization triggered');
+    const { initDatabase } = require('./scripts/init-database');
+    await initDatabase();
+    res.json({ success: true, message: 'Database initialized successfully' });
+  } catch (error) {
+    console.error('Emergency DB init failed:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Debug login route (temporary for Railway debugging)
 app.post('/api/debug-login', async (req, res) => {
   try {
