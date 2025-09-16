@@ -279,9 +279,10 @@
                 const response = await mdmcAdmin.apiCall('/api/smartlinks');
                 
                 if (response.success) {
-                    allSmartLinks = response.data.sort((a, b) => 
-                        new Date(b.createdAt) - new Date(a.createdAt)
-                    );
+                    // La réponse contient response.smartlinks, pas response.data
+                    allSmartLinks = response.smartlinks ? response.smartlinks.sort((a, b) =>
+                        new Date(b.created_at) - new Date(a.created_at)
+                    ) : [];
                     filteredSmartLinks = [...allSmartLinks];
                     renderSmartLinks();
                     updatePagination();
@@ -358,13 +359,13 @@
 
         // Rendu d'une carte SmartLink
         function renderSmartLinkCard(smartlink) {
-            const smartlinkUrl = `https://mdmcv7-backend-production.up.railway.app/s/${smartlink.artistId.slug}/${smartlink.slug}`;
+            const smartlinkUrl = `http://localhost:3003/s/${smartlink.slug}`;
             
             return `
                 <div class="smartlink-card">
                     <div class="smartlink-cover">
-                        <img src="${smartlink.coverImageUrl || '/assets/images/default-cover.jpg'}" 
-                             alt="${smartlink.trackTitle}" loading="lazy">
+                        <img src="${smartlink.cover_url || '/assets/images/default-cover.jpg'}"
+                             alt="${smartlink.title}" loading="lazy">
                         <div class="smartlink-overlay">
                             <div class="smartlink-actions">
                                 <button onclick="copySmartLinkUrl('${smartlinkUrl}')" 
@@ -375,7 +376,7 @@
                                    class="action-btn" title="Voir">
                                     👁️
                                 </a>
-                                <button onclick="deleteSmartLink('${smartlink._id}', '${smartlink.trackTitle} - ${smartlink.artistId.name}')" 
+                                <button onclick="deleteSmartLink('${smartlink.id}', '${smartlink.title}${smartlink.artist ? ' - ' + smartlink.artist : ''}')" 
                                         class="action-btn action-btn-danger" title="Supprimer">
                                     🗑️
                                 </button>
@@ -384,24 +385,21 @@
                     </div>
                     
                     <div class="smartlink-info">
-                        <h3 class="smartlink-title">${smartlink.trackTitle}</h3>
-                        <p class="smartlink-artist">${smartlink.artistId.name}</p>
+                        <h3 class="smartlink-title">${smartlink.title || 'Sans titre'}</h3>
+                        <p class="smartlink-artist">${smartlink.artist || 'Artiste inconnu'}</p>
                         
                         <div class="smartlink-meta">
-                            <span class="smartlink-status ${smartlink.isPublished ? 'status-published' : 'status-draft'}">
-                                ${smartlink.isPublished ? '🟢 Publié' : '🟡 Brouillon'}
+                            <span class="smartlink-status ${smartlink.is_active ? 'status-published' : 'status-draft'}">
+                                ${smartlink.is_active ? '🟢 Actif' : '🟡 Inactif'}
                             </span>
                             <span class="smartlink-date">
-                                ${mdmcAdmin.formatDate(smartlink.createdAt, { month: 'short', day: 'numeric' })}
+                                ${mdmcAdmin.formatDate(smartlink.created_at, { month: 'short', day: 'numeric' })}
                             </span>
                         </div>
                         
                         <div class="smartlink-stats">
                             <span class="stat-item">
-                                👁️ ${mdmcAdmin.formatNumber(smartlink.viewCount || 0)} vues
-                            </span>
-                            <span class="stat-item">
-                                🔗 ${smartlink.platformLinks.length} plateformes
+                                🔗 ${mdmcAdmin.formatNumber(smartlink.click_count || 0)} clics
                             </span>
                         </div>
                         
@@ -495,7 +493,7 @@
             if (!deleteTargetId) return;
 
             try {
-                const response = await mdmcAdmin.apiCall(`/api/v1/smartlinks/${deleteTargetId}`, {
+                const response = await mdmcAdmin.apiCall(`/api/smartlinks/${deleteTargetId}`, {
                     method: 'DELETE'
                 });
 
