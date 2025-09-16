@@ -255,72 +255,9 @@ app.post('/api/emergency-init-db', async (req, res) => {
   }
 });
 
-// Debug login route (temporary for Railway debugging)
-app.post('/api/debug-login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const bcrypt = require('bcrypt');
-    const { queryOne } = require('./src/lib/db');
-
-    console.log('🔍 DEBUG LOGIN - Start');
-    console.log('📧 Email:', email);
-    console.log('🔐 Password length:', password?.length);
-    console.log('🌍 JWT_SECRET exists:', !!process.env.JWT_SECRET);
-    console.log('🗄️ DATABASE_URL exists:', !!process.env.DATABASE_URL);
-
-    // Find user
-    console.log('🔍 Looking for user...');
-    const user = await queryOne(
-      'SELECT id, email, password_hash, display_name, plan FROM users WHERE email = $1',
-      [email.toLowerCase()]
-    );
-
-    console.log('👤 User found:', !!user);
-    if (user) {
-      console.log('📋 User details:', {
-        id: user.id,
-        email: user.email,
-        displayName: user.display_name,
-        plan: user.plan,
-        hasPasswordHash: !!user.password_hash
-      });
-
-      // Check password
-      console.log('🔒 Comparing password...');
-      const validPassword = await bcrypt.compare(password, user.password_hash);
-      console.log('✅ Password valid:', validPassword);
-
-      if (validPassword) {
-        console.log('🎯 JWT creation...');
-        const jwt = require('jsonwebtoken');
-        const token = jwt.sign(
-          { id: user.id, email: user.email, plan: user.plan },
-          process.env.JWT_SECRET,
-          { expiresIn: '7d' }
-        );
-        console.log('🎟️ Token created:', !!token);
-      }
-    }
-
-    res.json({
-      success: true,
-      debug: {
-        userFound: !!user,
-        passwordValid: user ? await bcrypt.compare(password, user.password_hash) : false,
-        jwtSecretExists: !!process.env.JWT_SECRET,
-        databaseConnected: true
-      }
-    });
-
-  } catch (error) {
-    console.error('❌ DEBUG LOGIN ERROR:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    });
-  }
-});
+// Debug login route (temporary for Railway debugging - TO BE REMOVED)
+// app.post('/api/debug-login', async (req, res) => { ... })
+// REMOVED: Debug endpoint no longer needed after successful authentication fix
 
 // Gestion 404
 app.use((req, res) => {
