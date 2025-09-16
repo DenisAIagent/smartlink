@@ -17,7 +17,8 @@
     "cache:clean": "node scripts/clean-cache.js",
     "user:create": "node scripts/create-user.js",
     "user:create:cli": "node scripts/create-user-cli.js",
-    "admin:create": "node scripts/create-super-admin.js"
+    "admin:create": "node scripts/create-super-admin.js",
+    "setup:production": "node scripts/setup-production.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

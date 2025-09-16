@@ -81,6 +81,18 @@ async function ensureDatabase() {
     await client.query(schema);
     
     console.log('✅ Database schema created successfully');
+
+    // Setup production admin user if in production
+    if (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT) {
+      console.log('🔧 Setting up production admin...');
+      try {
+        const { setupProduction } = require('./setup-production');
+        await setupProduction();
+      } catch (error) {
+        console.warn('⚠️ Production setup failed:', error.message);
+      }
+    }
+
     console.log('🎉 Database setup completed');
     
   } catch (error) {
