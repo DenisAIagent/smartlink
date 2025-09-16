@@ -246,8 +246,8 @@ app.post('/api/emergency-setup-admin', async (req, res) => {
 app.post('/api/emergency-init-db', async (req, res) => {
   try {
     console.log('🚨 Emergency database initialization triggered');
-    const { initDatabase } = require('./scripts/init-database');
-    await initDatabase();
+    const { initDatabaseSimple } = require('./scripts/init-database-simple');
+    await initDatabaseSimple();
     res.json({ success: true, message: 'Database initialized successfully' });
   } catch (error) {
     console.error('Emergency DB init failed:', error);
