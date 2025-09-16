@@ -108,6 +108,24 @@ app.get('/smartlinks/list', (req, res) => {
   res.sendFile(path.join(__dirname, 'pages', 'list-smartlinks.html'));
 });
 
+// New SmartLink Builder route
+app.get('/builder', (req, res) => {
+  res.sendFile(path.join(__dirname, 'pages', 'smartlink-builder.html'));
+});
+
+app.get('/smartlinks/builder', (req, res) => {
+  res.sendFile(path.join(__dirname, 'pages', 'smartlink-builder.html'));
+});
+
+// Ultra-simple SmartLink creation route
+app.get('/create-simple', (req, res) => {
+  res.sendFile(path.join(__dirname, 'pages', 'create-simple.html'));
+});
+
+app.get('/simple', (req, res) => {
+  res.sendFile(path.join(__dirname, 'pages', 'create-simple.html'));
+});
+
 // Route de connexion
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'pages', 'login.html'));
@@ -172,6 +190,7 @@ app.get('/api/smartlinks/:id/analytics', authController.authMiddleware, smartlin
 
 // Public SmartLink pages (no auth required)
 app.get('/s/:slug', smartlinksController.getPublicSmartLink);
+app.post('/api/smartlinks/:slug/click', smartlinksController.trackPlatformClick);
 
 // Enhanced Health check with database status
 app.get('/health', async (req, res) => {
@@ -201,6 +220,12 @@ app.get('/health', async (req, res) => {
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
+});
+
+// Route pour robots.txt
+app.get('/robots.txt', (req, res) => {
+  res.setHeader('Content-Type', 'text/plain');
+  res.sendFile(path.join(__dirname, 'public', 'robots.txt'));
 });
 
 // Gestion 404

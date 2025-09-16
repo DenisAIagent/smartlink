@@ -14,7 +14,10 @@
     "db:seed": "node scripts/seed.js",
     "db:reset": "psql $DATABASE_URL -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;' && npm run db:migrate",
     "test:odesli": "node scripts/test-odesli.js",
-    "cache:clean": "node scripts/clean-cache.js"
+    "cache:clean": "node scripts/clean-cache.js",
+    "user:create": "node scripts/create-user.js",
+    "user:create:cli": "node scripts/create-user-cli.js",
+    "admin:create": "node scripts/create-super-admin.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
