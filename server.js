@@ -190,7 +190,8 @@ app.get('/api/smartlinks/:id/analytics', authController.authMiddleware, smartlin
 
 // Public SmartLink pages (no auth required)
 app.get('/s/:slug', smartlinksController.getPublicSmartLink);
-app.post('/api/smartlinks/:slug/click', smartlinksController.trackPlatformClick);
+// Tracking endpoint (will be added later if needed)
+// app.post('/api/smartlinks/:slug/click', smartlinksController.trackPlatformClick);
 
 // Enhanced Health check with database status
 app.get('/health', async (req, res) => {
