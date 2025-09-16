@@ -229,6 +229,19 @@ app.get('/robots.txt', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'robots.txt'));
 });
 
+// Emergency admin setup route (temporary for Railway)
+app.post('/api/emergency-setup-admin', async (req, res) => {
+  try {
+    console.log('🚨 Emergency admin setup triggered');
+    const { setupProduction } = require('./scripts/setup-production');
+    await setupProduction();
+    res.json({ success: true, message: 'Admin setup completed' });
+  } catch (error) {
+    console.error('Emergency setup failed:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Gestion 404
 app.use((req, res) => {
   res.status(404).sendFile(path.join(__dirname, 'pages', '404.html'));
