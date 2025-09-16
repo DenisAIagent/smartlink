@@ -200,6 +200,44 @@
             background: var(--gray-light);
         }
 
+        .user-profile {
+            position: relative;
+        }
+
+        .user-menu-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--white);
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-medium);
+            z-index: 1000;
+            min-width: 200px;
+            padding: 8px 0;
+            margin-top: 8px;
+        }
+
+        .user-menu-dropdown a {
+            display: block;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: var(--secondary);
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .user-menu-dropdown a:hover {
+            background: var(--gray-light);
+            color: var(--primary);
+        }
+
+        .user-menu-dropdown hr {
+            margin: 8px 0;
+            border: none;
+            border-top: 1px solid rgba(0,0,0,0.08);
+        }
+
         .user-avatar {
             width: 40px;
             height: 40px;
@@ -499,6 +537,154 @@
         .stat-card:nth-child(2) { animation-delay: 0.2s; }
         .stat-card:nth-child(3) { animation-delay: 0.3s; }
         .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        /* MODALS */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray-medium);
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            background: var(--white);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.1);
+        }
+
+        .form-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-checkbox input {
+            margin: 0;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--gray-light);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #c20812;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--secondary);
+            border: 1px solid rgba(0,0,0,0.08);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0,0,0,0.05);
+        }
     </style>
 </head>
 <body>
@@ -547,11 +733,17 @@
                         <span class="search-icon"></span>
                         <input type="text" class="search-input" placeholder="Rechercher...">
                     </div>
-                    <div class="user-profile">
-                        <div class="user-avatar">JD</div>
+                    <div class="user-profile" onclick="toggleUserMenu()">
+                        <div class="user-avatar" id="userAvatar">JD</div>
                         <div>
-                            <div style="font-weight: 600; font-size: 14px;">John Doe</div>
-                            <div style="font-size: 12px; color: var(--gray-medium);">Admin</div>
+                            <div style="font-weight: 600; font-size: 14px;" id="userName">John Doe</div>
+                            <div style="font-size: 12px; color: var(--gray-medium);" id="userRole">Admin</div>
+                        </div>
+                        <div class="user-menu-dropdown" id="userMenu" style="display: none;">
+                            <a href="#" onclick="openProfileModal()">👤 Mon profil</a>
+                            <a href="#" onclick="openCreateUserModal()" id="createUserBtn" style="display: none;">👥 Créer utilisateur</a>
+                            <hr>
+                            <a href="#" onclick="logout()">🚪 Déconnexion</a>
                         </div>
                     </div>
                 </div>
@@ -616,6 +808,80 @@
         </main>
     </div>
 
+    <!-- MODAL PROFIL UTILISATEUR -->
+    <div id="profileModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Mon profil</h3>
+                <button class="modal-close" onclick="closeProfileModal()">&times;</button>
+            </div>
+            <form id="profileForm">
+                <div class="form-group">
+                    <label class="form-label">Nom d'affichage</label>
+                    <input type="text" id="profileDisplayName" class="form-input" placeholder="Votre nom complet">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="profileEmail" class="form-input" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nouveau mot de passe (optionnel)</label>
+                    <input type="password" id="profilePassword" class="form-input" placeholder="Laisser vide pour ne pas changer">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirmer le mot de passe</label>
+                    <input type="password" id="profilePasswordConfirm" class="form-input" placeholder="Répéter le nouveau mot de passe">
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary" onclick="closeProfileModal()">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL CRÉATION UTILISATEUR -->
+    <div id="createUserModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Créer un utilisateur</h3>
+                <button class="modal-close" onclick="closeCreateUserModal()">&times;</button>
+            </div>
+            <form id="createUserForm">
+                <div class="form-group">
+                    <label class="form-label">Nom d'affichage *</label>
+                    <input type="text" id="newUserDisplayName" class="form-input" placeholder="Nom complet" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email *</label>
+                    <input type="email" id="newUserEmail" class="form-input" placeholder="email@exemple.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mot de passe *</label>
+                    <input type="password" id="newUserPassword" class="form-input" placeholder="Mot de passe sécurisé" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Plan</label>
+                    <select id="newUserPlan" class="form-select">
+                        <option value="free">Gratuit</option>
+                        <option value="pro">Pro</option>
+                        <option value="premium">Premium</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-checkbox">
+                        <input type="checkbox" id="newUserIsAdmin">
+                        <span>Administrateur</span>
+                    </label>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateUserModal()">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Créer l'utilisateur</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="/config.js"></script>
     <script src="/assets/js/admin.js?v=1.0.2"></script>
     <script>
@@ -630,14 +896,14 @@
                 try {
                     const response = await mdmcAdmin.apiCall('/api/smartlinks');
                     if (response.success) {
-                        const smartlinks = response.data;
-                        
+                        const smartlinks = response.smartlinks; // ✅ Fix: use correct property name
+
                         // Calculer les statistiques
                         const stats = {
                             total_smartlinks: smartlinks.length,
-                            total_clicks: smartlinks.reduce((sum, sl) => sum + (sl.viewCount || 0), 0),
-                            total_artists: new Set(smartlinks.map(sl => sl.artistId._id)).size,
-                            active_campaigns: smartlinks.filter(sl => sl.isPublished).length
+                            total_clicks: smartlinks.reduce((sum, sl) => sum + (sl.click_count || 0), 0), // ✅ Fix: use click_count
+                            total_artists: new Set(smartlinks.map(sl => sl.artist).filter(artist => artist)).size, // ✅ Fix: use artist string
+                            active_campaigns: smartlinks.filter(sl => sl.is_active).length // ✅ Fix: use is_active
                         };
 
                         // Mettre à jour l'affichage
@@ -658,12 +924,12 @@
                 try {
                     const response = await mdmcAdmin.apiCall('/api/smartlinks');
                     if (response.success) {
-                        const recentSmartLinks = response.data
-                            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                        const recentSmartLinks = response.smartlinks // ✅ Fix: use correct property name
+                            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // ✅ Fix: use created_at
                             .slice(0, 5);
 
                         const container = document.getElementById('recent-smartlinks-body');
-                        
+
                         if (recentSmartLinks.length === 0) {
                             container.innerHTML = `
                                 <tr>
@@ -678,20 +944,20 @@
 
                         container.innerHTML = recentSmartLinks.map(sl => `
                             <tr>
-                                <td><strong>${sl.trackTitle}</strong></td>
-                                <td>${sl.artistId.name}</td>
-                                <td>${mdmcAdmin.formatDate(sl.createdAt)}</td>
+                                <td><strong>${sl.title}</strong></td>
+                                <td>${sl.artist || 'Artiste inconnu'}</td>
+                                <td>${mdmcAdmin.formatDate(sl.created_at)}</td>
                                 <td>
-                                    <span class="status-badge ${sl.isPublished ? 'status-active' : 'status-pending'}">
-                                        ${sl.isPublished ? 'Publié' : 'Brouillon'}
+                                    <span class="status-badge ${sl.is_active ? 'status-active' : 'status-pending'}">
+                                        ${sl.is_active ? 'Actif' : 'Inactif'}
                                     </span>
                                 </td>
                                 <td>
-                                    <button onclick="copySmartLinkUrl('${sl.artistId.slug}', '${sl.slug}')" 
+                                    <button onclick="copySmartLinkUrl('${sl.slug}')"
                                             class="btn btn-sm btn-outline" title="Copier le lien">
                                         📋
                                     </button>
-                                    <a href="https://smartlink.mdmcmusicads.com/smartlinks/${sl.artistId.slug}/${sl.slug}" 
+                                    <a href="/s/${sl.slug}"
                                        target="_blank" class="btn btn-sm btn-outline" title="Voir">
                                         👁️
                                     </a>
@@ -712,14 +978,195 @@
             }
         }
 
-        function copySmartLinkUrl(artistSlug, trackSlug) {
-            const url = `https://smartlink.mdmcmusicads.com/smartlinks/${artistSlug}/${trackSlug}`;
+        function copySmartLinkUrl(slug) {
+            const url = `${window.location.origin}/s/${slug}`;
             mdmcAdmin.copyToClipboard(url);
         }
+
+        // Fonctions du menu utilisateur
+        function toggleUserMenu() {
+            const menu = document.getElementById('userMenu');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        }
+
+        let currentUser = null;
+
+        function openProfileModal() {
+            if (currentUser) {
+                // Pré-remplir le formulaire avec les données actuelles
+                document.getElementById('profileDisplayName').value = currentUser.display_name || '';
+                document.getElementById('profileEmail').value = currentUser.email || '';
+                document.getElementById('profilePassword').value = '';
+                document.getElementById('profilePasswordConfirm').value = '';
+
+                // Afficher la modal
+                document.getElementById('profileModal').style.display = 'flex';
+            }
+            toggleUserMenu();
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').style.display = 'none';
+        }
+
+        function openCreateUserModal() {
+            // Réinitialiser le formulaire
+            document.getElementById('createUserForm').reset();
+
+            // Afficher la modal
+            document.getElementById('createUserModal').style.display = 'flex';
+            toggleUserMenu();
+        }
+
+        function closeCreateUserModal() {
+            document.getElementById('createUserModal').style.display = 'none';
+        }
+
+        function logout() {
+            if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                // Supprimer le token d'authentification
+                document.cookie = 'auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                // Rediriger vers la page de connexion
+                window.location.href = '/login';
+            }
+            toggleUserMenu();
+        }
+
+        // Charger les informations de l'utilisateur actuel
+        async function loadCurrentUser() {
+            try {
+                const response = await fetch('/api/auth/me', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.user;
+
+                    // Mettre à jour l'affichage du profil
+                    document.getElementById('userName').textContent = currentUser.display_name || currentUser.email;
+                    document.getElementById('userRole').textContent = currentUser.is_admin ? 'Admin' : 'Utilisateur';
+
+                    // Créer les initiales pour l'avatar
+                    const initials = currentUser.display_name ?
+                        currentUser.display_name.split(' ').map(n => n[0]).join('').toUpperCase() :
+                        currentUser.email.substring(0, 2).toUpperCase();
+                    document.getElementById('userAvatar').textContent = initials;
+
+                    // Afficher le bouton de création d'utilisateur pour les admins
+                    if (currentUser.is_admin) {
+                        document.getElementById('createUserBtn').style.display = 'block';
+                    }
+                } else {
+                    console.error('Erreur lors du chargement du profil utilisateur');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
+        // Gestionnaire du formulaire de profil
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const displayName = document.getElementById('profileDisplayName').value;
+            const password = document.getElementById('profilePassword').value;
+            const passwordConfirm = document.getElementById('profilePasswordConfirm').value;
+
+            // Validation du mot de passe
+            if (password && password !== passwordConfirm) {
+                alert('Les mots de passe ne correspondent pas');
+                return;
+            }
+
+            try {
+                const updateData = { display_name: displayName };
+                if (password) {
+                    updateData.password = password;
+                }
+
+                const response = await fetch('/api/auth/profile', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(updateData)
+                });
+
+                if (response.ok) {
+                    alert('Profil mis à jour avec succès');
+                    closeProfileModal();
+                    await loadCurrentUser(); // Recharger les informations
+                } else {
+                    const error = await response.json();
+                    alert('Erreur: ' + error.error);
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la mise à jour du profil');
+            }
+        });
+
+        // Gestionnaire du formulaire de création d'utilisateur
+        document.getElementById('createUserForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const userData = {
+                display_name: document.getElementById('newUserDisplayName').value,
+                email: document.getElementById('newUserEmail').value,
+                password: document.getElementById('newUserPassword').value,
+                plan: document.getElementById('newUserPlan').value,
+                is_admin: document.getElementById('newUserIsAdmin').checked
+            };
+
+            try {
+                const response = await fetch('/api/admin/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(userData)
+                });
+
+                if (response.ok) {
+                    alert('Utilisateur créé avec succès');
+                    closeCreateUserModal();
+                } else {
+                    const error = await response.json();
+                    alert('Erreur: ' + error.error);
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de la création de l\\'utilisateur');
+            }
+        });
+
+        // Fermer le menu quand on clique ailleurs
+        document.addEventListener('click', function(event) {
+            const userProfile = document.querySelector('.user-profile');
+            const userMenu = document.getElementById('userMenu');
+
+            if (!userProfile.contains(event.target)) {
+                userMenu.style.display = 'none';
+            }
+        });
+
+        // Fermer les modales en cliquant sur l'overlay
+        document.getElementById('profileModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeProfileModal();
+            }
+        });
+
+        document.getElementById('createUserModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCreateUserModal();
+            }
+        });
 
         // Initialisation
         document.addEventListener('DOMContentLoaded', () => {
             new Dashboard();
+            loadCurrentUser();
         });
     </script>
 </body>

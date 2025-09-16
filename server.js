@@ -161,6 +161,10 @@ app.get('/config.js', (req, res) => {
 app.post('/api/auth/login', authController.login);
 app.post('/api/auth/logout', authController.logout);
 app.get('/api/auth/me', authController.getCurrentUser);
+app.put('/api/auth/profile', authController.updateProfile);
+
+// API Routes - Admin (user management)
+app.post('/api/admin/users', authController.createUser);
 
 // API Routes - Odesli Integration
 app.post('/api/odesli', odesliController.fetchMetadata);
