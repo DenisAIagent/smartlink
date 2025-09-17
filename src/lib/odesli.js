@@ -1,5 +1,14 @@
-const { query, queryOne } = require('./db');
 const fetch = require('node-fetch');
+
+// Safe DB import - only load if DATABASE_URL exists
+let dbModule = null;
+if (process.env.DATABASE_URL) {
+  try {
+    dbModule = require('./db');
+  } catch (error) {
+    console.warn('⚠️ Database module not available, running without cache:', error.message);
+  }
+}
 
 const ODESLI_API_URL = process.env.ODESLI_API_URL || 'https://api.song.link/v1-alpha.1';
 const CACHE_TTL = parseInt(process.env.ODESLI_CACHE_TTL || '86400000'); // 24h
@@ -15,23 +24,27 @@ const odesli = {
    */
   async fetchLinks(sourceUrl) {
     try {
-      // 1. Check cache DB (skip if no DATABASE_URL)
-      if (process.env.DATABASE_URL) {
-        const cached = await queryOne(
-          `SELECT data, hit_count 
-           FROM odesli_cache 
-           WHERE source_url = $1 AND expires_at > NOW()`,
-          [sourceUrl]
-        );
-        
-        if (cached) {
-          console.log('💾 Odesli cache hit from DB');
-          // Update hit count
-          await query(
-            'UPDATE odesli_cache SET hit_count = hit_count + 1 WHERE source_url = $1',
+      // 1. Check cache DB (skip if no DATABASE_URL or dbModule)
+      if (process.env.DATABASE_URL && dbModule) {
+        try {
+          const cached = await dbModule.queryOne(
+            `SELECT data, hit_count
+             FROM odesli_cache
+             WHERE source_url = $1 AND expires_at > NOW()`,
             [sourceUrl]
           );
-          return cached.data;
+
+          if (cached) {
+            console.log('💾 Odesli cache hit from DB');
+            // Update hit count
+            await dbModule.query(
+              'UPDATE odesli_cache SET hit_count = hit_count + 1 WHERE source_url = $1',
+              [sourceUrl]
+            );
+            return cached.data;
+          }
+        } catch (dbError) {
+          console.warn('⚠️ Cache lookup failed, continuing without cache:', dbError.message);
         }
       }
       
@@ -81,33 +94,37 @@ const odesli = {
       const entityId = Object.keys(data.entitiesByUniqueId || {})[0];
       const entity = entityId ? data.entitiesByUniqueId[entityId] : null;
       
-      // 5. Save to cache (skip if no DATABASE_URL)
-      if (process.env.DATABASE_URL) {
-        await query(
-          `INSERT INTO odesli_cache (
-            source_url, data, entity_id, title, artist, 
-            thumbnail_url, platforms_count, expires_at
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW() + INTERVAL '${CACHE_TTL / 1000} seconds')
-          ON CONFLICT (source_url) 
-          DO UPDATE SET 
-            data = $2,
-            entity_id = $3,
-            title = $4,
-            artist = $5,
-            thumbnail_url = $6,
-            platforms_count = $7,
-            expires_at = NOW() + INTERVAL '${CACHE_TTL / 1000} seconds',
-            hit_count = odesli_cache.hit_count + 1`,
-          [
-            sourceUrl,
-            JSON.stringify(data),
-            entityId || null,
-            entity?.title || null,
-            entity?.artistName || null,
-            entity?.thumbnailUrl || null,
-            Object.keys(data.linksByPlatform || {}).length
-          ]
-        );
+      // 5. Save to cache (skip if no DATABASE_URL or dbModule)
+      if (process.env.DATABASE_URL && dbModule) {
+        try {
+          await dbModule.query(
+            `INSERT INTO odesli_cache (
+              source_url, data, entity_id, title, artist,
+              thumbnail_url, platforms_count, expires_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW() + INTERVAL '${CACHE_TTL / 1000} seconds')
+            ON CONFLICT (source_url)
+            DO UPDATE SET
+              data = $2,
+              entity_id = $3,
+              title = $4,
+              artist = $5,
+              thumbnail_url = $6,
+              platforms_count = $7,
+              expires_at = NOW() + INTERVAL '${CACHE_TTL / 1000} seconds',
+              hit_count = odesli_cache.hit_count + 1`,
+            [
+              sourceUrl,
+              JSON.stringify(data),
+              entityId || null,
+              entity?.title || null,
+              entity?.artistName || null,
+              entity?.thumbnailUrl || null,
+              Object.keys(data.linksByPlatform || {}).length
+            ]
+          );
+        } catch (dbError) {
+          console.warn('⚠️ Cache save failed, continuing without cache:', dbError.message);
+        }
       }
       
       console.log('✅ Odesli data cached:', {
@@ -120,14 +137,14 @@ const odesli = {
     } catch (error) {
       console.error('❌ Odesli error:', error.message);
       
-      // Fallback: chercher dans le cache même expiré (skip if no DATABASE_URL)
-      if (process.env.DATABASE_URL) {
+      // Fallback: chercher dans le cache même expiré (skip if no DATABASE_URL or dbModule)
+      if (process.env.DATABASE_URL && dbModule) {
         try {
-          const expired = await queryOne(
+          const expired = await dbModule.queryOne(
             'SELECT data FROM odesli_cache WHERE source_url = $1 ORDER BY created_at DESC LIMIT 1',
             [sourceUrl]
           );
-          
+
           if (expired) {
             console.log('⚠️ Using expired cache as fallback');
             return expired.data;
@@ -155,49 +172,49 @@ const odesli = {
       'spotify': { 
         name: 'Spotify', 
         color: '#1DB954', 
-        icon: '/images/platforms/picto_spotify.png',
+        icon: '/assets/images/platforms/png/picto_spotify.png',
         priority: 1 
       },
       'appleMusic': { 
         name: 'Apple Music', 
         color: '#FA243C', 
-        icon: '/images/platforms/picto_applemusic.png',
+        icon: '/assets/images/platforms/png/picto_apple.png',
         priority: 2 
       },
       'youtubeMusic': { 
         name: 'YouTube Music', 
         color: '#FF0000', 
-        icon: '/images/platforms/picto_youtubemusic.png',
+        icon: '/assets/images/platforms/png/picto_youtubemusic.png',
         priority: 3 
       },
       'youtube': { 
         name: 'YouTube', 
         color: '#FF0000', 
-        icon: '/images/platforms/picto_youtube.png',
+        icon: '/assets/images/platforms/png/picto_youtubemusic.png',
         priority: 4 
       },
       'deezer': { 
         name: 'Deezer', 
         color: '#FF6600', 
-        icon: '/images/platforms/picto_deezer.png',
+        icon: '/assets/images/platforms/png/picto_deezer.png',
         priority: 5 
       },
       'soundcloud': { 
         name: 'SoundCloud', 
         color: '#FF5500', 
-        icon: '/images/platforms/picto_soundcloud.png',
+        icon: '/assets/images/platforms/png/picto_soundcloud.png',
         priority: 6 
       },
       'tidal': { 
         name: 'Tidal', 
         color: '#000000', 
-        icon: '/images/platforms/picto_tidal.png',
+        icon: '/assets/images/platforms/png/picto_tidal.png',
         priority: 7 
       },
       'amazonMusic': { 
         name: 'Amazon Music', 
         color: '#FF9900', 
-        icon: '/images/platforms/picto_amazonmusic.png',
+        icon: '/assets/images/platforms/png/picto_amazon.png',
         priority: 8 
       },
       'bandcamp': { 
@@ -264,50 +281,95 @@ const odesli = {
    * Stats du cache
    */
   async getCacheStats() {
-    const stats = await queryOne(`
-      SELECT 
-        COUNT(*) as total_entries,
-        COUNT(*) FILTER (WHERE expires_at > NOW()) as valid_entries,
-        COUNT(*) FILTER (WHERE expires_at <= NOW()) as expired_entries,
-        SUM(hit_count) as total_hits,
-        ROUND(AVG(platforms_count), 1) as avg_platforms,
-        MAX(created_at) as last_cached
-      FROM odesli_cache
-    `);
-    
-    return {
-      totalEntries: parseInt(stats.total_entries),
-      validEntries: parseInt(stats.valid_entries),
-      expiredEntries: parseInt(stats.expired_entries),
-      totalHits: parseInt(stats.total_hits) || 0,
-      avgPlatforms: parseFloat(stats.avg_platforms) || 0,
-      lastCached: stats.last_cached
-    };
+    if (!process.env.DATABASE_URL || !dbModule) {
+      return {
+        totalEntries: 0,
+        validEntries: 0,
+        expiredEntries: 0,
+        totalHits: 0,
+        avgPlatforms: 0,
+        lastCached: null,
+        cacheEnabled: false
+      };
+    }
+
+    try {
+      const stats = await dbModule.queryOne(`
+        SELECT
+          COUNT(*) as total_entries,
+          COUNT(*) FILTER (WHERE expires_at > NOW()) as valid_entries,
+          COUNT(*) FILTER (WHERE expires_at <= NOW()) as expired_entries,
+          SUM(hit_count) as total_hits,
+          ROUND(AVG(platforms_count), 1) as avg_platforms,
+          MAX(created_at) as last_cached
+        FROM odesli_cache
+      `);
+
+      return {
+        totalEntries: parseInt(stats.total_entries),
+        validEntries: parseInt(stats.valid_entries),
+        expiredEntries: parseInt(stats.expired_entries),
+        totalHits: parseInt(stats.total_hits) || 0,
+        avgPlatforms: parseFloat(stats.avg_platforms) || 0,
+        lastCached: stats.last_cached,
+        cacheEnabled: true
+      };
+    } catch (error) {
+      console.warn('⚠️ Cache stats failed:', error.message);
+      return {
+        totalEntries: 0,
+        validEntries: 0,
+        expiredEntries: 0,
+        totalHits: 0,
+        avgPlatforms: 0,
+        lastCached: null,
+        cacheEnabled: false,
+        error: error.message
+      };
+    }
   },
 
   /**
    * Nettoyer le cache expiré
    */
   async cleanupCache() {
-    const result = await query(
-      'DELETE FROM odesli_cache WHERE expires_at < NOW() RETURNING id'
-    );
-    return result.length;
+    if (!process.env.DATABASE_URL || !dbModule) {
+      return 0;
+    }
+
+    try {
+      const result = await dbModule.query(
+        'DELETE FROM odesli_cache WHERE expires_at < NOW() RETURNING id'
+      );
+      return result.length;
+    } catch (error) {
+      console.warn('⚠️ Cache cleanup failed:', error.message);
+      return 0;
+    }
   },
 
   /**
    * Get popular cached songs
    */
   async getPopularSongs(limit = 10) {
-    const songs = await query(`
-      SELECT title, artist, hit_count, created_at, platforms_count
-      FROM odesli_cache 
-      WHERE title IS NOT NULL AND artist IS NOT NULL
-      ORDER BY hit_count DESC, created_at DESC
-      LIMIT $1
-    `, [limit]);
-    
-    return songs;
+    if (!process.env.DATABASE_URL || !dbModule) {
+      return [];
+    }
+
+    try {
+      const songs = await dbModule.query(`
+        SELECT title, artist, hit_count, created_at, platforms_count
+        FROM odesli_cache
+        WHERE title IS NOT NULL AND artist IS NOT NULL
+        ORDER BY hit_count DESC, created_at DESC
+        LIMIT $1
+      `, [limit]);
+
+      return songs;
+    } catch (error) {
+      console.warn('⚠️ Popular songs query failed:', error.message);
+      return [];
+    }
   }
 };
 
