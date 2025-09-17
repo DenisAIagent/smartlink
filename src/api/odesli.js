@@ -33,7 +33,7 @@ async function fetchMetadata(req, res) {
     
     return res.json({
       success: true,
-      ...parsed,
+      data: parsed,
       // Optionnel: données brutes pour debug en développement
       ...(process.env.NODE_ENV === 'development' && { raw: data })
     });
