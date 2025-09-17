@@ -259,6 +259,21 @@ app.post('/api/emergency-init-db', async (req, res) => {
   }
 });
 
+// Debug environment variables (temporary for Railway debugging)
+app.get('/api/debug-env', (req, res) => {
+  const relevantEnvs = {
+    NODE_ENV: process.env.NODE_ENV,
+    DATABASE_URL: process.env.DATABASE_URL ? '[SET]' : '[NOT SET]',
+    ODESLI_API_URL: process.env.ODESLI_API_URL || '[DEFAULT]',
+    ODESLI_RATE_LIMIT: process.env.ODESLI_RATE_LIMIT || '[DEFAULT]',
+    PORT: process.env.PORT
+  };
+  res.json({
+    environment: relevantEnvs,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Debug login route (temporary for Railway debugging - TO BE REMOVED)
 // app.post('/api/debug-login', async (req, res) => { ... })
 // REMOVED: Debug endpoint no longer needed after successful authentication fix
