@@ -274,6 +274,65 @@ app.get('/api/debug-env', (req, res) => {
   });
 });
 
+// Debug Odesli direct call (temporary for Railway debugging)
+app.get('/api/debug-odesli-direct', async (req, res) => {
+  try {
+    const fetch = require('node-fetch');
+    const testUrl = 'https://open.spotify.com/track/6fxVffaTuwjgEk5h9QyRjy';
+    const odesliUrl = `https://api.song.link/v1-alpha.1/links?url=${encodeURIComponent(testUrl)}&userCountry=FR&songIfSingle=true`;
+
+    console.log('🔄 Direct Odesli test from Railway:', odesliUrl);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(odesliUrl, {
+      headers: {
+        'User-Agent': 'SmartLink/1.0 (https://mdmcmusicads.com)',
+        'Accept': 'application/json'
+      },
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    const responseInfo = {
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries())
+    };
+
+    if (!response.ok) {
+      return res.json({
+        success: false,
+        error: `HTTP ${response.status}: ${response.statusText}`,
+        responseInfo,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    const data = await response.json();
+
+    res.json({
+      success: true,
+      dataReceived: !!data,
+      entityCount: Object.keys(data.entitiesByUniqueId || {}).length,
+      platformCount: Object.keys(data.linksByPlatform || {}).length,
+      responseInfo,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('❌ Direct Odesli test error:', error);
+    res.json({
+      success: false,
+      error: error.message,
+      errorType: error.constructor.name,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Debug login route (temporary for Railway debugging - TO BE REMOVED)
 // app.post('/api/debug-login', async (req, res) => { ... })
 // REMOVED: Debug endpoint no longer needed after successful authentication fix
