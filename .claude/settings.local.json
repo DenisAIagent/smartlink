@@ -53,7 +53,10 @@
       "Bash(cat:*)",
       "Bash(railway redeploy:*)",
       "Bash(railway variables:*)",
-      "Bash(railway logs:*)"
+      "Bash(railway logs:*)",
+      "Bash(PORT=3003 node server.js)",
+      "Bash(railway whoami:*)",
+      "Bash(DEBUG_AUTH=true PORT=3003 node server.js)"
     ],
     "deny": [],
     "ask": []

@@ -62,6 +62,13 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+// DEBUG PRODUCTION - À RETIRER APRÈS RÉSOLUTION
+if (process.env.NODE_ENV === 'production' || process.env.DEBUG_AUTH === 'true') {
+  const { debugMiddleware } = require('./src/middleware/debug-production');
+  app.use(debugMiddleware);
+  console.log('🔍 DEBUG MODE ACTIVATED FOR PRODUCTION');
+}
+
 // Servir les fichiers statiques
 app.use(express.static(path.join(__dirname)));
 
@@ -185,12 +192,20 @@ app.get('/api/proxy/fetch-metadata', (req, res) => {
 });
 
 // API Routes - SmartLinks (protected with JWT)
-app.post('/api/smartlinks', authController.authMiddleware, smartlinksController.createSmartLink);
-app.get('/api/smartlinks', authController.authMiddleware, smartlinksController.listSmartLinks);
-app.get('/api/smartlinks/:id', authController.authMiddleware, smartlinksController.getSmartLink);
-app.put('/api/smartlinks/:id', authController.authMiddleware, smartlinksController.updateSmartLink);
-app.delete('/api/smartlinks/:id', authController.authMiddleware, smartlinksController.deleteSmartLink);
-app.get('/api/smartlinks/:id/analytics', authController.authMiddleware, smartlinksController.getSmartLinkAnalytics);
+// DEBUG: Utiliser le middleware de debug en production
+let authMiddleware = authController.authMiddleware;
+if (process.env.NODE_ENV === 'production' || process.env.DEBUG_AUTH === 'true') {
+  const { debugAuthMiddleware } = require('./src/middleware/debug-production');
+  authMiddleware = debugAuthMiddleware(authController.authMiddleware);
+  console.log('🔍 DEBUG AUTH MIDDLEWARE ACTIVATED');
+}
+
+app.post('/api/smartlinks', authMiddleware, smartlinksController.createSmartLink);
+app.get('/api/smartlinks', authMiddleware, smartlinksController.listSmartLinks);
+app.get('/api/smartlinks/:id', authMiddleware, smartlinksController.getSmartLink);
+app.put('/api/smartlinks/:id', authMiddleware, smartlinksController.updateSmartLink);
+app.delete('/api/smartlinks/:id', authMiddleware, smartlinksController.deleteSmartLink);
+app.get('/api/smartlinks/:id/analytics', authMiddleware, smartlinksController.getSmartLinkAnalytics);
 
 // Public SmartLink pages (no auth required)
 app.get('/s/:slug', smartlinksController.getPublicSmartLink);
@@ -259,6 +274,22 @@ app.post('/api/emergency-init-db', async (req, res) => {
   }
 });
 
+// Debug endpoint pour tester le système de debug
+app.get('/api/debug/test-auth', (req, res) => {
+  res.json({
+    message: 'Debug test endpoint - check logs for detailed info',
+    environment: process.env.NODE_ENV,
+    debugMode: !!(process.env.DEBUG_AUTH === 'true' || process.env.NODE_ENV === 'production'),
+    headers: {
+      cookie: req.headers.cookie || 'none',
+      authorization: req.headers.authorization || 'none',
+      userAgent: req.headers['user-agent']?.substring(0, 50) || 'none'
+    },
+    cookies: req.cookies || {},
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Debug endpoints removed after successful Railway deployment fix
 
 // Debug login route (temporary for Railway debugging - TO BE REMOVED)
@@ -270,14 +301,19 @@ app.use((req, res) => {
   res.status(404).sendFile(path.join(__dirname, 'pages', '404.html'));
 });
 
-// Gestion des erreurs
-app.use((err, req, res, next) => {
-  console.error('❌ Erreur admin interface:', err);
-  res.status(500).json({
-    error: 'Erreur serveur admin',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Erreur interne'
+// Gestion des erreurs avec debug amélioré
+if (process.env.NODE_ENV === 'production' || process.env.DEBUG_AUTH === 'true') {
+  const { enhancedErrorHandler } = require('./src/middleware/debug-production');
+  app.use(enhancedErrorHandler);
+} else {
+  app.use((err, req, res, next) => {
+    console.error('❌ Erreur admin interface:', err);
+    res.status(500).json({
+      error: 'Erreur serveur admin',
+      message: process.env.NODE_ENV === 'development' ? err.message : 'Erreur interne'
+    });
   });
-});
+}
 
 const server = app.listen(PORT, () => {
   console.log(`
@@ -325,14 +361,27 @@ const gracefulShutdown = async (signal) => {
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
-// Handle uncaught errors
+// Handle uncaught errors avec debug amélioré
 process.on('uncaughtException', (error) => {
-  console.error('❌ Uncaught Exception:', error);
+  console.error('\n🚨 UNCAUGHT EXCEPTION 🚨');
+  console.error('Type:', error.constructor.name);
+  console.error('Message:', error.message);
+  console.error('Stack:', error.stack);
+  console.error('Time:', new Date().toISOString());
+  if (process.env.NODE_ENV === 'production') {
+    console.error('This could be the Railway 500 error source!');
+  }
   process.exit(1);
 });
 
-process.on('unhandledRejection', (error) => {
-  console.error('❌ Unhandled Rejection:', error);
+process.on('unhandledRejection', (error, promise) => {
+  console.error('\n🚨 UNHANDLED PROMISE REJECTION 🚨');
+  console.error('Reason:', error);
+  console.error('Promise:', promise);
+  console.error('Time:', new Date().toISOString());
+  if (process.env.NODE_ENV === 'production') {
+    console.error('This could be the Railway 500 error source!');
+  }
   process.exit(1);
 });
 
