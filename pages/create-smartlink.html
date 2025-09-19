@@ -265,7 +265,7 @@
                 <div id="trackPreview" class="alert alert-info mb-4" style="display: none;">
                     <h5>📀 Données récupérées :</h5>
                     <div style="display: flex; align-items: center; gap: 15px;">
-                        <img id="previewCover" src="" alt="Cover" style="width: 80px; height: 80px; border-radius: 8px; display: none;">
+                        <img id="trackPreviewCover" src="" alt="Cover" style="width: 80px; height: 80px; border-radius: 8px; display: none;">
                         <div>
                             <strong id="previewTitle">-</strong><br>
                             <span id="previewArtist" class="text-muted">-</span><br>
@@ -282,7 +282,7 @@
                     <div class="form-group">
                         <label>Artwork / Pochette</label>
                         <div id="artworkPreview" style="display: none; margin-top: 10px;">
-                            <img id="previewCover" src="" alt="Cover" style="width: 80px; height: 80px; border-radius: 8px; border: 1px solid #ddd;">
+                            <img id="artworkCover" src="" alt="Cover" style="width: 80px; height: 80px; border-radius: 8px; border: 1px solid #ddd;">
                             <p style="font-size: 12px; color: #666; margin-top: 5px;">Artwork récupéré automatiquement via Odesli</p>
                         </div>
                     </div>
@@ -335,8 +335,12 @@
                     body: JSON.stringify({ url })
                 });
                 
+                console.log('🔍 Odesli API Response:', response);
+
                 if (response.success && response.data) {
                     const data = response.data;
+                    console.log('🔍 Extracted data:', data);
+                    console.log('🔍 Cover URL from data:', data.coverUrl);
                     trackData = {
                         title: data.title,
                         artistName: data.artist,
@@ -460,7 +464,7 @@
         // Fonction pour afficher l'aperçu des données récupérées
         function displayTrackPreview(data) {
             const preview = document.getElementById('trackPreview');
-            const coverImg = document.getElementById('previewCover');
+            const coverImg = document.getElementById('trackPreviewCover');
             const titleSpan = document.getElementById('previewTitle');
             const artistSpan = document.getElementById('previewArtist');
             const platformsSpan = document.getElementById('previewPlatforms');
@@ -490,14 +494,23 @@
 
         // Affichage de l'artwork d'Odesli
         function showArtworkPreview(coverUrl) {
+            console.log('🎨 showArtworkPreview called with:', coverUrl);
             if (coverUrl) {
-                const preview = document.getElementById('previewCover');
+                const preview = document.getElementById('artworkCover');
                 const container = document.getElementById('artworkPreview');
 
-                preview.src = coverUrl;
-                container.style.display = 'block';
+                console.log('🎨 Preview element found:', !!preview);
+                console.log('🎨 Container element found:', !!container);
 
-                console.log('🎨 Artwork affiché:', coverUrl);
+                if (preview && container) {
+                    preview.src = coverUrl;
+                    container.style.display = 'block';
+                    console.log('🎨 Artwork preview set successfully');
+                } else {
+                    console.error('🎨 Could not find artwork preview elements');
+                }
+            } else {
+                console.log('🎨 No coverUrl provided');
             }
         }
     </script>

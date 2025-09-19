@@ -129,6 +129,8 @@ const odesli = {
       
       console.log('✅ Odesli data cached:', {
         title: entity?.title,
+        artist: entity?.artistName,
+        thumbnail: entity?.thumbnailUrl,
         platforms: Object.keys(data.linksByPlatform || {}).length
       });
       
@@ -242,8 +244,8 @@ const odesli = {
     
     // Trier par priorité
     platforms.sort((a, b) => a.priority - b.priority);
-    
-    return {
+
+    const result = {
       title: entity.title || '',
       artist: entity.artistName || '',
       coverUrl: entity.thumbnailUrl || '',
@@ -251,6 +253,16 @@ const odesli = {
       pageUrl: odesliData.pageUrl || '',
       entityId
     };
+
+    console.log('🎨 Parsed Odesli data:', {
+      title: result.title,
+      artist: result.artist,
+      coverUrl: result.coverUrl,
+      coverUrlLength: result.coverUrl.length,
+      platformsCount: result.platforms.length
+    });
+
+    return result;
   },
 
   /**
