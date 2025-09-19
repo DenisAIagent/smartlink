@@ -56,7 +56,12 @@
       "Bash(railway logs:*)",
       "Bash(PORT=3003 node server.js)",
       "Bash(railway whoami:*)",
-      "Bash(DEBUG_AUTH=true PORT=3003 node server.js)"
+      "Bash(DEBUG_AUTH=true PORT=3003 node server.js)",
+      "Bash(timeout 30 railway logs)",
+      "Bash(/dev/null)",
+      "Bash(timeout 20 railway logs)",
+      "Bash(timeout 15 railway logs)",
+      "Bash(open http://localhost:3003/create-smartlink)"
     ],
     "deny": [],
     "ask": []

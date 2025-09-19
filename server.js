@@ -10,6 +10,8 @@ const { healthCheck } = require('./src/lib/db');
 const odesliController = require('./src/api/odesli');
 const smartlinksController = require('./src/api/smartlinks');
 const authController = require('./src/api/auth');
+const multer = require('multer');
+const { uploadService } = require('./src/lib/cloudinary');
 
 const app = express();
 const PORT = process.env.PORT || 3003;
@@ -28,10 +30,13 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.jsdelivr.net"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      scriptSrcAttr: ["'self'", "'unsafe-inline'"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https:", "http:"],
-      connectSrc: ["'self'", BACKEND_URL]
+      imgSrc: ["'self'", "data:", "https:", "http:", "https://res.cloudinary.com"],
+      connectSrc: ["'self'", BACKEND_URL, "https://res.cloudinary.com", "https://api.cloudinary.com"],
+      formAction: ["'self'"],
+      frameAncestors: ["'none'"]
     }
   }
 }));
@@ -206,6 +211,71 @@ app.get('/api/smartlinks/:id', authMiddleware, smartlinksController.getSmartLink
 app.put('/api/smartlinks/:id', authMiddleware, smartlinksController.updateSmartLink);
 app.delete('/api/smartlinks/:id', authMiddleware, smartlinksController.deleteSmartLink);
 app.get('/api/smartlinks/:id/analytics', authMiddleware, smartlinksController.getSmartLinkAnalytics);
+
+// Upload endpoint with multer configuration
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB max
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Format non supporté. Utilisez JPG, PNG ou WebP.'), false);
+    }
+  }
+});
+
+// Image upload endpoint
+app.post('/api/upload/image', authMiddleware, upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: 'Aucun fichier image fourni'
+      });
+    }
+
+    console.log('📤 Upload image request:', {
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size
+    });
+
+    // Validation
+    uploadService.validateImageFile(req.file);
+
+    // Upload vers Cloudinary
+    const result = await uploadService.uploadImage(req.file.buffer, {
+      public_id: `smartlink-${Date.now()}`,
+      folder: 'mdmc-smartlinks'
+    });
+
+    console.log('✅ Image uploaded successfully:', result.url);
+
+    res.json({
+      success: true,
+      url: result.url,
+      data: {
+        url: result.url,
+        public_id: result.public_id,
+        width: result.width,
+        height: result.height,
+        format: result.format,
+        size: result.bytes
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Upload error:', error);
+    res.status(400).json({
+      success: false,
+      error: error.message || 'Erreur lors de l\'upload'
+    });
+  }
+});
 
 // Public SmartLink pages (no auth required)
 app.get('/s/:slug', smartlinksController.getPublicSmartLink);
