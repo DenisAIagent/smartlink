@@ -323,31 +323,35 @@
             mdmcAdmin.showNotification('Récupération des données...', 'info');
 
             try {
-                const response = await mdmcAdmin.apiCall(`/api/proxy/fetch-metadata?url=${encodeURIComponent(url)}`);
-                if (response.success) {
-                    // Adapter les données de notre API Odesli au format attendu par le frontend
+                const response = await mdmcAdmin.apiCall('/api/odesli', {
+                    method: 'POST',
+                    body: JSON.stringify({ url })
+                });
+                
+                if (response.success && response.data) {
+                    const data = response.data;
                     trackData = {
-                        title: response.title,
-                        artistName: response.artist,
-                        album: response.album || '',
-                        thumbnailUrl: response.coverUrl,
-                        isrc: response.isrc || '',
-                        type: response.type || 'song',
-                        links: response.platforms ? response.platforms.reduce((acc, platform) => {
+                        title: data.title,
+                        artistName: data.artist,
+                        album: data.album || '',
+                        thumbnailUrl: data.coverUrl,
+                        isrc: data.isrc || '',
+                        type: data.type || 'song',
+                        links: data.platforms ? data.platforms.reduce((acc, platform) => {
                             acc[platform.name.toLowerCase().replace(/\s+/g, '')] = platform.url;
                             return acc;
                         }, {}) : {},
-                        platforms: response.platforms || []
+                        platforms: data.platforms || []
                     };
                     
                     // Afficher un aperçu des données récupérées
-                    displayTrackPreview(response);
+                    displayTrackPreview(data);
                     
                     document.getElementById('step1').classList.add('d-none');
                     document.getElementById('step2').classList.remove('d-none');
                     mdmcAdmin.showNotification('Données récupérées !', 'success');
                 } else {
-                    mdmcAdmin.showNotification(response.message || 'Erreur lors de la récupération des données', 'danger');
+                    mdmcAdmin.showNotification(response.error || 'Erreur lors de la récupération des données', 'danger');
                 }
             } catch (error) {
                 mdmcAdmin.showNotification('Impossible de contacter le serveur de metadonnées.', 'danger');

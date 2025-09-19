@@ -30,29 +30,99 @@ async function initDatabase() {
       )
     `);
 
-    // Create smartlinks table
+    // Create smartlinks table with full schema
     console.log('📊 Creating smartlinks table...');
     await client.query(`
       CREATE TABLE IF NOT EXISTS smartlinks (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        title VARCHAR(255) NOT NULL,
         slug VARCHAR(255) UNIQUE NOT NULL,
-        cover_image TEXT,
-        metadata JSONB DEFAULT '{}',
+        title VARCHAR(255) NOT NULL,
+        artist VARCHAR(255),
+        description TEXT,
+        cover_url TEXT,
+        preview_audio_url TEXT,
         platforms JSONB DEFAULT '[]',
-        settings JSONB DEFAULT '{}',
-        analytics JSONB DEFAULT '{}',
+        template VARCHAR(50) DEFAULT 'default',
+        customization JSONB DEFAULT '{
+          "primaryColor": "#1976d2",
+          "backgroundColor": "#ffffff",
+          "textColor": "#333333"
+        }'::jsonb,
         is_active BOOLEAN DEFAULT true,
-        views_count INTEGER DEFAULT 0,
-        clicks_count INTEGER DEFAULT 0,
-        created_at TIMESTAMP DEFAULT NOW(),
-        updated_at TIMESTAMP DEFAULT NOW()
+        click_count INTEGER DEFAULT 0,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        odesli_data JSONB,
+        odesli_fetched_at TIMESTAMP WITH TIME ZONE
       )
     `);
 
-    // Create cache table for Odesli
-    console.log('📊 Creating cache table...');
+    // Add slug column to existing smartlinks table if it doesn't exist
+    console.log('📊 Adding slug column if needed...');
+    await client.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                      WHERE table_name = 'smartlinks' AND column_name = 'slug') THEN
+          ALTER TABLE smartlinks ADD COLUMN slug VARCHAR(255) UNIQUE;
+        END IF;
+      END $$;
+    `);
+
+    // Create odesli_cache table for Odesli API caching
+    console.log('📊 Creating odesli_cache table...');
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS odesli_cache (
+        id SERIAL PRIMARY KEY,
+        source_url VARCHAR(500) UNIQUE NOT NULL,
+        data JSONB NOT NULL,
+        entity_id VARCHAR(255),
+        title VARCHAR(255),
+        artist VARCHAR(255),
+        thumbnail_url TEXT,
+        platforms_count INT DEFAULT 0,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        expires_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() + INTERVAL '7 days',
+        hit_count INT DEFAULT 0
+      )
+    `);
+
+    // Create analytics table (partitioned)
+    console.log('📊 Creating analytics table...');
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS analytics (
+        id SERIAL,
+        smartlink_id INT REFERENCES smartlinks(id) ON DELETE CASCADE,
+        clicked_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        ip_address INET,
+        user_agent TEXT,
+        country VARCHAR(2),
+        city VARCHAR(100),
+        region VARCHAR(100),
+        platform VARCHAR(50),
+        referrer TEXT,
+        device_type VARCHAR(20),
+        browser VARCHAR(50),
+        os VARCHAR(50),
+        session_id VARCHAR(100)
+      ) PARTITION BY RANGE (clicked_at)
+    `);
+
+    // Create current partition for analytics (current month)
+    const currentYear = new Date().getFullYear();
+    const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
+    const nextMonth = String(new Date().getMonth() + 2).padStart(2, '0');
+    const partitionName = `analytics_${currentYear}_${currentMonth}`;
+
+    console.log(`📊 Creating analytics partition: ${partitionName}...`);
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS ${partitionName} PARTITION OF analytics
+      FOR VALUES FROM ('${currentYear}-${currentMonth}-01') TO ('${currentYear}-${nextMonth}-01')
+    `);
+
+    // Create generic cache table for backward compatibility
+    console.log('📊 Creating generic cache table...');
     await client.query(`
       CREATE TABLE IF NOT EXISTS cache (
         id SERIAL PRIMARY KEY,
@@ -69,6 +139,10 @@ async function initDatabase() {
       CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
       CREATE INDEX IF NOT EXISTS idx_smartlinks_slug ON smartlinks(slug);
       CREATE INDEX IF NOT EXISTS idx_smartlinks_user_id ON smartlinks(user_id);
+      CREATE INDEX IF NOT EXISTS idx_smartlinks_created ON smartlinks(created_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_odesli_url ON odesli_cache(source_url);
+      CREATE INDEX IF NOT EXISTS idx_odesli_expires ON odesli_cache(expires_at);
+      CREATE INDEX IF NOT EXISTS idx_analytics_smartlink ON analytics(smartlink_id, clicked_at DESC);
       CREATE INDEX IF NOT EXISTS idx_cache_key ON cache(key);
       CREATE INDEX IF NOT EXISTS idx_cache_expires_at ON cache(expires_at);
     `);

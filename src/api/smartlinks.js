@@ -1,6 +1,117 @@
 const { smartlinks } = require('../lib/smartlinks');
 const jwt = require('jsonwebtoken');
 
+// Function to generate modern SmartLink HTML page
+function generateSmartLinkHTML(smartlink) {
+  const { title, artist, cover_url, platforms, customization, slug } = smartlink;
+  const fs = require('fs');
+  const path = require('path');
+  
+  // Load the modern template
+  const templatePath = path.join(__dirname, '../../templates/smartlink-modern.html');
+  let template = fs.readFileSync(templatePath, 'utf8');
+  
+  // Platform configuration with PNG icons
+  const platformConfig = {
+    'spotify': { 
+      name: 'Spotify', 
+      color: '#1DB954', 
+      desc: 'Music for everyone',
+      icon: `<img src="/assets/images/platforms/picto_spotify.png" width="24" height="24" alt="Spotify">`
+    },
+    'apple': { 
+      name: 'Apple Music', 
+      color: '#FA243C', 
+      desc: 'Music everywhere',
+      icon: `<img src="/assets/images/platforms/picto_apple.png" width="24" height="24" alt="Apple Music">`
+    },
+    'applemusic': { 
+      name: 'Apple Music', 
+      color: '#FA243C', 
+      desc: 'Music everywhere',
+      icon: `<img src="/assets/images/platforms/picto_apple.png" width="24" height="24" alt="Apple Music">`
+    },
+    'youtube': { 
+      name: 'YouTube Music', 
+      color: '#FF0000', 
+      desc: 'Music videos & more',
+      icon: `<img src="/assets/images/platforms/picto_youtubemusic.png" width="24" height="24" alt="YouTube Music">`
+    },
+    'youtubemusic': { 
+      name: 'YouTube Music', 
+      color: '#FF0000', 
+      desc: 'Music videos & more',
+      icon: `<img src="/assets/images/platforms/picto_youtubemusic.png" width="24" height="24" alt="YouTube Music">`
+    },
+    'deezer': { 
+      name: 'Deezer', 
+      color: '#FF6600', 
+      desc: 'Flow your music',
+      icon: `<img src="/assets/images/platforms/picto_deezer.png" width="24" height="24" alt="Deezer">`
+    },
+    'soundcloud': { 
+      name: 'SoundCloud', 
+      color: '#FF5500', 
+      desc: 'Hear the future',
+      icon: `<img src="/assets/images/platforms/picto_soundcloud.png" width="24" height="24" alt="SoundCloud">`
+    },
+    'tidal': { 
+      name: 'Tidal', 
+      color: '#000000', 
+      desc: 'High fidelity',
+      icon: `<img src="/assets/images/platforms/picto_tidal.png" width="24" height="24" alt="Tidal">`
+    },
+    'amazon': { 
+      name: 'Amazon Music', 
+      color: '#FF9900', 
+      desc: 'Music unlimited',
+      icon: `<img src="/assets/images/platforms/picto_amazon.png" width="24" height="24" alt="Amazon Music">`
+    },
+    'amazonmusic': { 
+      name: 'Amazon Music', 
+      color: '#FF9900', 
+      desc: 'Music unlimited',
+      icon: `<img src="/assets/images/platforms/picto_amazon.png" width="24" height="24" alt="Amazon Music">`
+    }
+  };
+  
+  // Generate platform items with the new design
+  const platformsHTML = platforms.map(platform => {
+    const platformKey = platform.name.toLowerCase().replace(/\s+/g, '').replace('music', '');
+    const config = platformConfig[platformKey] || { 
+      name: platform.name, 
+      color: '#666', 
+      desc: 'Listen now',
+      icon: `<div style="width:20px;height:20px;background:#666;border-radius:4px;"></div>`
+    };
+    
+    return `
+      <div class="platform-item ${platformKey}" onclick="openPlatform('${platformKey}', '${platform.url}')">
+        <div class="platform-left">
+          <div class="platform-icon">
+            ${config.icon}
+          </div>
+          <div class="platform-info">
+            <div class="platform-name">${config.name}</div>
+            <div class="platform-description">${config.desc}</div>
+          </div>
+        </div>
+        <button class="platform-button">Play</button>
+      </div>
+    `;
+  }).join('');
+
+  // Replace template placeholders
+  template = template
+    .replace(/\{\{TITLE\}\}/g, title || 'Titre')
+    .replace(/\{\{ARTIST\}\}/g, artist || 'Artiste')
+    .replace(/\{\{COVER_URL\}\}/g, cover_url || '')
+    .replace(/\{\{SLUG\}\}/g, slug || '')
+    .replace(/\{\{PLATFORMS_HTML\}\}/g, platformsHTML);
+
+  return template;
+}
+
 // Auth middleware is now handled by authController
 
 /**
@@ -220,16 +331,56 @@ async function getPublicSmartLink(req, res) {
     // Record click asynchronously (don't wait)
     smartlinks.recordClick(smartlink.id, clickData).catch(console.error);
     
-    res.json({
-      success: true,
-      smartlink
-    });
+    // Generate beautiful HTML page instead of JSON
+    const htmlPage = generateSmartLinkHTML(smartlink);
+    res.setHeader('Content-Type', 'text/html');
+    res.send(htmlPage);
     
   } catch (error) {
     console.error('❌ Public SmartLink error:', error);
     res.status(500).json({
       success: false,
       error: 'Erreur lors de la récupération du SmartLink'
+    });
+  }
+}
+
+// Track platform-specific clicks
+async function trackPlatformClick(req, res) {
+  try {
+    const { slug } = req.params;
+    const { platform, timestamp, userAgent } = req.body;
+    
+    const smartlink = await smartlinks.getBySlug(slug);
+    
+    if (!smartlink) {
+      return res.status(404).json({
+        success: false,
+        error: 'SmartLink non trouvé'
+      });
+    }
+    
+    // Record platform-specific analytics
+    const clickData = {
+      ip_address: req.ip,
+      user_agent: userAgent || req.get('User-Agent'),
+      referrer: req.get('Referrer'),
+      platform,
+      timestamp: timestamp || new Date().toISOString()
+    };
+    
+    await smartlinks.recordClick(smartlink.id, clickData);
+    
+    res.json({
+      success: true,
+      message: 'Click enregistré'
+    });
+    
+  } catch (error) {
+    console.error('❌ Platform click tracking error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur tracking'
     });
   }
 }
@@ -241,5 +392,6 @@ module.exports = {
   updateSmartLink,
   deleteSmartLink,
   getSmartLinkAnalytics,
-  getPublicSmartLink
+  getPublicSmartLink,
+  trackPlatformClick
 };

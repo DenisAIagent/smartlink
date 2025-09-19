@@ -3,10 +3,17 @@
 class MDMCAdmin {
     constructor() {
         // Configuration dynamique basée sur l'environnement
-        this.config = window.MDMC_CONFIG || { 
-            API_BASE_URL: this.detectBackendUrl()
-        };
-        
+        if (window.MDMC_CONFIG) {
+            this.config = window.MDMC_CONFIG;
+            console.log('✅ Using MDMC_CONFIG from config.js:', this.config);
+        } else {
+            this.config = {
+                API_BASE_URL: this.detectBackendUrl(),
+                ENVIRONMENT: 'development'
+            };
+            console.warn('⚠️ MDMC_CONFIG not found, using fallback:', this.config);
+        }
+
         this.init();
         console.log('🔧 MDMC Admin initialized with config:', this.config);
     }
@@ -15,13 +22,13 @@ class MDMCAdmin {
         // Détection automatique de l'URL backend
         const hostname = window.location.hostname;
         if (hostname.includes('mdmcmusicads.com')) {
-            return 'https://mdmcv7-backend-production.up.railway.app';
+            return `https://${hostname}`; // Use same domain for admin interface
         }
         if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
-            return 'http://localhost:5001';
+            return 'http://localhost:3003'; // Fixed: Use correct local port
         }
-        // Fallback pour d'autres environnements
-        return 'https://mdmcv7-backend-production.up.railway.app';
+        // Fallback pour Railway et autres environnements
+        return `https://${hostname}`; // Use current domain as fallback
     }
 
     init() {
