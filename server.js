@@ -290,6 +290,38 @@ app.get('/api/debug/test-auth', (req, res) => {
   });
 });
 
+// Emergency column addition for Railway
+app.post('/api/emergency-add-column', async (req, res) => {
+  try {
+    console.log('🚨 Emergency column addition triggered');
+    const { query } = require('./src/lib/db');
+
+    // Add is_active column to smartlinks table
+    try {
+      await query('ALTER TABLE smartlinks ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true');
+      console.log('✅ Column is_active added successfully');
+    } catch (error) {
+      console.log('⚠️ Column addition result:', error.message);
+    }
+
+    // Verify column exists
+    const result = await query(`
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_name = 'smartlinks' AND column_name = 'is_active'
+    `);
+
+    res.json({
+      success: true,
+      message: 'Column addition completed',
+      columnExists: result.length > 0
+    });
+  } catch (error) {
+    console.error('Emergency column addition failed:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Debug endpoints removed after successful Railway deployment fix
 
 // Debug login route (temporary for Railway debugging - TO BE REMOVED)
