@@ -290,6 +290,31 @@ app.get('/api/debug/test-auth', (req, res) => {
   });
 });
 
+// Debug endpoint to inspect table schema
+app.get('/api/debug/table-schema', async (req, res) => {
+  try {
+    const { query } = require('./src/lib/db');
+    const columns = await query(`
+      SELECT column_name, data_type, is_nullable, column_default
+      FROM information_schema.columns
+      WHERE table_name = 'smartlinks'
+      ORDER BY ordinal_position
+    `);
+    res.json({
+      success: true,
+      table: 'smartlinks',
+      columns: columns.map(col => ({
+        name: col.column_name,
+        type: col.data_type,
+        nullable: col.is_nullable === 'YES',
+        default: col.column_default
+      }))
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Emergency column addition for Railway
 app.post('/api/emergency-add-column', async (req, res) => {
   try {
