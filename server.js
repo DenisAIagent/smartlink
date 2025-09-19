@@ -304,6 +304,7 @@ app.post('/api/emergency-add-column', async (req, res) => {
       { name: 'slug', type: 'VARCHAR(255) UNIQUE' },
       { name: 'title', type: 'VARCHAR(255)' },
       { name: 'artist', type: 'VARCHAR(255)' },
+      { name: 'description', type: 'TEXT' },
       { name: 'cover_url', type: 'TEXT' },
       { name: 'is_active', type: 'BOOLEAN DEFAULT true' },
       { name: 'click_count', type: 'INTEGER DEFAULT 0' },
@@ -326,7 +327,7 @@ app.post('/api/emergency-add-column', async (req, res) => {
     const verification = await query(`
       SELECT column_name
       FROM information_schema.columns
-      WHERE table_name = 'smartlinks' AND column_name IN ('user_id', 'slug', 'title', 'artist', 'cover_url', 'is_active', 'click_count', 'created_at', 'updated_at')
+      WHERE table_name = 'smartlinks' AND column_name IN ('user_id', 'slug', 'title', 'artist', 'description', 'cover_url', 'is_active', 'click_count', 'created_at', 'updated_at')
     `);
 
     res.json({
