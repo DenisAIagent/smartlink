@@ -307,6 +307,11 @@ app.post('/api/emergency-add-column', async (req, res) => {
       { name: 'description', type: 'TEXT' },
       { name: 'cover_url', type: 'TEXT' },
       { name: 'preview_audio_url', type: 'TEXT' },
+      { name: 'platforms', type: 'JSONB DEFAULT \'[]\'::jsonb' },
+      { name: 'template', type: 'VARCHAR(100) DEFAULT \'default\'' },
+      { name: 'customization', type: 'JSONB DEFAULT \'{}\'::jsonb' },
+      { name: 'odesli_data', type: 'JSONB' },
+      { name: 'odesli_fetched_at', type: 'TIMESTAMP WITH TIME ZONE' },
       { name: 'is_active', type: 'BOOLEAN DEFAULT true' },
       { name: 'click_count', type: 'INTEGER DEFAULT 0' },
       { name: 'created_at', type: 'TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP' },
@@ -328,7 +333,7 @@ app.post('/api/emergency-add-column', async (req, res) => {
     const verification = await query(`
       SELECT column_name
       FROM information_schema.columns
-      WHERE table_name = 'smartlinks' AND column_name IN ('user_id', 'slug', 'title', 'artist', 'description', 'cover_url', 'preview_audio_url', 'is_active', 'click_count', 'created_at', 'updated_at')
+      WHERE table_name = 'smartlinks' AND column_name IN ('user_id', 'slug', 'title', 'artist', 'description', 'cover_url', 'preview_audio_url', 'platforms', 'template', 'customization', 'odesli_data', 'odesli_fetched_at', 'is_active', 'click_count', 'created_at', 'updated_at')
     `);
 
     res.json({
