@@ -296,25 +296,39 @@ app.post('/api/emergency-add-column', async (req, res) => {
     console.log('🚨 Emergency column addition triggered');
     const { query } = require('./src/lib/db');
 
-    // Add is_active column to smartlinks table
-    try {
-      await query('ALTER TABLE smartlinks ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true');
-      console.log('✅ Column is_active added successfully');
-    } catch (error) {
-      console.log('⚠️ Column addition result:', error.message);
+    const results = {};
+
+    // Add missing columns to smartlinks table
+    const columns = [
+      { name: 'is_active', type: 'BOOLEAN DEFAULT true' },
+      { name: 'click_count', type: 'INTEGER DEFAULT 0' },
+      { name: 'created_at', type: 'TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP' },
+      { name: 'updated_at', type: 'TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP' }
+    ];
+
+    for (const column of columns) {
+      try {
+        await query(`ALTER TABLE smartlinks ADD COLUMN IF NOT EXISTS ${column.name} ${column.type}`);
+        console.log(`✅ Column ${column.name} added successfully`);
+        results[column.name] = 'added';
+      } catch (error) {
+        console.log(`⚠️ Column ${column.name} addition result:`, error.message);
+        results[column.name] = error.message;
+      }
     }
 
-    // Verify column exists
-    const result = await query(`
+    // Verify all columns exist
+    const verification = await query(`
       SELECT column_name
       FROM information_schema.columns
-      WHERE table_name = 'smartlinks' AND column_name = 'is_active'
+      WHERE table_name = 'smartlinks' AND column_name IN ('is_active', 'click_count', 'created_at', 'updated_at')
     `);
 
     res.json({
       success: true,
       message: 'Column addition completed',
-      columnExists: result.length > 0
+      results,
+      columnsFound: verification.map(row => row.column_name)
     });
   } catch (error) {
     console.error('Emergency column addition failed:', error);
