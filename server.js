@@ -315,6 +315,45 @@ app.get('/api/debug/table-schema', async (req, res) => {
   }
 });
 
+// Emergency fix for NOT NULL constraints
+app.post('/api/emergency-fix-constraints', async (req, res) => {
+  try {
+    console.log('🚨 Emergency constraint fix triggered');
+    const { query } = require('./src/lib/db');
+
+    const constraintFixes = [
+      'ALTER TABLE smartlinks ALTER COLUMN artist_name DROP NOT NULL',
+      'ALTER TABLE smartlinks ALTER COLUMN track_title DROP NOT NULL',
+      'ALTER TABLE smartlinks ALTER COLUMN source_url DROP NOT NULL',
+      'ALTER TABLE smartlinks ALTER COLUMN short_id DROP NOT NULL'
+    ];
+
+    const results = {};
+
+    for (const sql of constraintFixes) {
+      try {
+        await query(sql);
+        const column = sql.match(/ALTER COLUMN (\w+)/)[1];
+        console.log(`✅ Removed NOT NULL constraint from ${column}`);
+        results[column] = 'constraint removed';
+      } catch (error) {
+        const column = sql.match(/ALTER COLUMN (\w+)/)[1];
+        console.log(`⚠️ Constraint fix for ${column}:`, error.message);
+        results[column] = error.message;
+      }
+    }
+
+    res.json({
+      success: true,
+      message: 'Constraint fixes completed',
+      results
+    });
+  } catch (error) {
+    console.error('Emergency constraint fix failed:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Emergency column addition for Railway
 app.post('/api/emergency-add-column', async (req, res) => {
   try {
