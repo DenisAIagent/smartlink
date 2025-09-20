@@ -551,26 +551,26 @@
                     <div class="metrics-grid">
                         <div class="metric-card">
                             <div class="metric-label">Clics Totaux</div>
-                            <div class="metric-value" id="totalClicks">0</div>
-                            <span class="metric-change positive" id="clicksChange">
+                            <div class="metric-value" id="totalClicks">-</div>
+                            <span class="metric-change positive" id="clicksChange" style="display: none;">
                                 <span>↑</span>
-                                <span>0%</span>
+                                <span>-</span>
                             </span>
                         </div>
                         <div class="metric-card">
                             <div class="metric-label">Visiteurs Uniques</div>
-                            <div class="metric-value" id="uniqueVisitors">0</div>
-                            <span class="metric-change positive" id="visitorsChange">
+                            <div class="metric-value" id="uniqueVisitors">-</div>
+                            <span class="metric-change positive" id="visitorsChange" style="display: none;">
                                 <span>↑</span>
-                                <span>0%</span>
+                                <span>-</span>
                             </span>
                         </div>
                         <div class="metric-card">
                             <div class="metric-label">Taux de Conversion</div>
-                            <div class="metric-value" id="conversionRate">0%</div>
-                            <span class="metric-change" id="conversionChange">
+                            <div class="metric-value" id="conversionRate">-</div>
+                            <span class="metric-change" id="conversionChange" style="display: none;">
                                 <span>↔</span>
-                                <span>0%</span>
+                                <span>-</span>
                             </span>
                         </div>
                         <div class="metric-card">
@@ -912,12 +912,12 @@
             const platform_stats = Object.entries(platformCounts).map(([platform, clicks]) => ({
                 platform,
                 clicks,
-                unique_clicks: Math.floor(clicks * 0.7) // Estimate
+                unique_clicks: clicks // Use same as clicks since we don't track this separately yet
             }));
 
             return {
                 total_clicks: totalClicks,
-                unique_visitors: Math.floor(totalClicks * 0.65), // Estimate
+                unique_visitors: totalClicks, // Use same as clicks since we don't track this separately yet
                 platform_stats,
                 top_platform: platform_stats.length > 0 ?
                     platform_stats.reduce((max, p) => p.clicks > max.clicks ? p : max).platform : null
@@ -1088,7 +1088,7 @@
             tbody.innerHTML = platforms.map(item => {
                 const platform = item.platform;
                 const clicks = item.clicks || 0;
-                const uniqueClicks = item.unique_clicks || Math.floor(clicks * 0.7);
+                const uniqueClicks = item.unique_clicks || clicks;
                 const percentage = totalClicks > 0 ? ((clicks / totalClicks) * 100).toFixed(1) : 0;
                 const config = platformConfig[platform.toLowerCase()] || {
                     name: platform,
