@@ -31,15 +31,15 @@ function generateSmartLinkHTML(smartlink) {
       desc: 'Music everywhere',
       icon: `<img src="/assets/images/platforms/picto_apple.png" width="24" height="24" alt="Apple Music">`
     },
-    'youtube': { 
-      name: 'YouTube Music', 
-      color: '#FF0000', 
-      desc: 'Music videos & more',
-      icon: `<img src="/assets/images/platforms/picto_youtubemusic.png" width="24" height="24" alt="YouTube Music">`
+    'youtube': {
+      name: 'YouTube',
+      color: '#FF0000',
+      desc: 'Watch on YouTube',
+      icon: `<img src="/assets/images/platforms/picto_youtube.png" width="24" height="24" alt="YouTube">`
     },
-    'youtubemusic': { 
-      name: 'YouTube Music', 
-      color: '#FF0000', 
+    'youtubemusic': {
+      name: 'YouTube Music',
+      color: '#FF0000',
       desc: 'Music videos & more',
       icon: `<img src="/assets/images/platforms/picto_youtubemusic.png" width="24" height="24" alt="YouTube Music">`
     },

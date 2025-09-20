@@ -202,6 +202,68 @@
             color: var(--gray-medium);
             font-size: 12px;
         }
+
+        /* Platform Selector Styles */
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .platform-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border: 2px solid rgba(0,0,0,0.08);
+            border-radius: var(--border-radius);
+            background: var(--white);
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .platform-option:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .platform-option.selected {
+            border-color: var(--primary);
+            background: rgba(229, 9, 20, 0.04);
+        }
+
+        .platform-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .platform-option img {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .platform-info {
+            flex: 1;
+        }
+
+        .platform-name {
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 14px;
+        }
+
+        .platform-desc {
+            font-size: 12px;
+            color: var(--gray-medium);
+            margin-top: 2px;
+        }
         .is-valid {
             border-color: #28a745 !important;
             box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
@@ -305,8 +367,17 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <form id="customizationForm">
+                    <!-- Sélecteur de plateformes -->
+                    <div class="form-group">
+                        <label>Plateformes à inclure dans le SmartLink</label>
+                        <p class="text-muted" style="font-size: 14px;">Sélectionnez les plateformes que vous souhaitez afficher :</p>
+                        <div id="platformSelector" class="platform-grid">
+                            <!-- Les plateformes seront ajoutées dynamiquement -->
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label for="metaDescription">Meta description (150 caractères max)</label>
                         <textarea id="metaDescription" class="form-control" rows="3" maxlength="150"></textarea>
@@ -438,6 +509,14 @@
                 return;
             }
 
+            // Obtenir seulement les plateformes sélectionnées
+            const selectedPlatforms = getSelectedPlatforms();
+
+            if (selectedPlatforms.length === 0) {
+                mdmcAdmin.showNotification('Veuillez sélectionner au moins une plateforme', 'danger');
+                return;
+            }
+
             // Adapter les données au format de notre API PostgreSQL
             const smartlinkData = {
                 title: trackData.title,
@@ -445,7 +524,7 @@
                 description: document.getElementById('metaDescription').value,
                 coverUrl: trackData.thumbnailUrl,
                 previewAudioUrl: audioPreviewUrl,
-                platforms: trackData.platforms || [],
+                platforms: selectedPlatforms, // Utiliser seulement les plateformes sélectionnées
                 odesliUrl: document.getElementById('sourceUrl').value, // URL originale pour Odesli
                 customization: {
                     primaryColor: '#1976d2',
@@ -546,6 +625,9 @@
             if (data.platforms && data.platforms.length > 0) {
                 const platformCount = data.platforms.length;
                 platformsSpan.textContent = `✅ ${platformCount} plateforme${platformCount > 1 ? 's' : ''} trouvée${platformCount > 1 ? 's' : ''} (${data.platforms.slice(0, 3).map(p => p.name).join(', ')}${platformCount > 3 ? ', ...' : ''})`;
+
+                // Peupler le sélecteur de plateformes
+                populatePlatformSelector(data.platforms);
             } else {
                 platformsSpan.textContent = '❌ Aucune plateforme trouvée';
             }
@@ -725,6 +807,98 @@
             img.onerror = (e) => console.error('❌ Proxy test failed:', e);
             img.src = proxyUrl;
         };
+
+        // Configuration des icônes des plateformes
+        const platformIcons = {
+            'spotify': '/assets/images/platforms/picto_spotify.png',
+            'apple': '/assets/images/platforms/picto_apple.png',
+            'applemusic': '/assets/images/platforms/picto_apple.png',
+            'youtube': '/assets/images/platforms/picto_youtube.png',
+            'youtubemusic': '/assets/images/platforms/picto_youtubemusic.png',
+            'deezer': '/assets/images/platforms/picto_deezer.png',
+            'soundcloud': '/assets/images/platforms/picto_soundcloud.png',
+            'tidal': '/assets/images/platforms/picto_tidal.png',
+            'amazon': '/assets/images/platforms/picto_amazon.png',
+            'amazonmusic': '/assets/images/platforms/picto_amazon.png'
+        };
+
+        const platformDescriptions = {
+            'spotify': 'Music for everyone',
+            'apple': 'Music everywhere',
+            'applemusic': 'Music everywhere',
+            'youtube': 'Watch on YouTube',
+            'youtubemusic': 'Music videos & more',
+            'deezer': 'Flow your music',
+            'soundcloud': 'Hear the future',
+            'tidal': 'High fidelity',
+            'amazon': 'Music unlimited',
+            'amazonmusic': 'Music unlimited'
+        };
+
+        // Fonction pour peupler le sélecteur de plateformes
+        function populatePlatformSelector(platforms) {
+            const selector = document.getElementById('platformSelector');
+            if (!selector) return;
+
+            console.log('🎯 Populating platform selector with platforms:', platforms);
+
+            selector.innerHTML = '';
+
+            platforms.forEach((platform, index) => {
+                const platformKey = platform.name.toLowerCase().replace(/\s+/g, '').replace('music', '');
+                const iconPath = platformIcons[platformKey] || '/assets/images/platforms/default.png';
+                const description = platformDescriptions[platformKey] || 'Listen now';
+
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'platform-option';
+                optionDiv.innerHTML = `
+                    <input type="checkbox"
+                           id="platform_${index}"
+                           name="selectedPlatforms"
+                           value="${index}"
+                           ${index < 5 ? 'checked' : ''}>
+                    <img src="${iconPath}" alt="${platform.name}" onerror="this.style.display='none'">
+                    <div class="platform-info">
+                        <div class="platform-name">${platform.name}</div>
+                        <div class="platform-desc">${description}</div>
+                    </div>
+                `;
+
+                // Ajouter l'événement de clic pour la sélection
+                const checkbox = optionDiv.querySelector('input[type="checkbox"]');
+                optionDiv.addEventListener('click', (e) => {
+                    if (e.target.type !== 'checkbox') {
+                        checkbox.checked = !checkbox.checked;
+                    }
+                    optionDiv.classList.toggle('selected', checkbox.checked);
+                });
+
+                // Mettre à jour la classe lors du chargement initial
+                if (checkbox.checked) {
+                    optionDiv.classList.add('selected');
+                }
+
+                selector.appendChild(optionDiv);
+            });
+
+            console.log('✅ Platform selector populated successfully');
+        }
+
+        // Fonction pour obtenir les plateformes sélectionnées
+        function getSelectedPlatforms() {
+            const checkboxes = document.querySelectorAll('#platformSelector input[type="checkbox"]:checked');
+            const selectedPlatforms = [];
+
+            checkboxes.forEach(checkbox => {
+                const platformIndex = parseInt(checkbox.value);
+                if (trackData.platforms && trackData.platforms[platformIndex]) {
+                    selectedPlatforms.push(trackData.platforms[platformIndex]);
+                }
+            });
+
+            console.log('🎯 Selected platforms:', selectedPlatforms);
+            return selectedPlatforms;
+        }
     </script>
 </body>
 </html>
