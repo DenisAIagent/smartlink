@@ -845,7 +845,23 @@
             selector.innerHTML = '';
 
             platforms.forEach((platform, index) => {
-                const platformKey = platform.name.toLowerCase().replace(/\s+/g, '').replace('music', '');
+                // Mapping spécifique pour bien distinguer YouTube et YouTube Music
+                let platformKey = platform.name.toLowerCase().replace(/\s+/g, '');
+
+                // Cas spéciaux pour éviter la confusion
+                if (platformKey === 'youtubemusic') {
+                    platformKey = 'youtubemusic';
+                } else if (platformKey === 'youtube') {
+                    platformKey = 'youtube';
+                } else if (platformKey === 'applemusic') {
+                    platformKey = 'applemusic';
+                } else if (platformKey === 'amazonmusic') {
+                    platformKey = 'amazonmusic';
+                } else {
+                    // Pour les autres, on peut enlever "music" si nécessaire
+                    platformKey = platformKey.replace('music', '');
+                }
+
                 const iconPath = platformIcons[platformKey] || '/assets/images/platforms/default.png';
                 const description = platformDescriptions[platformKey] || 'Listen now';
 

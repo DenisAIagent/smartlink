@@ -77,10 +77,26 @@ function generateSmartLinkHTML(smartlink) {
   
   // Generate platform items with the new design
   const platformsHTML = platforms.map(platform => {
-    const platformKey = platform.name.toLowerCase().replace(/\s+/g, '').replace('music', '');
-    const config = platformConfig[platformKey] || { 
-      name: platform.name, 
-      color: '#666', 
+    // Mapping spécifique pour bien distinguer YouTube et YouTube Music
+    let platformKey = platform.name.toLowerCase().replace(/\s+/g, '');
+
+    // Cas spéciaux pour éviter la confusion
+    if (platformKey === 'youtubemusic') {
+      platformKey = 'youtubemusic';
+    } else if (platformKey === 'youtube') {
+      platformKey = 'youtube';
+    } else if (platformKey === 'applemusic') {
+      platformKey = 'applemusic';
+    } else if (platformKey === 'amazonmusic') {
+      platformKey = 'amazonmusic';
+    } else {
+      // Pour les autres, on peut enlever "music" si nécessaire
+      platformKey = platformKey.replace('music', '');
+    }
+
+    const config = platformConfig[platformKey] || {
+      name: platform.name,
+      color: '#666',
       desc: 'Listen now',
       icon: `<div style="width:20px;height:20px;background:#666;border-radius:4px;"></div>`
     };
