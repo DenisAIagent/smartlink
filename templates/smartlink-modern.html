@@ -315,6 +315,16 @@
       gap: 8px;
     }
 
+    .smartlink-footer a {
+      color: var(--gray-600);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .smartlink-footer a:hover {
+      color: var(--gray-800);
+    }
+
     /* États spéciaux - tous les boutons sont noirs */
     .platform-item .platform-button {
       background: #000000;
@@ -423,7 +433,9 @@
       <!-- Footer -->
       <div class="smartlink-footer">
         <span>Powered by</span>
-        <strong>MDMC Music Ads</strong>
+        <a href="https://www.mdmcmusicads.com" target="_blank" rel="noopener noreferrer">
+          <strong>MDMC Music Ads</strong>
+        </a>
       </div>
 
     </div>
