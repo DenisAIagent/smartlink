@@ -359,7 +359,7 @@
 
         // Rendu d'une carte SmartLink
         function renderSmartLinkCard(smartlink) {
-            const smartlinkUrl = `http://localhost:3003/s/${smartlink.slug}`;
+            const smartlinkUrl = `${window.location.protocol}//${window.location.hostname === 'localhost' ? 'localhost:3003' : 'smartlink.mdmcmusicads.com'}/s/${smartlink.slug}`;
             
             return `
                 <div class="smartlink-card">
