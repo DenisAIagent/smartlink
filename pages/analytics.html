@@ -753,10 +753,10 @@
                     // Update state based on dropdown
                     if (dropdown === smartlinkDropdown) {
                         currentSmartLink = item.dataset.value;
-                        updateAnalytics();
+                        loadAnalytics();
                     } else if (dropdown === periodDropdown) {
                         currentPeriod = item.dataset.value;
-                        updateAnalytics();
+                        loadAnalytics();
                     }
                 });
             });
@@ -951,18 +951,11 @@
 
             document.getElementById('topPlatform').textContent = data.top_platform || '-';
 
-            // Update change indicators (mock data for now)
-            const changes = [12.3, 8.7, -2.1];
+            // Update change indicators (hide for now - would need historical data)
             const changeElements = ['clicksChange', 'visitorsChange', 'conversionChange'];
-
-            changeElements.forEach((id, index) => {
+            changeElements.forEach((id) => {
                 const el = document.getElementById(id);
-                const value = changes[index];
-                el.className = 'metric-change ' + (value >= 0 ? 'positive' : 'negative');
-                el.innerHTML = `
-                    <span>${value >= 0 ? '↑' : '↓'}</span>
-                    <span>${Math.abs(value)}%</span>
-                `;
+                el.style.display = 'none'; // Hide until we have historical data
             });
         }
 
@@ -974,17 +967,29 @@
                 chartContainer.innerHTML = '<canvas id="clicksChart" style="max-height: 350px;"></canvas>';
                 const ctx = document.getElementById('clicksChart').getContext('2d');
 
-                // Generate mock daily data
+                // Use real daily clicks data from API
+                const dailyClicks = data.daily_clicks || [];
                 const labels = [];
                 const values = [];
-                const daysMap = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 };
-                const days = daysMap[currentPeriod] || 30;
 
-                for (let i = days - 1; i >= 0; i--) {
-                    const date = new Date();
-                    date.setDate(date.getDate() - i);
-                    labels.push(date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }));
-                    values.push(Math.floor(Math.random() * 100) + 10);
+                if (dailyClicks.length > 0) {
+                    // Use real data from API
+                    dailyClicks.forEach(day => {
+                        const date = new Date(day.date);
+                        labels.push(date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }));
+                        values.push(parseInt(day.clicks) || 0);
+                    });
+                } else {
+                    // Show empty chart if no data
+                    const daysMap = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 };
+                    const days = daysMap[currentPeriod] || 30;
+
+                    for (let i = days - 1; i >= 0; i--) {
+                        const date = new Date();
+                        date.setDate(date.getDate() - i);
+                        labels.push(date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }));
+                        values.push(0);
+                    }
                 }
 
                 chart = new Chart(ctx, {
@@ -1099,7 +1104,7 @@
                         <td><strong>${formatNumber(clicks)}</strong></td>
                         <td>${formatNumber(uniqueClicks)}</td>
                         <td>${percentage}%</td>
-                        <td style="color: var(--success);">↑ ${Math.floor(Math.random() * 20 + 5)}%</td>
+                        <td style="color: var(--text-secondary);">-</td>
                     </tr>
                 `;
             }).join('');
