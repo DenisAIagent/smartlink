@@ -329,13 +329,13 @@ const smartlinks = {
           clickData.session_id
         ]
       );
-      
+
       // Update click count
       await query(
         'UPDATE smartlinks SET click_count = click_count + 1 WHERE id = $1',
         [smartlinkId]
       );
-      
+
     } catch (error) {
       console.error('❌ Click recording error:', error);
       // Ne pas faire échouer la requête principale si analytics fail
@@ -380,31 +380,62 @@ const smartlinks = {
         'SELECT id FROM smartlinks WHERE id = $1 AND user_id = $2',
         [smartlinkId, userId]
       );
-      
+
       if (!smartlink) {
         throw new Error('SmartLink non trouvé');
       }
-      
+
+      // Get general analytics
       const analytics = await queryOne(
-        `SELECT 
+        `SELECT
           COUNT(*) as total_clicks,
           COUNT(DISTINCT ip_address) as unique_visitors,
           COUNT(DISTINCT DATE(clicked_at)) as active_days,
           mode() WITHIN GROUP (ORDER BY platform) as top_platform,
           mode() WITHIN GROUP (ORDER BY country) as top_country
-         FROM analytics 
-         WHERE smartlink_id = $1 
+         FROM analytics
+         WHERE smartlink_id = $1
          AND clicked_at >= NOW() - INTERVAL '${days} days'`,
         [smartlinkId]
       );
-      
+
+      // Get platform-specific analytics
+      const platformStats = await query(
+        `SELECT
+          platform,
+          COUNT(*) as clicks,
+          COUNT(DISTINCT ip_address) as unique_clicks
+         FROM analytics
+         WHERE smartlink_id = $1
+         AND clicked_at >= NOW() - INTERVAL '${days} days'
+         AND platform IS NOT NULL
+         GROUP BY platform
+         ORDER BY clicks DESC`,
+        [smartlinkId]
+      );
+
+      // Get daily click trend for charts
+      const dailyClicks = await query(
+        `SELECT
+          DATE(clicked_at) as date,
+          COUNT(*) as clicks
+         FROM analytics
+         WHERE smartlink_id = $1
+         AND clicked_at >= NOW() - INTERVAL '${days} days'
+         GROUP BY DATE(clicked_at)
+         ORDER BY date ASC`,
+        [smartlinkId]
+      );
+
       return {
         ...analytics,
         total_clicks: parseInt(analytics.total_clicks),
         unique_visitors: parseInt(analytics.unique_visitors),
-        active_days: parseInt(analytics.active_days)
+        active_days: parseInt(analytics.active_days),
+        platform_stats: platformStats,
+        daily_clicks: dailyClicks
       };
-      
+
     } catch (error) {
       console.error('❌ Analytics error:', error);
       throw error;

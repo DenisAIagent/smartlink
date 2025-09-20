@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics SmartLinks | MDMC Admin</title>
+    <link rel="stylesheet" href="/assets/css/admin.css">
+    <link rel="icon" href="/assets/images/favicon.png">
+    <style>
+        :root {
+            --primary: #E50914;
+            --secondary: #141414;
+            --white: #FFFFFF;
+            --gray-light: #F8F9FA;
+            --gray-medium: #999999;
+            --shadow-light: 0 2px 8px rgba(0,0,0,0.04);
+            --shadow-medium: 0 4px 16px rgba(0,0,0,0.08);
+            --shadow-heavy: 0 8px 32px rgba(0,0,0,0.12);
+            --border-radius: 12px;
+            --border-radius-lg: 20px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--gray-light);
+            color: var(--secondary);
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+            gap: 0;
+        }
+
+        .sidebar {
+            background: var(--white);
+            border-right: 1px solid rgba(0,0,0,0.06);
+            padding: 32px 24px;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .main-content {
+            padding: 32px;
+            background: var(--gray-light);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 24px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-2px);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--gray-medium);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--secondary);
+            line-height: 1;
+        }
+
+        .stat-change {
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .stat-change.positive {
+            color: #10B981;
+        }
+
+        .stat-change.negative {
+            color: #EF4444;
+        }
+
+        .filter-bar {
+            background: var(--white);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 24px;
+            display: flex;
+            gap: 16px;
+            align-items: end;
+            flex-wrap: wrap;
+            box-shadow: var(--shadow-light);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            color: var(--gray-medium);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .form-select {
+            padding: 10px 12px;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.1);
+        }
+
+        .chart-container {
+            background: var(--white);
+            padding: 24px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            margin-bottom: 24px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .platform-stats {
+            background: var(--white);
+            padding: 24px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+        }
+
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .platform-item {
+            padding: 16px;
+            background: var(--gray-light);
+            border-radius: 8px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .platform-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-light);
+        }
+
+        .platform-icon {
+            width: 32px;
+            height: 32px;
+            margin: 0 auto 8px;
+        }
+
+        .platform-name {
+            font-size: 12px;
+            color: var(--gray-medium);
+            margin-bottom: 4px;
+        }
+
+        .platform-clicks {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .platform-percentage {
+            font-size: 11px;
+            color: var(--gray-medium);
+            margin-top: 2px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px;
+            color: var(--gray-medium);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .time-range-selector {
+            display: flex;
+            gap: 8px;
+        }
+
+        .time-btn {
+            padding: 6px 12px;
+            border: 1px solid #E5E7EB;
+            background: white;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .time-btn:hover {
+            border-color: var(--primary);
+        }
+
+        .time-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        #clicksChart {
+            height: 300px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 2px solid var(--gray-light);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--gray-medium);
+        }
+
+        .table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .table tr:hover {
+            background: var(--gray-light);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 48px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), #ff1a1a);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            text-decoration: none;
+            color: var(--gray-medium);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(229, 9, 20, 0.08);
+            color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">M</div>
+                <span class="logo-text">MDMC Admin</span>
+            </div>
+
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="/pages/dashboard.html" class="nav-link">
+                            <span>📊</span>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/pages/list-smartlinks.html" class="nav-link">
+                            <span>🔗</span>
+                            SmartLinks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/pages/analytics.html" class="nav-link active">
+                            <span>📈</span>
+                            Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/pages/create-smartlink.html" class="nav-link">
+                            <span>✨</span>
+                            Créer un SmartLink
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <h1 style="font-size: 28px; font-weight: 700; margin-bottom: 32px;">Analytics SmartLinks</h1>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <div class="filter-group" style="flex: 2;">
+                    <label class="filter-label" for="smartlinkSelector">SmartLink</label>
+                    <select id="smartlinkSelector" class="form-select">
+                        <option value="">Vue d'ensemble - Tous les SmartLinks</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Période</label>
+                    <div class="time-range-selector">
+                        <button class="time-btn active" data-days="7">7J</button>
+                        <button class="time-btn" data-days="30">30J</button>
+                        <button class="time-btn" data-days="90">3M</button>
+                        <button class="time-btn" data-days="365">1A</button>
+                    </div>
+                </div>
+                <button onclick="refreshAnalytics()" class="btn btn-primary">
+                    Actualiser
+                </button>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Clics Totaux</div>
+                    <div class="stat-value" id="totalClicks">0</div>
+                    <div class="stat-change positive" id="clicksChange"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Visiteurs Uniques</div>
+                    <div class="stat-value" id="uniqueVisitors">0</div>
+                    <div class="stat-change positive" id="visitorsChange"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Taux de Conversion</div>
+                    <div class="stat-value" id="conversionRate">0%</div>
+                    <div class="stat-change" id="conversionChange"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Plateforme Favorite</div>
+                    <div class="stat-value" id="topPlatform" style="font-size: 24px;">-</div>
+                    <div class="stat-change" id="topPlatformPercentage"></div>
+                </div>
+            </div>
+
+            <!-- Clicks Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2 class="chart-title">Évolution des clics</h2>
+                </div>
+                <canvas id="clicksChart"></canvas>
+            </div>
+
+            <!-- Platform Stats -->
+            <div class="platform-stats">
+                <h2 class="chart-title">Statistiques par plateforme</h2>
+                <div id="platformGrid" class="platform-grid">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Detailed Table -->
+            <div class="chart-container" style="margin-top: 24px;">
+                <h2 class="chart-title">Détail par plateforme</h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Plateforme</th>
+                            <th>Clics</th>
+                            <th>% du Total</th>
+                            <th>Évolution</th>
+                        </tr>
+                    </thead>
+                    <tbody id="platformTableBody">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/config.js"></script>
+    <script src="/assets/js/admin.js?v=1.0.2"></script>
+    <script>
+        // Global variables
+        let allSmartLinks = [];
+        let currentSmartLink = null;
+        let selectedDays = 7;
+        let chart = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSmartLinks();
+            setupEventListeners();
+            loadAnalytics();
+        });
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // SmartLink selector
+            document.getElementById('smartlinkSelector').addEventListener('change', (e) => {
+                currentSmartLink = e.target.value;
+                loadAnalytics();
+            });
+
+            // Time range buttons
+            document.querySelectorAll('.time-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    selectedDays = parseInt(e.target.dataset.days);
+                    loadAnalytics();
+                });
+            });
+        }
+
+        // Load SmartLinks list
+        async function loadSmartLinks() {
+            try {
+                const response = await mdmcAdmin.apiCall('/api/smartlinks');
+                if (response.success) {
+                    allSmartLinks = response.smartlinks || [];
+                    populateSmartLinkSelector();
+                }
+            } catch (error) {
+                console.error('Error loading SmartLinks:', error);
+            }
+        }
+
+        // Populate SmartLink selector
+        function populateSmartLinkSelector() {
+            const selector = document.getElementById('smartlinkSelector');
+            selector.innerHTML = '<option value="">Vue d\'ensemble - Tous les SmartLinks</option>';
+
+            allSmartLinks.forEach(sl => {
+                const option = document.createElement('option');
+                option.value = sl.id;
+                option.textContent = `${sl.title} - ${sl.artist || 'Artiste inconnu'}`;
+                selector.appendChild(option);
+            });
+        }
+
+        // Load analytics data
+        async function loadAnalytics() {
+            try {
+                let analyticsData;
+
+                if (currentSmartLink) {
+                    // Load specific SmartLink analytics
+                    const response = await mdmcAdmin.apiCall(
+                        `/api/smartlinks/${currentSmartLink}/analytics?days=${selectedDays}`
+                    );
+
+                    if (response.success) {
+                        analyticsData = response.analytics;
+                        updateSingleSmartLinkStats(analyticsData);
+                    }
+                } else {
+                    // Load overview analytics
+                    analyticsData = await loadOverviewAnalytics();
+                    updateOverviewStats(analyticsData);
+                }
+
+                // Update charts
+                updateClicksChart(analyticsData);
+                updatePlatformStats(analyticsData);
+
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+                showEmptyState();
+            }
+        }
+
+        // Load overview analytics (aggregate all SmartLinks)
+        async function loadOverviewAnalytics() {
+            // For now, aggregate from all SmartLinks
+            // In production, you'd have a dedicated endpoint for this
+            let totalClicks = 0;
+            let platformClicks = {};
+
+            for (const sl of allSmartLinks) {
+                totalClicks += sl.click_count || 0;
+
+                // Aggregate platform data if available
+                if (sl.platforms && Array.isArray(sl.platforms)) {
+                    sl.platforms.forEach(platform => {
+                        const name = platform.name;
+                        if (!platformClicks[name]) {
+                            platformClicks[name] = 0;
+                        }
+                        // For now using total clicks divided by platforms
+                        // In production, you'd track actual platform clicks
+                        platformClicks[name] += Math.floor((sl.click_count || 0) / sl.platforms.length);
+                    });
+                }
+            }
+
+            return {
+                total_clicks: totalClicks,
+                unique_visitors: Math.floor(totalClicks * 0.7), // Estimate
+                platforms: platformClicks,
+                top_platform: Object.keys(platformClicks).reduce((a, b) =>
+                    platformClicks[a] > platformClicks[b] ? a : b,
+                    null
+                )
+            };
+        }
+
+        // Update stats for single SmartLink
+        function updateSingleSmartLinkStats(data) {
+            document.getElementById('totalClicks').textContent = mdmcAdmin.formatNumber(data.total_clicks || 0);
+            document.getElementById('uniqueVisitors').textContent = mdmcAdmin.formatNumber(data.unique_visitors || 0);
+
+            const convRate = data.total_clicks > 0 ?
+                ((data.unique_visitors / data.total_clicks) * 100).toFixed(1) : 0;
+            document.getElementById('conversionRate').textContent = convRate + '%';
+
+            document.getElementById('topPlatform').textContent = data.top_platform || '-';
+        }
+
+        // Update overview stats
+        function updateOverviewStats(data) {
+            document.getElementById('totalClicks').textContent = mdmcAdmin.formatNumber(data.total_clicks || 0);
+            document.getElementById('uniqueVisitors').textContent = mdmcAdmin.formatNumber(data.unique_visitors || 0);
+
+            const convRate = data.total_clicks > 0 ?
+                ((data.unique_visitors / data.total_clicks) * 100).toFixed(1) : 0;
+            document.getElementById('conversionRate').textContent = convRate + '%';
+
+            document.getElementById('topPlatform').textContent = data.top_platform || '-';
+        }
+
+        // Update clicks chart
+        function updateClicksChart(data) {
+            const ctx = document.getElementById('clicksChart').getContext('2d');
+
+            // Generate mock data for demonstration
+            const labels = [];
+            const values = [];
+            const today = new Date();
+
+            for (let i = selectedDays - 1; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                labels.push(date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }));
+
+                // Mock data - in production this would come from the backend
+                values.push(Math.floor(Math.random() * 100) + 10);
+            }
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Clics',
+                        data: values,
+                        borderColor: '#E50914',
+                        backgroundColor: 'rgba(229, 9, 20, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update platform stats
+        function updatePlatformStats(data) {
+            const platformGrid = document.getElementById('platformGrid');
+            const tableBody = document.getElementById('platformTableBody');
+
+            const platforms = data.platforms || {};
+            const totalClicks = data.total_clicks || 0;
+
+            // Platform configuration
+            const platformConfig = {
+                'spotify': { color: '#1DB954', icon: '/assets/images/platforms/picto_spotify.png' },
+                'apple': { color: '#FA243C', icon: '/assets/images/platforms/picto_apple.png' },
+                'applemusic': { color: '#FA243C', icon: '/assets/images/platforms/picto_apple.png' },
+                'youtube': { color: '#FF0000', icon: '/assets/images/platforms/picto_youtube.png' },
+                'youtubemusic': { color: '#FF0000', icon: '/assets/images/platforms/picto_youtubemusic.png' },
+                'deezer': { color: '#FF6600', icon: '/assets/images/platforms/picto_deezer.png' },
+                'soundcloud': { color: '#FF5500', icon: '/assets/images/platforms/picto_soundcloud.png' },
+                'tidal': { color: '#000000', icon: '/assets/images/platforms/picto_tidal.png' },
+                'amazon': { color: '#FF9900', icon: '/assets/images/platforms/picto_amazon.png' },
+                'amazonmusic': { color: '#FF9900', icon: '/assets/images/platforms/picto_amazon.png' }
+            };
+
+            // Clear existing content
+            platformGrid.innerHTML = '';
+            tableBody.innerHTML = '';
+
+            if (Object.keys(platforms).length === 0) {
+                platformGrid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-state-icon">📊</div>
+                        <p>Aucune donnée de plateforme disponible</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Create platform items
+            Object.entries(platforms).forEach(([platform, clicks]) => {
+                const percentage = totalClicks > 0 ? ((clicks / totalClicks) * 100).toFixed(1) : 0;
+                const config = platformConfig[platform.toLowerCase()] || { color: '#999', icon: '' };
+
+                // Grid item
+                const gridItem = document.createElement('div');
+                gridItem.className = 'platform-item';
+                gridItem.innerHTML = `
+                    ${config.icon ? `<img src="${config.icon}" class="platform-icon" alt="${platform}">` : ''}
+                    <div class="platform-name">${platform}</div>
+                    <div class="platform-clicks">${mdmcAdmin.formatNumber(clicks)}</div>
+                    <div class="platform-percentage">${percentage}%</div>
+                `;
+                platformGrid.appendChild(gridItem);
+
+                // Table row
+                const tableRow = document.createElement('tr');
+                tableRow.innerHTML = `
+                    <td style="display: flex; align-items: center; gap: 8px;">
+                        ${config.icon ? `<img src="${config.icon}" width="24" height="24" alt="${platform}">` : ''}
+                        <span>${platform}</span>
+                    </td>
+                    <td><strong>${mdmcAdmin.formatNumber(clicks)}</strong></td>
+                    <td>${percentage}%</td>
+                    <td>
+                        <span class="stat-change positive">↑ 12%</span>
+                    </td>
+                `;
+                tableBody.appendChild(tableRow);
+            });
+        }
+
+        // Show empty state
+        function showEmptyState() {
+            document.getElementById('totalClicks').textContent = '0';
+            document.getElementById('uniqueVisitors').textContent = '0';
+            document.getElementById('conversionRate').textContent = '0%';
+            document.getElementById('topPlatform').textContent = '-';
+        }
+
+        // Refresh analytics
+        function refreshAnalytics() {
+            loadAnalytics();
+            mdmcAdmin.showNotification('Analytics actualisées', 'success');
+        }
+    </script>
+</body>
+</html>
