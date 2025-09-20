@@ -106,6 +106,7 @@ function generateSmartLinkHTML(smartlink) {
     .replace(/\{\{TITLE\}\}/g, title || 'Titre')
     .replace(/\{\{ARTIST\}\}/g, artist || 'Artiste')
     .replace(/\{\{COVER_URL\}\}/g, cover_url || '')
+    .replace(/\{\{COVER_URL_ENCODED\}\}/g, encodeURIComponent(cover_url || ''))
     .replace(/\{\{SLUG\}\}/g, slug || '')
     .replace(/\{\{PLATFORMS_HTML\}\}/g, platformsHTML);
 

@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https: http: *.amazon.com *.media-amazon.com m.media-amazon.com *.tidal.com *.scdn.co *.ytimg.com *.deezer.com *.soundcloud.com *.mzstatic.com *.audius-creator-3.theblueprint.xyz *.yandex.net *.anghcdn.co *.boomplaymusic.com *.p-cdn.com *.rhapsody.com *.audiomack.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
+    <meta http-equiv="Cross-Origin-Embedder-Policy" content="unsafe-none">
     <title>Créer SmartLink | MDMC Admin</title>
     <link rel="stylesheet" href="/assets/css/admin.css">
     <link rel="icon" href="/assets/images/favicon.png">
@@ -169,6 +171,36 @@
         .is-invalid {
             border-color: #dc3545 !important;
             box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+        /* Styles pour les previews d'artwork */
+        #artworkPreview {
+            background: var(--gray-light);
+            padding: 16px;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(0,0,0,0.08);
+            margin-top: 10px;
+        }
+        #artworkCover, #trackPreviewCover {
+            display: block !important;
+            object-fit: cover;
+            transition: var(--transition);
+            box-shadow: var(--shadow-light);
+        }
+        #artworkCover:hover, #trackPreviewCover:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-medium);
+        }
+        .artwork-loading {
+            width: 80px;
+            height: 80px;
+            background: var(--gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            color: var(--gray-medium);
+            font-size: 12px;
         }
         .is-valid {
             border-color: #28a745 !important;
@@ -474,12 +506,41 @@
             artistSpan.textContent = data.artist || 'Artiste non disponible';
             
             if (data.coverUrl) {
-                coverImg.src = data.coverUrl;
-                coverImg.style.display = 'block';
+                // Utiliser le proxy d'image pour éviter les problèmes CORS
+                const proxyUrl = `/api/proxy/image?url=${encodeURIComponent(data.coverUrl)}`;
+                console.log('🔍 Using proxy URL for track preview:', proxyUrl);
+
+                // Gestion robuste du chargement de l'image preview
+                const testImg = new Image();
+                testImg.onload = function() {
+                    coverImg.src = proxyUrl;
+                    coverImg.style.display = 'block';
+                    console.log('🔍 Track preview cover loaded successfully via proxy');
+                };
+                testImg.onerror = function() {
+                    console.error('🔍 Failed to load track preview cover via proxy:', proxyUrl);
+                    // Fallback: essayer l'URL directe
+                    console.log('🔍 Trying direct URL as fallback:', data.coverUrl);
+                    const fallbackImg = new Image();
+                    fallbackImg.onload = function() {
+                        coverImg.src = data.coverUrl;
+                        coverImg.style.display = 'block';
+                        console.log('🔍 Track preview cover loaded with direct URL fallback');
+                    };
+                    fallbackImg.onerror = function() {
+                        console.error('🔍 Both proxy and direct URL failed for track preview');
+                        coverImg.style.display = 'none';
+                    };
+                    fallbackImg.src = data.coverUrl;
+                };
+                testImg.src = proxyUrl;
+
                 // Afficher aussi l'artwork dans la section création
                 showArtworkPreview(data.coverUrl);
             } else {
                 coverImg.style.display = 'none';
+                // Notifier qu'aucun artwork n'est disponible
+                showArtworkPreview(null);
             }
 
             if (data.platforms && data.platforms.length > 0) {
@@ -492,27 +553,178 @@
             preview.style.display = 'block';
         }
 
-        // Affichage de l'artwork d'Odesli
+        // Affichage de l'artwork d'Odesli avec gestion d'erreur robuste
         function showArtworkPreview(coverUrl) {
             console.log('🎨 showArtworkPreview called with:', coverUrl);
+
+            const container = document.getElementById('artworkPreview');
+
+            console.log('🎨 Container element found:', !!container);
+            console.log('🎨 Container current display:', container ? window.getComputedStyle(container).display : 'N/A');
+
+            if (!container) {
+                console.error('🎨 Could not find artwork container element');
+                return;
+            }
+
             if (coverUrl) {
-                const preview = document.getElementById('artworkCover');
-                const container = document.getElementById('artworkPreview');
+                // Utiliser le proxy d'image pour éviter les problèmes CORS
+                const proxyUrl = `/api/proxy/image?url=${encodeURIComponent(coverUrl)}`;
+                console.log('🎨 Using proxy URL for artwork:', proxyUrl);
 
-                console.log('🎨 Preview element found:', !!preview);
-                console.log('🎨 Container element found:', !!container);
+                // Créer un état de chargement
+                container.innerHTML = `
+                    <div class="artwork-loading">
+                        <div class="loading"></div>
+                    </div>
+                    <p style="font-size: 12px; color: #666; margin-top: 5px;">Chargement de l'artwork via proxy...</p>
+                `;
+                container.style.display = 'block';
 
-                if (preview && container) {
-                    preview.src = coverUrl;
-                    container.style.display = 'block';
-                    console.log('🎨 Artwork preview set successfully');
-                } else {
-                    console.error('🎨 Could not find artwork preview elements');
-                }
+                // Créer une nouvelle image pour tester le chargement
+                const testImg = new Image();
+
+                testImg.onload = function() {
+                    console.log('🎨 Image loaded successfully via proxy:', proxyUrl);
+                    // Restaurer le contenu original avec l'image chargée
+                    container.innerHTML = `
+                        <img id="artworkCover" src="${proxyUrl}" alt="Cover"
+                             style="width: 80px; height: 80px; border-radius: 8px; border: 1px solid #ddd; object-fit: cover;">
+                        <p style="font-size: 12px; color: #666; margin-top: 5px;">Artwork récupéré automatiquement via Odesli (proxy)</p>
+                    `;
+
+                    console.log('🎨 Artwork preview loaded successfully');
+                };
+
+                testImg.onerror = function() {
+                    console.error('🎨 Failed to load image via proxy:', proxyUrl);
+                    console.log('🎨 Trying direct URL as fallback:', coverUrl);
+
+                    // Fallback: essayer l'URL directe
+                    const fallbackImg = new Image();
+                    fallbackImg.onload = function() {
+                        console.log('🎨 Image loaded with direct URL fallback:', coverUrl);
+                        container.innerHTML = `
+                            <img id="artworkCover" src="${coverUrl}" alt="Cover"
+                                 style="width: 80px; height: 80px; border-radius: 8px; border: 1px solid #ddd; object-fit: cover;">
+                            <p style="font-size: 12px; color: #666; margin-top: 5px;">Artwork récupéré automatiquement via Odesli (direct)</p>
+                        `;
+
+                        console.log('🎨 Artwork preview loaded with fallback');
+                    };
+                    fallbackImg.onerror = function() {
+                        console.error('🎨 Both proxy and direct URL failed for artwork');
+                        container.innerHTML = `
+                            <div class="artwork-loading" style="background: #ffebee; color: #c62828;">
+                                ❌ Erreur
+                            </div>
+                            <p style="font-size: 12px; color: #c62828; margin-top: 5px;">Impossible de charger l'artwork</p>
+                        `;
+                    };
+                    fallbackImg.src = coverUrl;
+                };
+
+                // Déclencher le chargement
+                testImg.src = proxyUrl;
+
             } else {
                 console.log('🎨 No coverUrl provided');
+                container.innerHTML = `
+                    <div class="artwork-loading" style="background: #fff3e0; color: #ef6c00;">
+                        📷 Pas d'image
+                    </div>
+                    <p style="font-size: 12px; color: #ef6c00; margin-top: 5px;">Aucun artwork trouvé</p>
+                `;
+                container.style.display = 'block';
             }
         }
+
+        // Fonction de diagnostic pour déboguer les problèmes d'image
+        function diagnosticArtwork() {
+            console.group('🔍 DIAGNOSTIC ARTWORK');
+
+            const elements = {
+                trackPreview: document.getElementById('trackPreview'),
+                trackPreviewCover: document.getElementById('trackPreviewCover'),
+                artworkPreview: document.getElementById('artworkPreview'),
+                artworkCover: document.getElementById('artworkCover')
+            };
+
+            Object.entries(elements).forEach(([name, el]) => {
+                if (el) {
+                    const styles = window.getComputedStyle(el);
+                    console.log(`✅ ${name}:`, {
+                        exists: true,
+                        display: styles.display,
+                        visibility: styles.visibility,
+                        opacity: styles.opacity,
+                        width: styles.width,
+                        height: styles.height,
+                        src: el.src || 'N/A'
+                    });
+                } else {
+                    console.log(`❌ ${name}: Element not found`);
+                }
+            });
+
+            // Test de chargement d'une image Amazon (similaire à Odesli)
+            const testUrl = 'https://m.media-amazon.com/images/I/51eZ43XHM4L._AA500.jpg';
+            const testProxyUrl = `/api/proxy/image?url=${encodeURIComponent(testUrl)}`;
+
+            console.log('🧪 Testing direct Amazon image loading:', testUrl);
+            const testImg = new Image();
+            testImg.onload = () => console.log('✅ Test direct image loaded successfully');
+            testImg.onerror = (e) => console.error('❌ Test direct image failed to load:', e);
+            testImg.src = testUrl;
+
+            console.log('🧪 Testing proxy image loading:', testProxyUrl);
+            const testProxyImg = new Image();
+            testProxyImg.onload = () => console.log('✅ Test proxy image loaded successfully');
+            testProxyImg.onerror = (e) => console.error('❌ Test proxy image failed to load:', e);
+            testProxyImg.src = testProxyUrl;
+
+            console.groupEnd();
+        }
+
+        // Exposer la fonction de diagnostic globalement pour debug
+        window.diagnosticArtwork = diagnosticArtwork;
+
+        // Fonction de test pour forcer l'affichage d'artwork
+        window.testArtworkDisplay = function(testUrl) {
+            const url = testUrl || 'https://resources.tidal.com/images/16a89c62/a6cf/4114/a517/e897b145dce3/640x640.jpg';
+            console.log('🧪 Testing artwork display with URL:', url);
+
+            // Forcer l'affichage du conteneur
+            const container = document.getElementById('artworkPreview');
+            if (container) {
+                container.style.display = 'block';
+                console.log('🧪 Container display set to block');
+            }
+
+            // Tester la fonction showArtworkPreview
+            showArtworkPreview(url);
+        };
+
+        // Fonction pour appliquer uniquement le background
+        window.testBackgroundOnly = function(testUrl) {
+            const url = testUrl || 'https://resources.tidal.com/images/16a89c62/a6cf/4114/a517/e897b145dce3/640x640.jpg';
+            const proxyUrl = `/api/proxy/image?url=${encodeURIComponent(url)}`;
+            console.log('🧪 Testing background with proxy URL:', proxyUrl);
+
+            console.log('🧪 Background test function called');
+        };
+
+        // Fonction pour tester directement le proxy
+        window.testProxy = function(testUrl) {
+            const url = testUrl || 'https://resources.tidal.com/images/16a89c62/a6cf/4114/a517/e897b145dce3/640x640.jpg';
+            const proxyUrl = `/api/proxy/image?url=${encodeURIComponent(url)}`;
+            console.log('🧪 Testing proxy URL:', proxyUrl);
+
+            const img = new Image();
+            img.onload = () => console.log('✅ Proxy test successful');
+            img.onerror = (e) => console.error('❌ Proxy test failed:', e);
+            img.src = proxyUrl;
+        };
     </script>
 </body>
 </html>

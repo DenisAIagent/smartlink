@@ -24,22 +24,32 @@ if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1); // Local development - fixed for rate limiting
 }
 
-// Middleware de sécurité
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.jsdelivr.net"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      scriptSrcAttr: ["'self'", "'unsafe-inline'"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https:", "http:", "https://res.cloudinary.com"],
-      connectSrc: ["'self'", BACKEND_URL, "https://res.cloudinary.com", "https://api.cloudinary.com"],
-      formAction: ["'self'"],
-      frameAncestors: ["'none'"]
-    }
+// Middleware de sécurité - Configuration différente pour SmartLinks vs Admin
+app.use((req, res, next) => {
+  if (req.path.startsWith('/s/')) {
+    // CSP très permissif pour les SmartLinks publics (permettre background-image CSS)
+    helmet({
+      contentSecurityPolicy: false  // Désactiver CSP complètement pour les SmartLinks
+    })(req, res, next);
+  } else {
+    // CSP standard pour l'interface admin
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.jsdelivr.net"],
+          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+          scriptSrcAttr: ["'self'", "'unsafe-inline'"],
+          fontSrc: ["'self'", "https://fonts.gstatic.com"],
+          imgSrc: ["'self'", "data:", "https:", "http:", "https://res.cloudinary.com"],
+          connectSrc: ["'self'", BACKEND_URL, "https://res.cloudinary.com", "https://api.cloudinary.com"],
+          formAction: ["'self'"],
+          frameAncestors: ["'none'"]
+        }
+      }
+    })(req, res, next);
   }
-}));
+});
 
 // CORS pour communication avec le backend
 app.use(cors({
@@ -182,6 +192,67 @@ app.post('/api/admin/users', authController.createUser);
 app.post('/api/odesli', odesliController.fetchMetadata);
 app.get('/api/odesli/stats', odesliController.getCacheStats);
 app.delete('/api/odesli/cache', odesliController.cleanCache);
+
+// Image proxy to bypass CORS restrictions for artwork
+app.get('/api/proxy/image', async (req, res) => {
+  try {
+    const { url } = req.query;
+    console.log('🖼️ Image proxy request for:', url);
+
+    if (!url) {
+      console.log('❌ No URL parameter provided');
+      return res.status(400).json({ error: 'URL parameter required' });
+    }
+
+    // Validate URL to prevent SSRF attacks
+    const validDomains = [
+      'media-amazon.com', 'amazon.com', 'tidal.com', 'scdn.co',
+      'ytimg.com', 'deezer.com', 'soundcloud.com', 'mzstatic.com',
+      'audius-creator-3.theblueprint.xyz', 'yandex.net', 'anghcdn.co',
+      'boomplaymusic.com', 'p-cdn.com', 'rhapsody.com', 'audiomack.com'
+    ];
+
+    const urlObj = new URL(url);
+    const isDomainAllowed = validDomains.some(domain =>
+      urlObj.hostname.includes(domain)
+    );
+
+    if (!isDomainAllowed) {
+      return res.status(403).json({ error: 'Domain not allowed' });
+    }
+
+    // Fetch the image
+    const fetch = require('node-fetch');
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'MDMC-SmartLink/1.0',
+        'Accept': 'image/*'
+      },
+      timeout: 10000
+    });
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: 'Failed to fetch image' });
+    }
+
+    // Set proper headers for image response
+    const contentType = response.headers.get('content-type') || 'image/jpeg';
+    res.set({
+      'Content-Type': contentType,
+      'Cache-Control': 'public, max-age=86400', // Cache for 24 hours
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET',
+      'Access-Control-Allow-Headers': 'Content-Type'
+    });
+
+    // Pipe the image data
+    response.body.pipe(res);
+
+  } catch (error) {
+    console.error('❌ Image proxy error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // Compatibility route for old frontend (proxy/fetch-metadata -> odesli)
 app.get('/api/proxy/fetch-metadata', (req, res) => {

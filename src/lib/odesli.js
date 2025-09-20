@@ -90,9 +90,27 @@ const odesli = {
       
       const data = await response.json();
       
-      // 4. Extract metadata
-      const entityId = Object.keys(data.entitiesByUniqueId || {})[0];
-      const entity = entityId ? data.entitiesByUniqueId[entityId] : null;
+      // 4. Extract metadata - Prioritize Spotify for better CORS compatibility
+      const entities = data.entitiesByUniqueId || {};
+      let entityId = null;
+      let entity = null;
+
+      // Priority order: Spotify > Apple Music > YouTube > Others
+      const priorityOrder = ['SPOTIFY_SONG', 'ITUNES_SONG', 'YOUTUBE_VIDEO'];
+
+      for (const priority of priorityOrder) {
+        entityId = Object.keys(entities).find(id => id.startsWith(priority));
+        if (entityId) {
+          entity = entities[entityId];
+          break;
+        }
+      }
+
+      // Fallback to first available entity if none of the priority ones found
+      if (!entity) {
+        entityId = Object.keys(entities)[0];
+        entity = entityId ? entities[entityId] : null;
+      }
       
       // 5. Save to cache (skip if no DATABASE_URL or dbModule)
       if (process.env.DATABASE_URL && dbModule) {
