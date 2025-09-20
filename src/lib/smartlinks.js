@@ -343,30 +343,30 @@ const smartlinks = {
   },
 
   /**
-   * Generate unique slug
+   * Generate unique short slug (perfect for advertising platforms)
    */
   async generateUniqueSlug(title, attempt = 0) {
-    const base = title.toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Remove accents
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '')
-      .substring(0, 30);
-      
-    const slug = attempt === 0 
-      ? `${base}-${Date.now().toString(36)}`
-      : `${base}-${Date.now().toString(36)}-${attempt}`;
-      
+    // Generate a short, random slug (6-8 characters)
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    let slug = '';
+
+    // Base length: 6 characters + attempts for uniqueness
+    const length = 6 + Math.floor(attempt / 10);
+
+    for (let i = 0; i < length; i++) {
+      slug += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    // Check if slug already exists
     const exists = await queryOne(
       'SELECT id FROM smartlinks WHERE slug = $1',
       [slug]
     );
-    
+
     if (exists) {
       return this.generateUniqueSlug(title, attempt + 1);
     }
-    
+
     return slug;
   },
 
