@@ -3,21 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Pro 2025</title>
-    <link rel="icon" href="/assets/images/favicon.png">
+    <title>Analytics SmartLinks</title>
     <style>
         :root {
             --primary: #E50914;
-            --secondary: #141414;
-            --white: #FFFFFF;
-            --gray-light: #F8F9FA;
-            --gray-medium: #999999;
-            --shadow-light: 0 2px 8px rgba(0,0,0,0.04);
-            --shadow-medium: 0 4px 16px rgba(0,0,0,0.08);
-            --shadow-heavy: 0 8px 32px rgba(0,0,0,0.12);
-            --border-radius: 12px;
-            --border-radius-lg: 20px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --primary-hover: #d40812;
+            --bg-main: #F8F9FA;
+            --bg-white: #ffffff;
+            --border: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --success: #10b981;
+            --danger: #ef4444;
+            --sidebar-width: 260px;
         }
 
         * {
@@ -27,1147 +25,858 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--gray-light);
-            color: var(--secondary);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        .dashboard-container {
-            display: grid;
-            grid-template-columns: 280px 1fr;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
             min-height: 100vh;
-            gap: 0;
         }
 
-        /* SIDEBAR */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
         .sidebar {
-            background: var(--white);
-            border-right: 1px solid rgba(0,0,0,0.06);
-            padding: 32px 24px;
-            position: relative;
-            box-shadow: var(--shadow-medium);
+            width: var(--sidebar-width);
+            background: white;
+            border-right: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
         }
 
         .logo {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 48px;
-            padding-bottom: 24px;
-            border-bottom: 1px solid var(--gray-light);
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary), #ff1a1a);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 18px;
-        }
-
-        .logo-text {
             font-size: 20px;
             font-weight: 700;
-            color: var(--secondary);
+            color: var(--primary);
         }
 
         .nav-menu {
-            list-style: none;
+            padding: 16px 0;
         }
 
         .nav-item {
-            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
         }
 
-        .nav-link {
+        .nav-item:hover {
+            background: var(--bg-main);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: #FEE2E2;
+            color: var(--primary);
+            border-right: 3px solid var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 24px 32px;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .filters {
             display: flex;
             align-items: center;
             gap: 16px;
-            padding: 16px 20px;
-            text-decoration: none;
-            color: var(--gray-medium);
-            border-radius: var(--border-radius);
-            transition: var(--transition);
-            font-weight: 500;
+            flex-wrap: wrap;
+        }
+
+        /* Select Dropdowns */
+        .select-wrapper {
             position: relative;
+            min-width: 200px;
         }
 
-        .nav-link:hover, .nav-link.active {
-            background: rgba(229, 9, 20, 0.08);
-            color: var(--primary);
-            transform: translateX(4px);
-        }
-
-        .nav-link.active::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 3px;
-            height: 24px;
-            background: var(--primary);
-            border-radius: 2px;
-        }
-
-        .nav-icon {
-            width: 20px;
-            height: 20px;
-            opacity: 0.7;
-        }
-
-        /* MAIN CONTENT */
-        .main-content {
-            padding: 32px;
-            background: var(--gray-light);
-        }
-
-        .header {
+        .select-button {
+            width: 100%;
+            padding: 10px 16px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 32px;
-            padding: 24px 32px;
-            background: var(--white);
-            border-radius: var(--border-radius-lg);
-            box-shadow: var(--shadow-light);
+            transition: all 0.2s;
         }
 
-        .header-left h1 {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--secondary);
-            margin-bottom: 4px;
+        .select-button:hover {
+            border-color: var(--primary);
         }
 
-        .header-left p {
-            color: var(--gray-medium);
-            font-size: 14px;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .search-box {
-            position: relative;
-        }
-
-        .search-input {
-            width: 300px;
-            padding: 12px 16px 12px 44px;
-            border: 1px solid rgba(0,0,0,0.08);
-            border-radius: var(--border-radius);
-            font-size: 14px;
-            background: var(--gray-light);
-            transition: var(--transition);
-        }
-
-        .search-input:focus {
-            outline: none;
+        .select-button.active {
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.1);
         }
 
-        .search-icon {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray-medium);
-        }
-
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 8px 16px;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .user-profile:hover {
-            background: var(--gray-light);
-        }
-
-        .user-profile {
-            position: relative;
-        }
-
-        .user-menu-dropdown {
+        .dropdown-menu {
             position: absolute;
             top: 100%;
+            left: 0;
             right: 0;
-            background: var(--white);
-            border: 1px solid rgba(0,0,0,0.08);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-medium);
-            z-index: 1000;
-            min-width: 200px;
-            padding: 8px 0;
-            margin-top: 8px;
+            margin-top: 4px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
         }
 
-        .user-menu-dropdown a {
+        .dropdown-menu.show {
             display: block;
-            padding: 12px 20px;
-            text-decoration: none;
-            color: var(--secondary);
+        }
+
+        .dropdown-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
             font-size: 14px;
-            transition: var(--transition);
         }
 
-        .user-menu-dropdown a:hover {
-            background: var(--gray-light);
+        .dropdown-item:hover {
+            background: var(--bg-main);
+        }
+
+        .dropdown-item.selected {
+            background: #FEE2E2;
             color: var(--primary);
+            font-weight: 500;
         }
 
-        .user-menu-dropdown hr {
-            margin: 8px 0;
+        .refresh-btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
             border: none;
-            border-top: 1px solid rgba(0,0,0,0.08);
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary), #ff4757);
-            border-radius: 50%;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
+            gap: 8px;
+            transition: all 0.2s;
         }
 
-        /* STATS GRID */
-        .stats-grid {
+        .refresh-btn:hover:not(:disabled) {
+            background: var(--primary-hover);
+        }
+
+        .refresh-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .spinning {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 32px;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 24px;
             margin-bottom: 32px;
         }
 
-        .stat-card {
-            background: var(--white);
-            padding: 32px;
-            border-radius: var(--border-radius-lg);
-            box-shadow: var(--shadow-light);
-            position: relative;
-            overflow: hidden;
-            transition: var(--transition);
+        .metric-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-heavy);
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), #ff4757);
-        }
-
-        .stat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 16px;
-        }
-
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            background: rgba(229, 9, 20, 0.1);
-            border-radius: var(--border-radius);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-        }
-
-        .stat-value {
-            font-size: 36px;
-            font-weight: 700;
-            color: var(--secondary);
+        .metric-label {
+            font-size: 14px;
+            color: var(--text-secondary);
             margin-bottom: 8px;
         }
 
-        .stat-label {
-            color: var(--gray-medium);
-            font-size: 14px;
-            margin-bottom: 16px;
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
         }
 
-        .stat-change {
-            display: flex;
+        .metric-change {
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 600;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
         }
 
-        .stat-change.positive {
-            color: #10b981;
+        .metric-change.positive {
+            background: #D1FAE5;
+            color: #065F46;
         }
 
-        .stat-change.negative {
-            color: #ef4444;
+        .metric-change.negative {
+            background: #FEE2E2;
+            color: #991B1B;
         }
 
-        /* CHARTS SECTION */
-        .charts-section {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 24px;
+        /* Chart Container */
+        .chart-container {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             margin-bottom: 32px;
-        }
-
-        .chart-card {
-            background: var(--white);
-            padding: 32px;
-            border-radius: var(--border-radius-lg);
-            box-shadow: var(--shadow-light);
-        }
-
-        .chart-header {
+            height: 400px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .chart-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--secondary);
-        }
-
-        .chart-filters {
-            display: flex;
-            gap: 8px;
-        }
-
-        .filter-btn {
-            padding: 8px 16px;
-            border: 1px solid rgba(0,0,0,0.08);
-            background: var(--gray-light);
-            border-radius: var(--border-radius);
-            font-size: 14px;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .filter-btn.active, .filter-btn:hover {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
+            justify-content: center;
         }
 
         .chart-placeholder {
-            height: 300px;
-            background: linear-gradient(135deg, rgba(229, 9, 20, 0.05), rgba(229, 9, 20, 0.02));
-            border-radius: var(--border-radius);
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Platform Statistics */
+        .platform-section {
+            margin-bottom: 32px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .view-toggle {
+            display: flex;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .view-btn {
+            padding: 8px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+        }
+
+        .view-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .view-btn:hover:not(.active) {
+            color: var(--text-primary);
+        }
+
+        /* Platform Grid */
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 16px;
+        }
+
+        .platform-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .platform-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .platform-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 12px;
+            background: var(--bg-main);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--gray-medium);
-            font-size: 14px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .chart-placeholder::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 60%;
-            background: linear-gradient(to top, 
-                var(--primary) 0%, 
-                rgba(229, 9, 20, 0.6) 30%, 
-                rgba(229, 9, 20, 0.3) 60%, 
-                transparent 100%);
-            opacity: 0.1;
-        }
-
-        /* TABLE SECTION */
-        .table-section {
-            background: var(--white);
-            border-radius: var(--border-radius-lg);
-            box-shadow: var(--shadow-light);
-            overflow: hidden;
-        }
-
-        .table-header {
-            padding: 32px;
-            border-bottom: 1px solid var(--gray-light);
-        }
-
-        .table-title {
             font-size: 20px;
-            font-weight: 600;
-            color: var(--secondary);
-            margin-bottom: 8px;
         }
 
-        .table-subtitle {
-            color: var(--gray-medium);
+        .platform-name {
             font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
         }
 
-        .data-table {
+        .platform-clicks {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Platform Table */
+        .platform-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .platform-table table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        .data-table th {
-            padding: 20px 32px;
+        .platform-table th {
+            background: var(--bg-main);
+            padding: 12px 16px;
             text-align: left;
-            font-weight: 600;
-            color: var(--gray-medium);
-            font-size: 14px;
-            background: var(--gray-light);
-            border-bottom: 1px solid rgba(0,0,0,0.06);
-        }
-
-        .data-table td {
-            padding: 20px 32px;
-            border-bottom: 1px solid rgba(0,0,0,0.04);
-            transition: var(--transition);
-        }
-
-        .data-table tr:hover td {
-            background: rgba(229, 9, 20, 0.02);
-        }
-
-        .status-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            color: var(--text-secondary);
         }
 
-        .status-active {
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
+        .platform-table td {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+            font-size: 14px;
         }
 
-        .status-pending {
-            background: rgba(245, 158, 11, 0.1);
-            color: #f59e0b;
+        .platform-table tr:hover {
+            background: var(--bg-main);
         }
 
-        .status-inactive {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
+        /* Empty State */
+        .empty-state {
+            background: white;
+            border-radius: 12px;
+            padding: 80px 32px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
-        /* RESPONSIVE */
-        @media (max-width: 1200px) {
-            .charts-section {
-                grid-template-columns: 1fr;
-            }
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: var(--bg-main);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: var(--text-secondary);
         }
 
+        .empty-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .empty-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            .dashboard-container {
-                grid-template-columns: 1fr;
-            }
-            
             .sidebar {
                 display: none;
             }
-            
-            .main-content {
-                padding: 20px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
+
             .header {
+                padding: 16px;
+            }
+
+            .content {
+                padding: 16px;
+            }
+
+            .filters {
                 flex-direction: column;
-                gap: 20px;
                 align-items: stretch;
             }
-            
-            .search-input {
+
+            .select-wrapper {
                 width: 100%;
             }
-        }
-
-        /* ANIMATIONS */
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .stat-card, .chart-card, .table-section {
-            animation: slideInUp 0.6s ease-out;
-            animation-fill-mode: both;
-        }
-
-        .stat-card:nth-child(1) { animation-delay: 0.1s; }
-        .stat-card:nth-child(2) { animation-delay: 0.2s; }
-        .stat-card:nth-child(3) { animation-delay: 0.3s; }
-        .stat-card:nth-child(4) { animation-delay: 0.4s; }
-
-        /* MODALS */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-        }
-
-        .modal {
-            background: var(--white);
-            border-radius: var(--border-radius-lg);
-            padding: 32px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: var(--shadow-heavy);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--gray-light);
-        }
-
-        .modal-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--secondary);
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--gray-medium);
-            transition: var(--transition);
-        }
-
-        .modal-close:hover {
-            color: var(--primary);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--secondary);
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid rgba(0,0,0,0.08);
-            border-radius: var(--border-radius);
-            font-size: 14px;
-            transition: var(--transition);
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.1);
-        }
-
-        .form-select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid rgba(0,0,0,0.08);
-            border-radius: var(--border-radius);
-            font-size: 14px;
-            background: var(--white);
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .form-select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.1);
-        }
-
-        .form-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .form-checkbox input {
-            margin: 0;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-            margin-top: 24px;
-            padding-top: 16px;
-            border-top: 1px solid var(--gray-light);
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border-radius: var(--border-radius);
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-            border: none;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #c20812;
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: var(--gray-light);
-            color: var(--secondary);
-            border: 1px solid rgba(0,0,0,0.08);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(0,0,0,0.05);
         }
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- SIDEBAR -->
+    <div class="app-container">
+        <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="logo">
-                <div class="logo-icon">M</div>
-                <span class="logo-text">MDMC Admin</span>
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span>🔗</span>
+                    <span>SmartLinks</span>
+                </div>
             </div>
-            
-            <nav>
-                <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="/pages/dashboard.html" class="nav-link active">
-                            <span class="nav-icon">📊</span>
-                            Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/pages/list-smartlinks.html" class="nav-link">
-                            <span class="nav-icon">🔗</span>
-                            SmartLinks
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/pages/create-smartlink.html" class="nav-link">
-                            <span class="nav-icon">✨</span>
-                            Créer un SmartLink
-                        </a>
-                    </li>
-                </ul>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item">
+                    <span>📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item active">
+                    <span>📈</span>
+                    <span>Analytics</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span>🔗</span>
+                    <span>SmartLinks</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span>👥</span>
+                    <span>Audience</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span>⚙️</span>
+                    <span>Settings</span>
+                </a>
             </nav>
         </aside>
 
-        <!-- MAIN CONTENT -->
+        <!-- Main Content -->
         <main class="main-content">
-            <!-- HEADER -->
+            <!-- Header -->
             <header class="header">
-                <div class="header-left">
-                    <h1>Tableau de bord</h1>
-                    <p>Bienvenue ! Voici un aperçu de vos performances aujourd'hui.</p>
-                </div>
-                <div class="header-right">
-                    <div class="search-box">
-                        <span class="search-icon"></span>
-                        <input type="text" class="search-input" placeholder="Rechercher...">
-                    </div>
-                    <div class="user-profile" onclick="toggleUserMenu()">
-                        <div class="user-avatar" id="userAvatar">JD</div>
-                        <div>
-                            <div style="font-weight: 600; font-size: 14px;" id="userName">John Doe</div>
-                            <div style="font-size: 12px; color: var(--gray-medium);" id="userRole">Admin</div>
-                        </div>
-                        <div class="user-menu-dropdown" id="userMenu" style="display: none;">
-                            <a href="#" onclick="openProfileModal()">👤 Mon profil</a>
-                            <a href="#" onclick="openCreateUserModal()" id="createUserBtn" style="display: none;">👥 Créer utilisateur</a>
-                            <hr>
-                            <a href="#" onclick="logout()">🚪 Déconnexion</a>
+                <h1 class="header-title">Analytics SmartLinks</h1>
+                
+                <!-- Filters -->
+                <div class="filters">
+                    <!-- SmartLink Selector -->
+                    <div class="select-wrapper">
+                        <button class="select-button" id="smartlinkSelect">
+                            <span id="smartlinkLabel">Tous les SmartLinks</span>
+                            <span>▼</span>
+                        </button>
+                        <div class="dropdown-menu" id="smartlinkDropdown">
+                            <div class="dropdown-item selected" data-value="">Tous les SmartLinks</div>
+                            <div class="dropdown-item" data-value="sl1">Mon Album 2024</div>
+                            <div class="dropdown-item" data-value="sl2">EP Summer Vibes</div>
+                            <div class="dropdown-item" data-value="sl3">Single "Midnight"</div>
                         </div>
                     </div>
+
+                    <!-- Period Selector -->
+                    <div class="select-wrapper">
+                        <button class="select-button" id="periodSelect">
+                            <span id="periodLabel">30 derniers jours</span>
+                            <span>▼</span>
+                        </button>
+                        <div class="dropdown-menu" id="periodDropdown">
+                            <div class="dropdown-item" data-value="7d">7 derniers jours</div>
+                            <div class="dropdown-item selected" data-value="30d">30 derniers jours</div>
+                            <div class="dropdown-item" data-value="90d">90 derniers jours</div>
+                            <div class="dropdown-item" data-value="1y">Cette année</div>
+                        </div>
+                    </div>
+
+                    <!-- Refresh Button -->
+                    <button class="refresh-btn" id="refreshBtn">
+                        <span id="refreshIcon">⟳</span>
+                        <span>Actualiser</span>
+                    </button>
                 </div>
             </header>
 
-            <!-- STATS GRID -->
-            <section class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon">🎵</div>
+            <!-- Content Area -->
+            <div class="content">
+                <!-- Main Content (with data) -->
+                <div id="mainContent">
+                    <!-- Metrics Grid -->
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">Clics Totaux</div>
+                            <div class="metric-value" id="totalClicks">45,678</div>
+                            <span class="metric-change positive">
+                                <span>↑</span>
+                                <span>12.3%</span>
+                            </span>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Visiteurs Uniques</div>
+                            <div class="metric-value" id="uniqueVisitors">23,456</div>
+                            <span class="metric-change positive">
+                                <span>↑</span>
+                                <span>8.7%</span>
+                            </span>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Taux de Conversion</div>
+                            <div class="metric-value" id="conversionRate">3.4%</div>
+                            <span class="metric-change negative">
+                                <span>↓</span>
+                                <span>2.1%</span>
+                            </span>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Plateforme Favorite</div>
+                            <div class="metric-value" id="topPlatform">Spotify</div>
+                        </div>
                     </div>
-                    <div class="stat-value" data-stat="total_smartlinks">-</div>
-                    <div class="stat-label">SmartLinks créés</div>
+
+                    <!-- Chart -->
+                    <div class="chart-container">
+                        <div class="chart-placeholder">
+                            📊 Graphique des clics sur la période sélectionnée
+                        </div>
+                    </div>
+
+                    <!-- Platform Statistics -->
+                    <div class="platform-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Statistiques par plateforme</h2>
+                            <div class="view-toggle">
+                                <button class="view-btn active" id="gridViewBtn" title="Vue grille">⊞</button>
+                                <button class="view-btn" id="tableViewBtn" title="Vue tableau">☰</button>
+                            </div>
+                        </div>
+
+                        <!-- Platform Grid View -->
+                        <div id="platformGrid" class="platform-grid">
+                            <div class="platform-card">
+                                <div class="platform-icon">🎵</div>
+                                <div class="platform-name">Spotify</div>
+                                <div class="platform-clicks">15,234</div>
+                            </div>
+                            <div class="platform-card">
+                                <div class="platform-icon">🍎</div>
+                                <div class="platform-name">Apple Music</div>
+                                <div class="platform-clicks">12,456</div>
+                            </div>
+                            <div class="platform-card">
+                                <div class="platform-icon">▶️</div>
+                                <div class="platform-name">YouTube</div>
+                                <div class="platform-clicks">8,901</div>
+                            </div>
+                            <div class="platform-card">
+                                <div class="platform-icon">🎧</div>
+                                <div class="platform-name">Deezer</div>
+                                <div class="platform-clicks">4,567</div>
+                            </div>
+                            <div class="platform-card">
+                                <div class="platform-icon">🌊</div>
+                                <div class="platform-name">Tidal</div>
+                                <div class="platform-clicks">2,345</div>
+                            </div>
+                            <div class="platform-card">
+                                <div class="platform-icon">☁️</div>
+                                <div class="platform-name">SoundCloud</div>
+                                <div class="platform-clicks">1,234</div>
+                            </div>
+                            <div class="platform-card">
+                                <div class="platform-icon">🎵</div>
+                                <div class="platform-name">Amazon Music</div>
+                                <div class="platform-clicks">941</div>
+                            </div>
+                        </div>
+
+                        <!-- Platform Table View -->
+                        <div id="platformTable" class="platform-table hidden">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Plateforme</th>
+                                        <th>Clics</th>
+                                        <th>Visiteurs</th>
+                                        <th>Conversion</th>
+                                        <th>Tendance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Spotify</td>
+                                        <td>15,234</td>
+                                        <td>8,456</td>
+                                        <td>4.2%</td>
+                                        <td style="color: var(--success);">↑ 12.3%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Apple Music</td>
+                                        <td>12,456</td>
+                                        <td>7,234</td>
+                                        <td>3.8%</td>
+                                        <td style="color: var(--success);">↑ 8.7%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>YouTube</td>
+                                        <td>8,901</td>
+                                        <td>5,678</td>
+                                        <td>2.9%</td>
+                                        <td style="color: var(--danger);">↓ 2.1%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Deezer</td>
+                                        <td>4,567</td>
+                                        <td>2,890</td>
+                                        <td>3.1%</td>
+                                        <td style="color: var(--success);">↑ 5.4%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tidal</td>
+                                        <td>2,345</td>
+                                        <td>1,456</td>
+                                        <td>2.7%</td>
+                                        <td style="color: var(--success);">↑ 3.2%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon">🖱️</div>
-                    </div>
-                    <div class="stat-value" data-stat="total_clicks">-</div>
-                    <div class="stat-label">Clics totaux</div>
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state hidden">
+                    <div class="empty-icon">📊</div>
+                    <h2 class="empty-title">Aucune donnée disponible</h2>
+                    <p class="empty-text">Les statistiques apparaîtront ici une fois que votre SmartLink aura généré du trafic.</p>
                 </div>
-
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon">🎤</div>
-                    </div>
-                    <div class="stat-value" data-stat="total_artists">-</div>
-                    <div class="stat-label">Artistes</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <div class="stat-icon">🚀</div>
-                    </div>
-                    <div class="stat-value" data-stat="active_campaigns">-</div>
-                    <div class="stat-label">Campagnes actives</div>
-                </div>
-            </section>
-
-            <!-- TABLE SECTION -->
-            <section class="table-section">
-                <div class="table-header">
-                    <h3 class="table-title">Derniers SmartLinks</h3>
-                    <p class="table-subtitle">Aperçu des activités récentes</p>
-                </div>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Titre</th>
-                            <th>Artiste</th>
-                            <th>Créé le</th>
-                            <th>Statut</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="recent-smartlinks-body">
-                        <!-- Les données seront injectées ici par JavaScript -->
-                    </tbody>
-                </table>
-            </section>
+            </div>
         </main>
     </div>
 
-    <!-- MODAL PROFIL UTILISATEUR -->
-    <div id="profileModal" class="modal-overlay">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title">Mon profil</h3>
-                <button class="modal-close" onclick="closeProfileModal()">&times;</button>
-            </div>
-            <form id="profileForm">
-                <div class="form-group">
-                    <label class="form-label">Nom d'affichage</label>
-                    <input type="text" id="profileDisplayName" class="form-input" placeholder="Votre nom complet">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" id="profileEmail" class="form-input" readonly>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Nouveau mot de passe (optionnel)</label>
-                    <input type="password" id="profilePassword" class="form-input" placeholder="Laisser vide pour ne pas changer">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Confirmer le mot de passe</label>
-                    <input type="password" id="profilePasswordConfirm" class="form-input" placeholder="Répéter le nouveau mot de passe">
-                </div>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-secondary" onclick="closeProfileModal()">Annuler</button>
-                    <button type="submit" class="btn btn-primary">Enregistrer</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL CRÉATION UTILISATEUR -->
-    <div id="createUserModal" class="modal-overlay">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title">Créer un utilisateur</h3>
-                <button class="modal-close" onclick="closeCreateUserModal()">&times;</button>
-            </div>
-            <form id="createUserForm">
-                <div class="form-group">
-                    <label class="form-label">Nom d'affichage *</label>
-                    <input type="text" id="newUserDisplayName" class="form-input" placeholder="Nom complet" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Email *</label>
-                    <input type="email" id="newUserEmail" class="form-input" placeholder="email@exemple.com" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Mot de passe *</label>
-                    <input type="password" id="newUserPassword" class="form-input" placeholder="Mot de passe sécurisé" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Plan</label>
-                    <select id="newUserPlan" class="form-select">
-                        <option value="free">Gratuit</option>
-                        <option value="pro">Pro</option>
-                        <option value="premium">Premium</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-checkbox">
-                        <input type="checkbox" id="newUserIsAdmin">
-                        <span>Administrateur</span>
-                    </label>
-                </div>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-secondary" onclick="closeCreateUserModal()">Annuler</button>
-                    <button type="submit" class="btn btn-primary">Créer l'utilisateur</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script src="/config.js"></script>
-    <script src="/assets/js/admin.js?v=1.0.2"></script>
     <script>
-        // Dashboard spécifique
-        class Dashboard {
-            constructor() {
-                this.loadStats();
-                this.loadRecentSmartLinks();
+        // Mock Data
+        const mockData = {
+            global: {
+                totalClicks: 45678,
+                uniqueVisitors: 23456,
+                conversionRate: 3.4,
+                topPlatform: "Spotify",
+                clicksChange: 12.3,
+                visitorsChange: 8.7,
+                conversionChange: -2.1
+            },
+            sl1: {
+                totalClicks: 28901,
+                uniqueVisitors: 15234,
+                conversionRate: 4.2,
+                topPlatform: "Apple Music",
+                clicksChange: 15.7,
+                visitorsChange: 10.2,
+                conversionChange: 3.4
+            },
+            sl2: {
+                totalClicks: 12456,
+                uniqueVisitors: 7890,
+                conversionRate: 2.8,
+                topPlatform: "YouTube",
+                clicksChange: -5.3,
+                visitorsChange: -2.1,
+                conversionChange: -8.7
+            },
+            sl3: {
+                totalClicks: 0,
+                uniqueVisitors: 0,
+                conversionRate: 0,
+                topPlatform: "-",
+                clicksChange: 0,
+                visitorsChange: 0,
+                conversionChange: 0
             }
+        };
 
-            async loadStats() {
-                try {
-                    const response = await mdmcAdmin.apiCall('/api/smartlinks');
-                    if (response.success) {
-                        const smartlinks = response.smartlinks; // ✅ Fix: use correct property name
+        // State
+        let currentSmartLink = '';
+        let currentPeriod = '30d';
+        let currentViewMode = 'grid';
 
-                        // Calculer les statistiques
-                        const stats = {
-                            total_smartlinks: smartlinks.length,
-                            total_clicks: smartlinks.reduce((sum, sl) => sum + (sl.click_count || 0), 0), // ✅ Fix: use click_count
-                            total_artists: new Set(smartlinks.map(sl => sl.artist).filter(artist => artist)).size, // ✅ Fix: use artist string
-                            active_campaigns: smartlinks.filter(sl => sl.is_active).length // ✅ Fix: use is_active
-                        };
+        // DOM Elements
+        const smartlinkSelect = document.getElementById('smartlinkSelect');
+        const smartlinkDropdown = document.getElementById('smartlinkDropdown');
+        const smartlinkLabel = document.getElementById('smartlinkLabel');
+        const periodSelect = document.getElementById('periodSelect');
+        const periodDropdown = document.getElementById('periodDropdown');
+        const periodLabel = document.getElementById('periodLabel');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const refreshIcon = document.getElementById('refreshIcon');
+        const gridViewBtn = document.getElementById('gridViewBtn');
+        const tableViewBtn = document.getElementById('tableViewBtn');
+        const platformGrid = document.getElementById('platformGrid');
+        const platformTable = document.getElementById('platformTable');
+        const mainContent = document.getElementById('mainContent');
+        const emptyState = document.getElementById('emptyState');
 
-                        // Mettre à jour l'affichage
-                        Object.entries(stats).forEach(([key, value]) => {
-                            const element = document.querySelector(`[data-stat="${key}"]`);
-                            if (element) {
-                                element.textContent = mdmcAdmin.formatNumber(value);
-                            }
-                        });
-                    }
-                } catch (error) {
-                    console.error('Erreur chargement stats:', error);
-                    mdmcAdmin.showNotification('Erreur lors du chargement des statistiques', 'danger');
+        // Dropdown functionality
+        function setupDropdown(button, dropdown, label) {
+            button.addEventListener('click', () => {
+                const isOpen = dropdown.classList.contains('show');
+                closeAllDropdowns();
+                if (!isOpen) {
+                    dropdown.classList.add('show');
+                    button.classList.add('active');
                 }
+            });
+
+            dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    dropdown.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+                    item.classList.add('selected');
+                    label.textContent = item.textContent;
+                    closeAllDropdowns();
+                    
+                    // Update state based on dropdown
+                    if (dropdown === smartlinkDropdown) {
+                        currentSmartLink = item.dataset.value;
+                        updateAnalytics();
+                    } else if (dropdown === periodDropdown) {
+                        currentPeriod = item.dataset.value;
+                    }
+                });
+            });
+        }
+
+        function closeAllDropdowns() {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('show'));
+            document.querySelectorAll('.select-button').forEach(btn => btn.classList.remove('active'));
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.select-wrapper')) {
+                closeAllDropdowns();
             }
+        });
 
-            async loadRecentSmartLinks() {
-                try {
-                    const response = await mdmcAdmin.apiCall('/api/smartlinks');
-                    if (response.success) {
-                        const recentSmartLinks = response.smartlinks // ✅ Fix: use correct property name
-                            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // ✅ Fix: use created_at
-                            .slice(0, 5);
+        // Setup dropdowns
+        setupDropdown(smartlinkSelect, smartlinkDropdown, smartlinkLabel);
+        setupDropdown(periodSelect, periodDropdown, periodLabel);
 
-                        const container = document.getElementById('recent-smartlinks-body');
+        // Refresh button
+        refreshBtn.addEventListener('click', async () => {
+            refreshBtn.disabled = true;
+            refreshIcon.classList.add('spinning');
+            
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            refreshBtn.disabled = false;
+            refreshIcon.classList.remove('spinning');
+        });
 
-                        if (recentSmartLinks.length === 0) {
-                            container.innerHTML = `
-                                <tr>
-                                    <td colspan="5" style="text-align: center;">
-                                        <p>Aucun SmartLink créé pour le moment</p>
-                                        <a href="/smartlinks/create" class="btn btn-primary mt-2">Créer votre premier SmartLink</a>
-                                    </td>
-                                </tr>
+        // View mode toggle
+        gridViewBtn.addEventListener('click', () => {
+            currentViewMode = 'grid';
+            gridViewBtn.classList.add('active');
+            tableViewBtn.classList.remove('active');
+            platformGrid.classList.remove('hidden');
+            platformTable.classList.add('hidden');
+        });
+
+        tableViewBtn.addEventListener('click', () => {
+            currentViewMode = 'table';
+            tableViewBtn.classList.add('active');
+            gridViewBtn.classList.remove('active');
+            platformTable.classList.remove('hidden');
+            platformGrid.classList.add('hidden');
+        });
+
+        // Update analytics based on selection
+        function updateAnalytics() {
+            const data = mockData[currentSmartLink || 'global'];
+            
+            if (data.totalClicks === 0) {
+                mainContent.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+            } else {
+                mainContent.classList.remove('hidden');
+                emptyState.classList.add('hidden');
+                
+                // Update metrics
+                document.getElementById('totalClicks').textContent = data.totalClicks.toLocaleString();
+                document.getElementById('uniqueVisitors').textContent = data.uniqueVisitors.toLocaleString();
+                document.getElementById('conversionRate').textContent = data.conversionRate + '%';
+                document.getElementById('topPlatform').textContent = data.topPlatform;
+                
+                // Update change indicators
+                const metricsCards = document.querySelectorAll('.metric-card');
+                const changes = [data.clicksChange, data.visitorsChange, data.conversionChange];
+                
+                metricsCards.forEach((card, index) => {
+                    if (index < 3) {
+                        const changeEl = card.querySelector('.metric-change');
+                        if (changeEl) {
+                            const value = changes[index];
+                            changeEl.className = 'metric-change ' + (value >= 0 ? 'positive' : 'negative');
+                            changeEl.innerHTML = `
+                                <span>${value >= 0 ? '↑' : '↓'}</span>
+                                <span>${Math.abs(value)}%</span>
                             `;
-                            return;
                         }
-
-                        container.innerHTML = recentSmartLinks.map(sl => `
-                            <tr>
-                                <td><strong>${sl.title}</strong></td>
-                                <td>${sl.artist || 'Artiste inconnu'}</td>
-                                <td>${mdmcAdmin.formatDate(sl.created_at)}</td>
-                                <td>
-                                    <span class="status-badge ${sl.is_active ? 'status-active' : 'status-pending'}">
-                                        ${sl.is_active ? 'Actif' : 'Inactif'}
-                                    </span>
-                                </td>
-                                <td>
-                                    <button onclick="copySmartLinkUrl('${sl.slug}')"
-                                            class="btn btn-sm btn-outline" title="Copier le lien">
-                                        📋
-                                    </button>
-                                    <a href="/s/${sl.slug}"
-                                       target="_blank" class="btn btn-sm btn-outline" title="Voir">
-                                        👁️
-                                    </a>
-                                </td>
-                            </tr>
-                        `).join('');
                     }
-                } catch (error) {
-                    console.error('Erreur chargement SmartLinks récents:', error);
-                    document.getElementById('recent-smartlinks-body').innerHTML = `
-                        <tr>
-                            <td colspan="5" class="alert alert-danger">
-                                Erreur lors du chargement des SmartLinks récents
-                            </td>
-                        </tr>
-                    `;
-                }
-            }
-        }
-
-        function copySmartLinkUrl(slug) {
-            const url = `${window.location.origin}/s/${slug}`;
-            mdmcAdmin.copyToClipboard(url);
-        }
-
-        // Fonctions du menu utilisateur
-        function toggleUserMenu() {
-            const menu = document.getElementById('userMenu');
-            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-        }
-
-        let currentUser = null;
-
-        function openProfileModal() {
-            if (currentUser) {
-                // Pré-remplir le formulaire avec les données actuelles
-                document.getElementById('profileDisplayName').value = currentUser.display_name || '';
-                document.getElementById('profileEmail').value = currentUser.email || '';
-                document.getElementById('profilePassword').value = '';
-                document.getElementById('profilePasswordConfirm').value = '';
-
-                // Afficher la modal
-                document.getElementById('profileModal').style.display = 'flex';
-            }
-            toggleUserMenu();
-        }
-
-        function closeProfileModal() {
-            document.getElementById('profileModal').style.display = 'none';
-        }
-
-        function openCreateUserModal() {
-            // Réinitialiser le formulaire
-            document.getElementById('createUserForm').reset();
-
-            // Afficher la modal
-            document.getElementById('createUserModal').style.display = 'flex';
-            toggleUserMenu();
-        }
-
-        function closeCreateUserModal() {
-            document.getElementById('createUserModal').style.display = 'none';
-        }
-
-        function logout() {
-            if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
-                // Supprimer le token d'authentification
-                document.cookie = 'auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-                // Rediriger vers la page de connexion
-                window.location.href = '/login';
-            }
-            toggleUserMenu();
-        }
-
-        // Charger les informations de l'utilisateur actuel
-        async function loadCurrentUser() {
-            try {
-                const response = await fetch('/api/auth/me', {
-                    method: 'GET',
-                    credentials: 'include'
                 });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    currentUser = data.user;
-
-                    // Mettre à jour l'affichage du profil
-                    document.getElementById('userName').textContent = currentUser.display_name || currentUser.email;
-                    document.getElementById('userRole').textContent = currentUser.is_admin ? 'Admin' : 'Utilisateur';
-
-                    // Créer les initiales pour l'avatar
-                    const initials = currentUser.display_name ?
-                        currentUser.display_name.split(' ').map(n => n[0]).join('').toUpperCase() :
-                        currentUser.email.substring(0, 2).toUpperCase();
-                    document.getElementById('userAvatar').textContent = initials;
-
-                    // Afficher le bouton de création d'utilisateur pour les admins
-                    if (currentUser.is_admin) {
-                        document.getElementById('createUserBtn').style.display = 'block';
-                    }
-                } else {
-                    console.error('Erreur lors du chargement du profil utilisateur');
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
             }
         }
 
-        // Gestionnaire du formulaire de profil
-        document.getElementById('profileForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const displayName = document.getElementById('profileDisplayName').value;
-            const password = document.getElementById('profilePassword').value;
-            const passwordConfirm = document.getElementById('profilePasswordConfirm').value;
-
-            // Validation du mot de passe
-            if (password && password !== passwordConfirm) {
-                alert('Les mots de passe ne correspondent pas');
-                return;
-            }
-
-            try {
-                const updateData = { display_name: displayName };
-                if (password) {
-                    updateData.password = password;
-                }
-
-                const response = await fetch('/api/auth/profile', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify(updateData)
-                });
-
-                if (response.ok) {
-                    alert('Profil mis à jour avec succès');
-                    closeProfileModal();
-                    await loadCurrentUser(); // Recharger les informations
-                } else {
-                    const error = await response.json();
-                    alert('Erreur: ' + error.error);
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-                alert('Erreur lors de la mise à jour du profil');
-            }
-        });
-
-        // Gestionnaire du formulaire de création d'utilisateur
-        document.getElementById('createUserForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const userData = {
-                display_name: document.getElementById('newUserDisplayName').value,
-                email: document.getElementById('newUserEmail').value,
-                password: document.getElementById('newUserPassword').value,
-                plan: document.getElementById('newUserPlan').value,
-                is_admin: document.getElementById('newUserIsAdmin').checked
-            };
-
-            try {
-                const response = await fetch('/api/admin/users', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify(userData)
-                });
-
-                if (response.ok) {
-                    alert('Utilisateur créé avec succès');
-                    closeCreateUserModal();
-                } else {
-                    const error = await response.json();
-                    alert('Erreur: ' + error.error);
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-                alert('Erreur lors de la création de l\\'utilisateur');
-            }
-        });
-
-        // Fermer le menu quand on clique ailleurs
-        document.addEventListener('click', function(event) {
-            const userProfile = document.querySelector('.user-profile');
-            const userMenu = document.getElementById('userMenu');
-
-            if (!userProfile.contains(event.target)) {
-                userMenu.style.display = 'none';
-            }
-        });
-
-        // Fermer les modales en cliquant sur l'overlay
-        document.getElementById('profileModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeProfileModal();
-            }
-        });
-
-        document.getElementById('createUserModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeCreateUserModal();
-            }
-        });
-
-        // Initialisation
-        document.addEventListener('DOMContentLoaded', () => {
-            new Dashboard();
-            loadCurrentUser();
-        });
+        // Initialize
+        updateAnalytics();
     </script>
 </body>
 </html>
