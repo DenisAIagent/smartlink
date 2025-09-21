@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paramètres | MDMC Admin</title>
+    <style>
+        :root {
+            --primary: #E50914;
+            --primary-hover: #d40812;
+            --bg-main: #F8F9FA;
+            --bg-white: #ffffff;
+            --border: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --success: #10b981;
+            --danger: #ef4444;
+            --sidebar-width: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            border-right: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .nav-menu {
+            padding: 16px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-main);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: #FEE2E2;
+            color: var(--primary);
+            border-right: 3px solid var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 24px 32px;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Content */
+        .content {
+            flex: 1;
+            padding: 32px;
+        }
+
+        .settings-grid {
+            display: grid;
+            gap: 24px;
+            max-width: 800px;
+        }
+
+        .settings-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .section-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: var(--bg-main);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .setting-row:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info h4 {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .setting-info p {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-info {
+            background: #EBF8FF;
+            color: #2563EB;
+            border: 1px solid #BFDBFE;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .header {
+                padding: 16px;
+            }
+
+            .content {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span>🔗</span>
+                    <span>SmartLinks</span>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <a href="/pages/dashboard.html" class="nav-item">
+                    <span>📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/pages/analytics.html" class="nav-item">
+                    <span>📈</span>
+                    <span>Analytics</span>
+                </a>
+                <a href="/pages/list-smartlinks.html" class="nav-item">
+                    <span>🔗</span>
+                    <span>SmartLinks</span>
+                </a>
+                <a href="/pages/create-smartlink.html" class="nav-item">
+                    <span>✨</span>
+                    <span>Créer SmartLink</span>
+                </a>
+                <a href="/pages/settings.html" class="nav-item active">
+                    <span>⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <h1 class="header-title">Paramètres</h1>
+                <p class="header-subtitle">Configurez votre compte et vos préférences</p>
+            </header>
+
+            <!-- Content -->
+            <div class="content">
+                <div class="settings-grid">
+                    <!-- Profile Settings -->
+                    <div class="settings-section">
+                        <h2 class="section-title">Profil</h2>
+                        <p class="section-description">Informations générales de votre compte</p>
+
+                        <div class="form-group">
+                            <label class="form-label" for="displayName">Nom d'affichage</label>
+                            <input type="text" id="displayName" class="form-input" placeholder="Votre nom d'affichage">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="email">Email</label>
+                            <input type="email" id="email" class="form-input" placeholder="votre.email@exemple.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="company">Entreprise/Label</label>
+                            <input type="text" id="company" class="form-input" placeholder="Nom de votre entreprise">
+                        </div>
+
+                        <button class="btn btn-primary">Sauvegarder</button>
+                    </div>
+
+                    <!-- Notifications -->
+                    <div class="settings-section">
+                        <h2 class="section-title">Notifications</h2>
+                        <p class="section-description">Choisissez quand et comment vous souhaitez être notifié</p>
+
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <h4>Notifications par email</h4>
+                                <p>Recevez des mises à jour sur vos SmartLinks par email</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <h4>Rapports hebdomadaires</h4>
+                                <p>Résumé des performances de vos SmartLinks chaque semaine</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <h4>Alertes de trafic</h4>
+                                <p>Notification quand vos SmartLinks reçoivent un pic de trafic</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- SmartLink Settings -->
+                    <div class="settings-section">
+                        <h2 class="section-title">Paramètres SmartLink</h2>
+                        <p class="section-description">Configuration par défaut pour vos nouveaux SmartLinks</p>
+
+                        <div class="form-group">
+                            <label class="form-label" for="defaultCountry">Pays par défaut</label>
+                            <select id="defaultCountry" class="form-input">
+                                <option value="FR">France</option>
+                                <option value="US">États-Unis</option>
+                                <option value="UK">Royaume-Uni</option>
+                                <option value="CA">Canada</option>
+                                <option value="DE">Allemagne</option>
+                            </select>
+                        </div>
+
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <h4>Analytics avancés</h4>
+                                <p>Collecte de données détaillées sur les clics</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <h4>URL courtes par défaut</h4>
+                                <p>Générer automatiquement des URLs courtes pour vos SmartLinks</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Security -->
+                    <div class="settings-section">
+                        <h2 class="section-title">Sécurité</h2>
+                        <p class="section-description">Protégez votre compte et vos données</p>
+
+                        <div class="alert alert-info">
+                            ℹ️ Ces fonctionnalités seront bientôt disponibles
+                        </div>
+
+                        <div class="form-group">
+                            <button class="btn btn-secondary" disabled>Changer le mot de passe</button>
+                        </div>
+
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <h4>Authentification à deux facteurs</h4>
+                                <p>Ajoutez une couche de sécurité supplémentaire à votre compte</p>
+                            </div>
+                            <button class="btn btn-secondary" disabled>Configurer</button>
+                        </div>
+                    </div>
+
+                    <!-- Danger Zone -->
+                    <div class="settings-section">
+                        <h2 class="section-title" style="color: var(--danger);">Zone dangereuse</h2>
+                        <p class="section-description">Actions irréversibles sur votre compte</p>
+
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <h4>Supprimer le compte</h4>
+                                <p>Supprimez définitivement votre compte et toutes vos données</p>
+                            </div>
+                            <button class="btn" style="background: var(--danger); color: white;" disabled>
+                                Supprimer le compte
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Simple form handling
+        document.addEventListener('DOMContentLoaded', function() {
+            // Save button functionality
+            const saveBtn = document.querySelector('.btn-primary');
+            saveBtn.addEventListener('click', function() {
+                // Show feedback
+                this.innerHTML = '✅ Sauvegardé';
+                this.style.background = 'var(--success)';
+
+                setTimeout(() => {
+                    this.innerHTML = 'Sauvegarder';
+                    this.style.background = 'var(--primary)';
+                }, 2000);
+            });
+
+            // Toggle switches
+            const toggles = document.querySelectorAll('.toggle-switch input');
+            toggles.forEach(toggle => {
+                toggle.addEventListener('change', function() {
+                    console.log('Setting changed:', this.checked);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
