@@ -7,7 +7,7 @@
  * Generate Google Analytics script
  */
 function generateGoogleAnalytics(measurementId) {
-  if (!measurementId || measurementId === 'null') return '';
+  if (!measurementId || measurementId === 'null' || measurementId === 'undefined' || measurementId.includes('PLACEHOLDER')) return '';
 
   return `
     <!-- Google tag (gtag.js) -->
@@ -24,7 +24,7 @@ function generateGoogleAnalytics(measurementId) {
  * Generate Google Tag Manager script
  */
 function generateGoogleTagManager(containerId) {
-  if (!containerId || containerId === 'null') return '';
+  if (!containerId || containerId === 'null' || containerId === 'undefined' || containerId.includes('PLACEHOLDER')) return '';
 
   return `
     <!-- Google Tag Manager -->
@@ -51,7 +51,7 @@ function generateGoogleTagManagerNoscript(containerId) {
  * Generate Meta Pixel script
  */
 function generateMetaPixel(pixelId) {
-  if (!pixelId || pixelId === 'null') return '';
+  if (!pixelId || pixelId === 'null' || pixelId === 'undefined' || pixelId.includes('PLACEHOLDER') || pixelId === '123456789012345') return '';
 
   return `
     <!-- Meta Pixel Code -->
@@ -76,7 +76,7 @@ function generateMetaPixel(pixelId) {
  * Generate TikTok Pixel script
  */
 function generateTikTokPixel(pixelId) {
-  if (!pixelId || pixelId === 'null') return '';
+  if (!pixelId || pixelId === 'null' || pixelId === 'undefined' || pixelId.includes('PLACEHOLDER') || pixelId === 'ABCDEFGHIJKLMNOP') return '';
 
   return `
     <!-- TikTok Pixel Code -->
