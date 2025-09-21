@@ -63,7 +63,10 @@
       "Bash(timeout 15 railway logs)",
       "Bash(open http://localhost:3003/create-smartlink)",
       "Bash(open http://localhost:3003/pages/create-smartlink.html)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(open http://localhost:3003/pages/dashboard.html)",
+      "Bash(open http://localhost:3003/pages/settings.html)",
+      "Bash(open http://localhost:3003/test-nav.html)"
     ],
     "deny": [],
     "ask": []
