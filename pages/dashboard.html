@@ -518,9 +518,7 @@
                         </button>
                         <div class="dropdown-menu" id="smartlinkDropdown">
                             <div class="dropdown-item selected" data-value="">Tous les SmartLinks</div>
-                            <div class="dropdown-item" data-value="sl1">Mon Album 2024</div>
-                            <div class="dropdown-item" data-value="sl2">EP Summer Vibes</div>
-                            <div class="dropdown-item" data-value="sl3">Single "Midnight"</div>
+                            <!-- SmartLinks will be populated dynamically -->
                         </div>
                     </div>
 
@@ -554,31 +552,31 @@
                     <div class="metrics-grid">
                         <div class="metric-card">
                             <div class="metric-label">Clics Totaux</div>
-                            <div class="metric-value" id="totalClicks">45,678</div>
-                            <span class="metric-change positive">
-                                <span>↑</span>
-                                <span>12.3%</span>
+                            <div class="metric-value" id="totalClicks">-</div>
+                            <span class="metric-change" id="clicksChange" style="display: none;">
+                                <span id="clicksDirection">↔</span>
+                                <span id="clicksPercent">-</span>
                             </span>
                         </div>
                         <div class="metric-card">
                             <div class="metric-label">Visiteurs Uniques</div>
-                            <div class="metric-value" id="uniqueVisitors">23,456</div>
-                            <span class="metric-change positive">
-                                <span>↑</span>
-                                <span>8.7%</span>
+                            <div class="metric-value" id="uniqueVisitors">-</div>
+                            <span class="metric-change" id="visitorsChange" style="display: none;">
+                                <span id="visitorsDirection">↔</span>
+                                <span id="visitorsPercent">-</span>
                             </span>
                         </div>
                         <div class="metric-card">
                             <div class="metric-label">Taux de Conversion</div>
-                            <div class="metric-value" id="conversionRate">3.4%</div>
-                            <span class="metric-change negative">
-                                <span>↓</span>
-                                <span>2.1%</span>
+                            <div class="metric-value" id="conversionRate">-</div>
+                            <span class="metric-change" id="conversionChange" style="display: none;">
+                                <span id="conversionDirection">↔</span>
+                                <span id="conversionPercent">-</span>
                             </span>
                         </div>
                         <div class="metric-card">
                             <div class="metric-label">Plateforme Favorite</div>
-                            <div class="metric-value" id="topPlatform">Spotify</div>
+                            <div class="metric-value" id="topPlatform">-</div>
                         </div>
                     </div>
 
@@ -601,41 +599,7 @@
 
                         <!-- Platform Grid View -->
                         <div id="platformGrid" class="platform-grid">
-                            <div class="platform-card">
-                                <div class="platform-icon">🎵</div>
-                                <div class="platform-name">Spotify</div>
-                                <div class="platform-clicks">15,234</div>
-                            </div>
-                            <div class="platform-card">
-                                <div class="platform-icon">🍎</div>
-                                <div class="platform-name">Apple Music</div>
-                                <div class="platform-clicks">12,456</div>
-                            </div>
-                            <div class="platform-card">
-                                <div class="platform-icon">▶️</div>
-                                <div class="platform-name">YouTube</div>
-                                <div class="platform-clicks">8,901</div>
-                            </div>
-                            <div class="platform-card">
-                                <div class="platform-icon">🎧</div>
-                                <div class="platform-name">Deezer</div>
-                                <div class="platform-clicks">4,567</div>
-                            </div>
-                            <div class="platform-card">
-                                <div class="platform-icon">🌊</div>
-                                <div class="platform-name">Tidal</div>
-                                <div class="platform-clicks">2,345</div>
-                            </div>
-                            <div class="platform-card">
-                                <div class="platform-icon">☁️</div>
-                                <div class="platform-name">SoundCloud</div>
-                                <div class="platform-clicks">1,234</div>
-                            </div>
-                            <div class="platform-card">
-                                <div class="platform-icon">🎵</div>
-                                <div class="platform-name">Amazon Music</div>
-                                <div class="platform-clicks">941</div>
-                            </div>
+                            <!-- Platform cards will be populated dynamically -->
                         </div>
 
                         <!-- Platform Table View -->
@@ -650,42 +614,8 @@
                                         <th>Tendance</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Spotify</td>
-                                        <td>15,234</td>
-                                        <td>8,456</td>
-                                        <td>4.2%</td>
-                                        <td style="color: var(--success);">↑ 12.3%</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Apple Music</td>
-                                        <td>12,456</td>
-                                        <td>7,234</td>
-                                        <td>3.8%</td>
-                                        <td style="color: var(--success);">↑ 8.7%</td>
-                                    </tr>
-                                    <tr>
-                                        <td>YouTube</td>
-                                        <td>8,901</td>
-                                        <td>5,678</td>
-                                        <td>2.9%</td>
-                                        <td style="color: var(--danger);">↓ 2.1%</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Deezer</td>
-                                        <td>4,567</td>
-                                        <td>2,890</td>
-                                        <td>3.1%</td>
-                                        <td style="color: var(--success);">↑ 5.4%</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Tidal</td>
-                                        <td>2,345</td>
-                                        <td>1,456</td>
-                                        <td>2.7%</td>
-                                        <td style="color: var(--success);">↑ 3.2%</td>
-                                    </tr>
+                                <tbody id="platformTableBody">
+                                    <!-- Table rows will be populated dynamically -->
                                 </tbody>
                             </table>
                         </div>
@@ -703,43 +633,61 @@
     </div>
 
     <script>
-        // Mock Data
-        const mockData = {
-            global: {
-                totalClicks: 45678,
-                uniqueVisitors: 23456,
-                conversionRate: 3.4,
-                topPlatform: "Spotify",
-                clicksChange: 12.3,
-                visitorsChange: 8.7,
-                conversionChange: -2.1
+        // Global variables
+        let allSmartLinks = [];
+        let analyticsData = null;
+
+        // Platform configuration
+        const platformConfig = {
+            'spotify': {
+                name: 'Spotify',
+                color: '#1DB954',
+                icon: '🎵'
             },
-            sl1: {
-                totalClicks: 28901,
-                uniqueVisitors: 15234,
-                conversionRate: 4.2,
-                topPlatform: "Apple Music",
-                clicksChange: 15.7,
-                visitorsChange: 10.2,
-                conversionChange: 3.4
+            'apple': {
+                name: 'Apple Music',
+                color: '#FA243C',
+                icon: '🍎'
             },
-            sl2: {
-                totalClicks: 12456,
-                uniqueVisitors: 7890,
-                conversionRate: 2.8,
-                topPlatform: "YouTube",
-                clicksChange: -5.3,
-                visitorsChange: -2.1,
-                conversionChange: -8.7
+            'applemusic': {
+                name: 'Apple Music',
+                color: '#FA243C',
+                icon: '🍎'
             },
-            sl3: {
-                totalClicks: 0,
-                uniqueVisitors: 0,
-                conversionRate: 0,
-                topPlatform: "-",
-                clicksChange: 0,
-                visitorsChange: 0,
-                conversionChange: 0
+            'youtube': {
+                name: 'YouTube',
+                color: '#FF0000',
+                icon: '▶️'
+            },
+            'youtubemusic': {
+                name: 'YouTube Music',
+                color: '#FF0000',
+                icon: '🎵'
+            },
+            'deezer': {
+                name: 'Deezer',
+                color: '#FF6600',
+                icon: '🎧'
+            },
+            'soundcloud': {
+                name: 'SoundCloud',
+                color: '#FF5500',
+                icon: '☁️'
+            },
+            'tidal': {
+                name: 'Tidal',
+                color: '#000000',
+                icon: '🌊'
+            },
+            'amazon': {
+                name: 'Amazon Music',
+                color: '#FF9900',
+                icon: '🎵'
+            },
+            'amazonmusic': {
+                name: 'Amazon Music',
+                color: '#FF9900',
+                icon: '🎵'
             }
         };
 
@@ -785,9 +733,10 @@
                     // Update state based on dropdown
                     if (dropdown === smartlinkDropdown) {
                         currentSmartLink = item.dataset.value;
-                        updateAnalytics();
+                        loadAnalytics();
                     } else if (dropdown === periodDropdown) {
                         currentPeriod = item.dataset.value;
+                        loadAnalytics();
                     }
                 });
             });
@@ -813,10 +762,9 @@
         refreshBtn.addEventListener('click', async () => {
             refreshBtn.disabled = true;
             refreshIcon.classList.add('spinning');
-            
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
+
+            await loadAnalytics();
+
             refreshBtn.disabled = false;
             refreshIcon.classList.remove('spinning');
         });
@@ -838,45 +786,265 @@
             platformGrid.classList.add('hidden');
         });
 
-        // Update analytics based on selection
-        function updateAnalytics() {
-            const data = mockData[currentSmartLink || 'global'];
-            
-            if (data.totalClicks === 0) {
-                mainContent.classList.add('hidden');
-                emptyState.classList.remove('hidden');
-            } else {
-                mainContent.classList.remove('hidden');
-                emptyState.classList.add('hidden');
-                
-                // Update metrics
-                document.getElementById('totalClicks').textContent = data.totalClicks.toLocaleString();
-                document.getElementById('uniqueVisitors').textContent = data.uniqueVisitors.toLocaleString();
-                document.getElementById('conversionRate').textContent = data.conversionRate + '%';
-                document.getElementById('topPlatform').textContent = data.topPlatform;
-                
-                // Update change indicators
-                const metricsCards = document.querySelectorAll('.metric-card');
-                const changes = [data.clicksChange, data.visitorsChange, data.conversionChange];
-                
-                metricsCards.forEach((card, index) => {
-                    if (index < 3) {
-                        const changeEl = card.querySelector('.metric-change');
-                        if (changeEl) {
-                            const value = changes[index];
-                            changeEl.className = 'metric-change ' + (value >= 0 ? 'positive' : 'negative');
-                            changeEl.innerHTML = `
-                                <span>${value >= 0 ? '↑' : '↓'}</span>
-                                <span>${Math.abs(value)}%</span>
-                            `;
-                        }
-                    }
+        // Load SmartLinks for dropdown
+        async function loadSmartLinks() {
+            try {
+                const response = await fetch('/api/smartlinks', {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
                 });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        allSmartLinks = data.smartlinks || [];
+                        populateSmartLinkDropdown();
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading SmartLinks:', error);
             }
         }
 
+        // Populate SmartLink dropdown with actual data
+        function populateSmartLinkDropdown() {
+            const dropdown = smartlinkDropdown;
+            dropdown.innerHTML = '<div class="dropdown-item selected" data-value="">Tous les SmartLinks</div>';
+
+            allSmartLinks.forEach(sl => {
+                const item = document.createElement('div');
+                item.className = 'dropdown-item';
+                item.dataset.value = sl.id;
+                item.textContent = `${sl.title}${sl.artist ? ' - ' + sl.artist : ''}`;
+                dropdown.appendChild(item);
+            });
+
+            // Re-setup event listeners for new items
+            setupDropdown(smartlinkSelect, smartlinkDropdown, smartlinkLabel);
+        }
+
+        // Load and update analytics
+        async function loadAnalytics() {
+            try {
+                if (currentSmartLink) {
+                    // Load specific SmartLink analytics
+                    const daysMap = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 };
+                    const days = daysMap[currentPeriod] || 30;
+
+                    const response = await fetch(`/api/smartlinks/${currentSmartLink}/analytics?days=${days}`, {
+                        credentials: 'include'
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success) {
+                            analyticsData = data.analytics;
+                        }
+                    }
+                } else {
+                    // Load overview analytics (aggregate all SmartLinks)
+                    analyticsData = await loadOverviewAnalytics();
+                }
+
+                updateAnalytics();
+
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+                showEmptyState();
+            }
+        }
+
+        // Load overview analytics by aggregating SmartLinks data
+        async function loadOverviewAnalytics() {
+            if (!allSmartLinks.length) {
+                return { total_clicks: 0, unique_visitors: 0, platform_stats: [] };
+            }
+
+            let totalClicks = 0;
+            let platformCounts = {};
+
+            // Aggregate click counts and platform data
+            allSmartLinks.forEach(sl => {
+                totalClicks += sl.click_count || 0;
+
+                // Count platforms
+                if (sl.platforms && Array.isArray(sl.platforms)) {
+                    sl.platforms.forEach(platform => {
+                        const name = platform.name.toLowerCase();
+                        if (!platformCounts[name]) {
+                            platformCounts[name] = 0;
+                        }
+                        // Distribute clicks evenly across platforms
+                        platformCounts[name] += Math.floor((sl.click_count || 0) / sl.platforms.length);
+                    });
+                }
+            });
+
+            // Convert to platform stats format
+            const platform_stats = Object.entries(platformCounts).map(([platform, clicks]) => ({
+                platform,
+                clicks,
+                unique_clicks: clicks
+            }));
+
+            return {
+                total_clicks: totalClicks,
+                unique_visitors: 0,
+                platform_stats,
+                top_platform: platform_stats.length > 0 ?
+                    platform_stats.reduce((max, p) => p.clicks > max.clicks ? p : max).platform : null
+            };
+        }
+
+        // Update analytics display
+        function updateAnalytics() {
+            if (!analyticsData || analyticsData.total_clicks === 0) {
+                showEmptyState();
+                return;
+            }
+
+            mainContent.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            // Update metrics
+            updateMetrics(analyticsData);
+            updatePlatformStats(analyticsData);
+        }
+
+        // Update metrics cards
+        function updateMetrics(data) {
+            document.getElementById('totalClicks').textContent = formatNumber(data.total_clicks || 0);
+            document.getElementById('uniqueVisitors').textContent = formatNumber(data.unique_visitors || 0);
+            document.getElementById('conversionRate').textContent = '-';
+            document.getElementById('topPlatform').textContent = data.top_platform || '-';
+
+            // Hide change indicators until we have historical data
+            const changeElements = ['clicksChange', 'visitorsChange', 'conversionChange'];
+            changeElements.forEach((id) => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+        }
+
+        // Update platform statistics
+        function updatePlatformStats(data) {
+            const platforms = data.platform_stats || [];
+            const totalClicks = data.total_clicks || 0;
+
+            if (currentViewMode === 'grid') {
+                updatePlatformGrid(platforms, totalClicks);
+            } else {
+                updatePlatformTable(platforms, totalClicks);
+            }
+        }
+
+        // Update platform grid view
+        function updatePlatformGrid(platforms, totalClicks) {
+            if (!platforms.length) {
+                platformGrid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #6B7280;">
+                        📊 Aucune donnée de plateforme disponible
+                    </div>
+                `;
+                return;
+            }
+
+            platformGrid.innerHTML = platforms.map(item => {
+                const platform = item.platform;
+                const clicks = item.clicks || 0;
+                const percentage = totalClicks > 0 ? ((clicks / totalClicks) * 100).toFixed(1) : 0;
+                const config = platformConfig[platform.toLowerCase()] || {
+                    name: platform,
+                    color: '#666',
+                    icon: '🎵'
+                };
+
+                return `
+                    <div class="platform-card">
+                        <div class="platform-icon">${config.icon}</div>
+                        <div class="platform-name">${config.name}</div>
+                        <div class="platform-clicks">${formatNumber(clicks)}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                            ${percentage}% du total
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update platform table view
+        function updatePlatformTable(platforms, totalClicks) {
+            const tbody = document.getElementById('platformTableBody');
+
+            if (!platforms.length) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #6B7280;">
+                            📊 Aucune donnée de plateforme disponible
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = platforms.map(item => {
+                const platform = item.platform;
+                const clicks = item.clicks || 0;
+                const uniqueClicks = item.unique_clicks || clicks;
+                const percentage = totalClicks > 0 ? ((clicks / totalClicks) * 100).toFixed(1) : 0;
+                const config = platformConfig[platform.toLowerCase()] || {
+                    name: platform,
+                    icon: '🎵'
+                };
+
+                return `
+                    <tr>
+                        <td style="display: flex; align-items: center; gap: 8px;">
+                            ${config.icon}
+                            ${config.name}
+                        </td>
+                        <td><strong>${formatNumber(clicks)}</strong></td>
+                        <td>${formatNumber(uniqueClicks)}</td>
+                        <td>${percentage}%</td>
+                        <td style="color: var(--text-secondary);">-</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Show empty state
+        function showEmptyState() {
+            mainContent.classList.add('hidden');
+            emptyState.classList.remove('hidden');
+        }
+
+        // Utility function to format numbers
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+
         // Initialize
-        updateAnalytics();
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSmartLinks().then(() => {
+                loadAnalytics();
+            });
+        });
+
+        // If DOM is already loaded
+        if (document.readyState === 'loading') {
+            // Already added event listener above
+        } else {
+            loadSmartLinks().then(() => {
+                loadAnalytics();
+            });
+        }
     </script>
 </body>
 </html>

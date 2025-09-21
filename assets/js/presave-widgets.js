@@ -526,10 +526,10 @@ class PreSaveWidgetManager {
         return {
             widgetId,
             // This would come from backend in real implementation
-            views: Math.floor(Math.random() * 1000),
-            presaves: Math.floor(Math.random() * 100),
-            emails: Math.floor(Math.random() * 50),
-            shares: Math.floor(Math.random() * 25)
+            views: 0,
+            presaves: 0,
+            emails: 0,
+            shares: 0
         };
     }
 }

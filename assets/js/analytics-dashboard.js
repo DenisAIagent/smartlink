@@ -40,7 +40,7 @@ class AnalyticsDashboard {
             console.log('📊 Analytics data loaded:', this.data);
         } catch (error) {
             console.error('Failed to fetch analytics:', error);
-            this.data = this.getMockData(); // Fallback to mock data
+            this.data = null; // No fallback data
         }
     }
 
@@ -86,7 +86,7 @@ class AnalyticsDashboard {
                 labels: this.generateDateLabels(),
                 datasets: [{
                     label: 'Clics',
-                    data: this.data?.clicks || this.generateRandomData(7, 100, 500),
+                    data: this.data?.clicks || [],
                     borderColor: '#E50914',
                     backgroundColor: gradient,
                     tension: 0.4,
@@ -164,14 +164,7 @@ class AnalyticsDashboard {
             this.charts.platforms.destroy();
         }
 
-        const platformData = this.data?.platforms || {
-            'Spotify': 45,
-            'Apple Music': 25,
-            'YouTube Music': 15,
-            'Deezer': 8,
-            'SoundCloud': 4,
-            'Autres': 3
-        };
+        const platformData = this.data?.platforms || {};
 
         this.charts.platforms = new Chart(ctx, {
             type: 'doughnut',
@@ -232,14 +225,7 @@ class AnalyticsDashboard {
             this.charts.geo.destroy();
         }
 
-        const geoData = this.data?.countries || {
-            'France': 35,
-            'États-Unis': 25,
-            'Canada': 15,
-            'Belgique': 10,
-            'Suisse': 8,
-            'Autres': 7
-        };
+        const geoData = this.data?.countries || {};
 
         this.charts.geo = new Chart(ctx, {
             type: 'bar',
@@ -288,11 +274,7 @@ class AnalyticsDashboard {
             this.charts.devices.destroy();
         }
 
-        const deviceData = this.data?.devices || {
-            'Mobile': 65,
-            'Desktop': 25,
-            'Tablet': 10
-        };
+        const deviceData = this.data?.devices || {};
 
         this.charts.devices = new Chart(ctx, {
             type: 'polarArea',
@@ -324,12 +306,7 @@ class AnalyticsDashboard {
         const container = document.getElementById('conversionFunnel');
         if (!container) return;
 
-        const funnelData = this.data?.funnel || [
-            { stage: 'Visiteurs', value: 10000, color: '#3B82F6' },
-            { stage: 'Clics plateformes', value: 3500, color: '#10B981' },
-            { stage: 'Écoutes complètes', value: 1200, color: '#F59E0B' },
-            { stage: 'Conversions', value: 450, color: '#E50914' }
-        ];
+        const funnelData = this.data?.funnel || [];
 
         container.innerHTML = funnelData.map((stage, index) => {
             const percentage = index === 0 ? 100 : (stage.value / funnelData[0].value * 100).toFixed(1);
@@ -366,9 +343,9 @@ class AnalyticsDashboard {
         days.forEach(day => {
             html += `<div class="heatmap-label-y">${day}</div>`;
             hours.forEach(hour => {
-                const intensity = Math.random(); // Replace with real data
+                const intensity = 0; // No data by default
                 const color = this.getHeatmapColor(intensity);
-                html += `<div class="heatmap-cell" style="background: ${color};" title="${day} ${hour}h: ${Math.floor(intensity * 100)} clics"></div>`;
+                html += `<div class="heatmap-cell" style="background: ${color};" title="${day} ${hour}h: 0 clics"></div>`;
             });
         });
         
@@ -410,16 +387,24 @@ class AnalyticsDashboard {
     updateMetrics() {
         // Update top metrics cards
         const metrics = {
-            totalClicks: this.data?.totalClicks || Math.floor(Math.random() * 10000),
-            conversionRate: this.data?.conversionRate || (Math.random() * 10).toFixed(2),
-            avgTimeOnPage: this.data?.avgTimeOnPage || Math.floor(Math.random() * 180),
-            uniqueVisitors: this.data?.uniqueVisitors || Math.floor(Math.random() * 5000)
+            totalClicks: this.data?.totalClicks || 0,
+            conversionRate: this.data?.conversionRate || 0,
+            avgTimeOnPage: this.data?.avgTimeOnPage || 0,
+            uniqueVisitors: this.data?.uniqueVisitors || 0
         };
 
-        document.getElementById('totalClicks')?.textContent = metrics.totalClicks.toLocaleString();
-        document.getElementById('conversionRate')?.textContent = metrics.conversionRate + '%';
-        document.getElementById('avgTimeOnPage')?.textContent = this.formatTime(metrics.avgTimeOnPage);
-        document.getElementById('uniqueVisitors')?.textContent = metrics.uniqueVisitors.toLocaleString();
+        if (document.getElementById('totalClicks')) {
+            document.getElementById('totalClicks').textContent = metrics.totalClicks.toLocaleString();
+        }
+        if (document.getElementById('conversionRate')) {
+            document.getElementById('conversionRate').textContent = metrics.conversionRate + '%';
+        }
+        if (document.getElementById('avgTimeOnPage')) {
+            document.getElementById('avgTimeOnPage').textContent = this.formatTime(metrics.avgTimeOnPage);
+        }
+        if (document.getElementById('uniqueVisitors')) {
+            document.getElementById('uniqueVisitors').textContent = metrics.uniqueVisitors.toLocaleString();
+        }
     }
 
     formatTime(seconds) {
@@ -442,11 +427,7 @@ class AnalyticsDashboard {
         return labels;
     }
 
-    generateRandomData(count, min, max) {
-        return Array.from({length: count}, () => 
-            Math.floor(Math.random() * (max - min + 1)) + min
-        );
-    }
+    // Removed generateRandomData() - no more random data generation
 
     async exportCSV() {
         const csvData = this.prepareCSVData();
@@ -463,12 +444,13 @@ class AnalyticsDashboard {
         
         // Add data rows
         const dates = this.generateDateLabels();
-        const clicks = this.data?.clicks || this.generateRandomData(7, 100, 500);
-        
+        const clicks = this.data?.clicks || [];
+
         dates.forEach((date, i) => {
-            const conversions = Math.floor(clicks[i] * 0.35);
-            const rate = ((conversions / clicks[i]) * 100).toFixed(2);
-            csv += `${date},${clicks[i]},${conversions},${rate}%,Spotify\n`;
+            const clickCount = clicks[i] || 0;
+            const conversions = Math.floor(clickCount * 0.35);
+            const rate = clickCount > 0 ? ((conversions / clickCount) * 100).toFixed(2) : '0.00';
+            csv += `${date},${clickCount},${conversions},${rate}%,-\n`;
         });
         
         return csv;
@@ -499,9 +481,9 @@ class AnalyticsDashboard {
         doc.setFontSize(14);
         doc.text('Métriques principales:', 20, 45);
         doc.setFontSize(11);
-        doc.text(`Total de clics: ${this.data?.totalClicks || '12,543'}`, 30, 55);
-        doc.text(`Taux de conversion: ${this.data?.conversionRate || '8.5'}%`, 30, 65);
-        doc.text(`Visiteurs uniques: ${this.data?.uniqueVisitors || '4,821'}`, 30, 75);
+        doc.text(`Total de clics: ${this.data?.totalClicks || '0'}`, 30, 55);
+        doc.text(`Taux de conversion: ${this.data?.conversionRate || '0'}%`, 30, 65);
+        doc.text(`Visiteurs uniques: ${this.data?.uniqueVisitors || '0'}`, 30, 75);
         
         // Add charts as images
         const clicksChart = document.getElementById('clicksChart');
@@ -514,37 +496,7 @@ class AnalyticsDashboard {
         doc.save(`analytics_report_${Date.now()}.pdf`);
     }
 
-    getMockData() {
-        // Fallback mock data for development
-        return {
-            clicks: this.generateRandomData(7, 100, 500),
-            platforms: {
-                'Spotify': 45,
-                'Apple Music': 25,
-                'YouTube Music': 15,
-                'Deezer': 8,
-                'SoundCloud': 4,
-                'Autres': 3
-            },
-            countries: {
-                'France': 35,
-                'États-Unis': 25,
-                'Canada': 15,
-                'Belgique': 10,
-                'Suisse': 8,
-                'Autres': 7
-            },
-            devices: {
-                'Mobile': 65,
-                'Desktop': 25,
-                'Tablet': 10
-            },
-            totalClicks: 12543,
-            conversionRate: 8.5,
-            avgTimeOnPage: 127,
-            uniqueVisitors: 4821
-        };
-    }
+    // Removed getMockData() - no more fallback mock data
 }
 
 // Initialize on page load
