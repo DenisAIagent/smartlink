@@ -79,7 +79,8 @@
       "Bash(open http://localhost:3003/pages/login.html)",
       "Bash(pkill:*)",
       "Bash(open \"http://localhost:3003/pages/login.html\")",
-      "Bash(open \"http://localhost:3003/pages/dashboard.html\")"
+      "Bash(open \"http://localhost:3003/pages/dashboard.html\")",
+      "Bash(open \"http://localhost:3003/pages/list-smartlinks.html\")"
     ],
     "deny": [],
     "ask": []
