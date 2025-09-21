@@ -33,6 +33,7 @@ app.use((req, res, next) => {
     })(req, res, next);
   } else {
     // CSP standard pour l'interface admin
+    console.log('🔒 Applying CSP with Google domains for path:', req.path);
     helmet({
       contentSecurityPolicy: {
         directives: {
@@ -123,6 +124,15 @@ app.use((req, res, next) => {
         const gtmId = process.env.GOOGLE_TAG_MANAGER_ID || '';
         const metaId = process.env.META_PIXEL_ID || '';
         const tiktokId = process.env.TIKTOK_PIXEL_ID || '';
+
+        // Debug logs for production
+        console.log('🔍 Processing HTML file:', req.path);
+        console.log('🔍 Environment variables:', {
+          GA: gaId ? gaId.substring(0, 10) + '...' : 'NOT SET',
+          GTM: gtmId ? gtmId.substring(0, 10) + '...' : 'NOT SET',
+          META: metaId ? 'SET' : 'NOT SET',
+          TIKTOK: tiktokId ? 'SET' : 'NOT SET'
+        });
 
         // Only replace placeholders if we have real values, otherwise remove the placeholders
         if (gaId && !gaId.includes('PLACEHOLDER')) {
