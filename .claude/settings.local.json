@@ -66,7 +66,11 @@
       "Bash(sed:*)",
       "Bash(open http://localhost:3003/pages/dashboard.html)",
       "Bash(open http://localhost:3003/pages/settings.html)",
-      "Bash(open http://localhost:3003/test-nav.html)"
+      "Bash(open http://localhost:3003/test-nav.html)",
+      "WebFetch(domain:smartlink.mdmcmusicads.com)",
+      "Bash(open http://localhost:3003/test-tracking.html)",
+      "Bash(open http://localhost:3003/test-tracking-debug.html)",
+      "Bash(open http://localhost:3003/test-ga-only.html)"
     ],
     "deny": [],
     "ask": []

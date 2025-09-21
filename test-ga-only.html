@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test GA Simple</title>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-P11JTJ21NZ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-P11JTJ21NZ');
+  </script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background: #f0f0f0;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .button {
+      background: #4CAF50;
+      color: white;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 Test Google Analytics Simple</h1>
+    <p>Cette page contient uniquement Google Analytics avec l'ID <strong>G-P11JTJ21NZ</strong></p>
+
+    <button class="button" onclick="sendEvent()">Test Événement GA</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    function sendEvent() {
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'test_click', {
+          'event_category': 'test',
+          'event_label': 'test_button'
+        });
+        document.getElementById('result').innerHTML = '✅ Événement GA envoyé !';
+      } else {
+        document.getElementById('result').innerHTML = '❌ GA non détecté !';
+      }
+    }
+
+    // Test automatique
+    setTimeout(() => {
+      if (typeof gtag !== 'undefined') {
+        console.log('✅ Google Analytics détecté');
+        document.getElementById('result').innerHTML = '✅ Google Analytics chargé correctement';
+      } else {
+        console.log('❌ Google Analytics NON détecté');
+        document.getElementById('result').innerHTML = '❌ Google Analytics non chargé';
+      }
+    }, 3000);
+  </script>
+</body>
+</html>

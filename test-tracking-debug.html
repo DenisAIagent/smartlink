@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Analytics Debug - MDMC Test | MDMC SmartLink</title>
+
+  <!-- Tracking Scripts - Head -->
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-P11JTJ21NZ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-P11JTJ21NZ');
+    </script>
+
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-ABC123');</script>
+
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '123456789012345');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=123456789012345&ev=PageView&noscript=1"
+    /></noscript>
+
+    <!-- TikTok Pixel Code -->
+    <script>
+    !function (w, d, t) {
+      w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
+      ttq.load('ABCDEFGHIJKLMNOP');
+      ttq.page();
+    }(window, document, 'ttq');
+    </script>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      margin: 0;
+      padding: 40px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      max-width: 500px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      background: linear-gradient(45deg, #fff, #f0f0f0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .artist {
+      font-size: 1.2em;
+      opacity: 0.9;
+      margin-bottom: 30px;
+    }
+
+    .tracking-info {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: left;
+    }
+
+    .tracking-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .tracking-item:last-child {
+      border-bottom: none;
+    }
+
+    .platform-button {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 15px 30px;
+      border-radius: 10px;
+      margin: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 16px;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .platform-button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .debug-info {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      text-align: left;
+    }
+
+    .success {
+      color: #4CAF50;
+    }
+
+    .loading {
+      color: #FF9800;
+    }
+  </style>
+</head>
+<body>
+  <!-- Tracking Scripts - Body Start -->
+
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-ABC123"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+  <div class="container">
+    <h1>Test Analytics Debug</h1>
+    <div class="artist">MDMC Test</div>
+
+    <div class="tracking-info">
+      <h3>🎯 Pixels de Tracking Configurés</h3>
+      <div class="tracking-item">
+        <span>Google Analytics:</span>
+        <span id="ga-status" class="loading">G-P11JTJ21NZ</span>
+      </div>
+      <div class="tracking-item">
+        <span>Google Tag Manager:</span>
+        <span id="gtm-status" class="loading">GTM-ABC123</span>
+      </div>
+      <div class="tracking-item">
+        <span>Meta Pixel:</span>
+        <span id="meta-status" class="loading">123456789012345</span>
+      </div>
+      <div class="tracking-item">
+        <span>TikTok Pixel:</span>
+        <span id="tiktok-status" class="loading">ABCDEFGHIJKLMNOP</span>
+      </div>
+    </div>
+
+    <a href="https://open.spotify.com/track/15DLl1r2zi07Ssq5RT1yT0"
+       target="_blank"
+       class="platform-button"
+       onclick="testTracking('spotify', this.href)">
+      🎵 Test Spotify
+    </a>
+
+    <a href="https://music.apple.com/album/iowa/275464834?i=275464846"
+       target="_blank"
+       class="platform-button"
+       onclick="testTracking('apple', this.href)">
+      🍎 Test Apple Music
+    </a>
+
+    <div class="debug-info" id="debug-console">
+      <strong>📊 Console de Debug :</strong><br>
+      <span id="debug-log">Initialisation des pixels...</span>
+    </div>
+  </div>
+
+  <!-- Custom Tracking Events -->
+
+    <script>
+      // SmartLink Tracking Events
+
+      // Track SmartLink view
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'smartlink_view', {
+          'smartlink_id': 'test-analytics-debug',
+          'smartlink_title': 'Test Analytics Debug',
+          'smartlink_artist': 'MDMC Test'
+        });
+      }
+
+      // Track SmartLink view on Meta
+      if (typeof fbq !== 'undefined') {
+        fbq('track', 'ViewContent', {
+          content_name: 'Test Analytics Debug',
+          content_category: 'SmartLink',
+          content_ids: ['test-analytics-debug']
+        });
+      }
+
+      // Track SmartLink view on TikTok
+      if (typeof ttq !== 'undefined') {
+        ttq.track('ViewContent', {
+          content_name: 'Test Analytics Debug',
+          content_category: 'SmartLink',
+          content_id: 'test-analytics-debug'
+        });
+      }
+
+      // Track platform clicks
+      function trackPlatformClick(platform, url) {
+
+        if (typeof gtag !== 'undefined') {
+          gtag('event', 'platform_click', {
+            'platform': platform,
+            'smartlink_id': 'test-analytics-debug',
+            'outbound_url': url
+          });
+        }
+
+
+        if (typeof fbq !== 'undefined') {
+          fbq('track', 'Lead', {
+            content_name: 'Test Analytics Debug',
+            content_category: platform
+          });
+        }
+
+
+        if (typeof ttq !== 'undefined') {
+          ttq.track('ClickButton', {
+            content_name: 'Test Analytics Debug',
+            content_category: platform
+          });
+        }
+      }
+    </script>
+
+  <script>
+    function testTracking(platform, url) {
+      addDebugLog(`🔄 Test du tracking pour ${platform}`);
+
+      if (typeof trackPlatformClick === 'function') {
+        trackPlatformClick(platform, url);
+        addDebugLog(`✅ Événements de tracking envoyés pour ${platform}`);
+      } else {
+        addDebugLog(`❌ Fonction trackPlatformClick non trouvée`);
+      }
+
+      // Test des pixels
+      setTimeout(() => {
+        checkPixelStatus();
+      }, 1000);
+    }
+
+    function addDebugLog(message) {
+      const debugLog = document.getElementById('debug-log');
+      debugLog.innerHTML += '<br>' + new Date().toLocaleTimeString() + ' - ' + message;
+    }
+
+    function checkPixelStatus() {
+      // Check Google Analytics
+      if (typeof gtag !== 'undefined') {
+        document.getElementById('ga-status').innerHTML = '✅ G-P11JTJ21NZ';
+        document.getElementById('ga-status').className = 'success';
+        addDebugLog('✅ Google Analytics détecté');
+      }
+
+      // Check Google Tag Manager
+      if (typeof google_tag_manager !== 'undefined' || window.dataLayer) {
+        document.getElementById('gtm-status').innerHTML = '✅ GTM-ABC123';
+        document.getElementById('gtm-status').className = 'success';
+        addDebugLog('✅ Google Tag Manager détecté');
+      }
+
+      // Check Meta Pixel
+      if (typeof fbq !== 'undefined') {
+        document.getElementById('meta-status').innerHTML = '✅ 123456789012345';
+        document.getElementById('meta-status').className = 'success';
+        addDebugLog('✅ Meta Pixel détecté');
+      }
+
+      // Check TikTok Pixel
+      if (typeof ttq !== 'undefined') {
+        document.getElementById('tiktok-status').innerHTML = '✅ ABCDEFGHIJKLMNOP';
+        document.getElementById('tiktok-status').className = 'success';
+        addDebugLog('✅ TikTok Pixel détecté');
+      }
+    }
+
+    // Check status on load
+    window.addEventListener('load', function() {
+      setTimeout(checkPixelStatus, 2000);
+      addDebugLog('🚀 Page chargée, vérification des pixels...');
+    });
+  </script>
+</body>
+</html>
