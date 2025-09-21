@@ -336,7 +336,19 @@
                     <li class="nav-item">
                         <a href="/pages/create-smartlink.html" class="nav-link active">
                             <span class="nav-icon">✨</span>
-                            Créer un SmartLink
+                            Créer SmartLink
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/pages/settings.html" class="nav-link">
+                            <span class="nav-icon">⚙️</span>
+                            Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="logout()">
+                            <span class="nav-icon">🚪</span>
+                            Déconnexion
                         </a>
                     </li>
                 </ul>
@@ -932,6 +944,24 @@
 
             console.log('🎯 Selected platforms:', selectedPlatforms);
             return selectedPlatforms;
+        }
+
+        // Logout function
+        async function logout() {
+            try {
+                // Call server logout endpoint to clear cookie
+                await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            } finally {
+                // Always clear local storage and redirect
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('user');
+                window.location.href = '/pages/login.html';
+            }
         }
     </script>
 </body>
