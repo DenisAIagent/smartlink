@@ -736,18 +736,25 @@
         }
 
         async function confirmDelete() {
-            if (!deleteTargetId) return;
+            console.log('🗑️ confirmDelete called, deleteTargetId:', deleteTargetId);
+            if (!deleteTargetId) {
+                console.log('❌ No deleteTargetId, returning');
+                return;
+            }
 
             try {
+                console.log('🚀 Making DELETE request to:', `/api/smartlinks/${deleteTargetId}`);
                 const response = await mdmcAdmin.apiCall(`/api/smartlinks/${deleteTargetId}`, {
                     method: 'DELETE'
                 });
+                console.log('📥 DELETE response:', response);
 
                 if (response.success) {
                     mdmcAdmin.showNotification('SmartLink supprimé avec succès', 'success');
                     closeDeleteModal();
                     loadSmartLinks(); // Recharger la liste
                 } else {
+                    console.log('❌ Delete failed:', response);
                     mdmcAdmin.showNotification('Erreur lors de la suppression', 'danger');
                 }
             } catch (error) {

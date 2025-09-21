@@ -282,6 +282,7 @@ async function updateSmartLink(req, res) {
  * DELETE /api/smartlinks/:id - Delete SmartLink
  */
 async function deleteSmartLink(req, res) {
+  console.log('🗑️ DELETE request received for SmartLink ID:', req.params.id, 'by user:', req.user.id);
   try {
     const userId = req.user.id;
     const { id } = req.params;
