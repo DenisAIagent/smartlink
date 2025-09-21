@@ -1,7 +1,1 @@
-Railway deployment trigger - Navigation fix
-Timestamp: 2025-09-21 20:15:00
-Commit: 20b6128
-Issue: Navigation structure inconsistency on production
-Status: CRITICAL - Railway not deploying latest nav structure
-Attempts: 3 commits, multiple force pushes
-Solution: Modified trigger timestamp to force Railway cache invalidation
+Navigation fix deployment trigger - 2025-09-21T19:30:00Z
