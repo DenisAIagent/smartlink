@@ -314,6 +314,7 @@ async function deleteSmartLink(req, res) {
  * GET /api/smartlinks/:id/analytics - Get SmartLink analytics
  */
 async function getSmartLinkAnalytics(req, res) {
+  console.log('📊 Analytics request received for SmartLink ID:', req.params.id, 'by user:', req.user.id, 'days:', req.query.days);
   try {
     const userId = req.user.id;
     const isAdmin = req.user.is_admin;
@@ -322,6 +323,7 @@ async function getSmartLinkAnalytics(req, res) {
 
     // Admin can see analytics for any SmartLink, users only for their own
     const analytics = await smartlinks.getAnalytics(id, isAdmin ? null : userId, days);
+    console.log('📈 Analytics data retrieved:', analytics);
 
     res.json({
       success: true,
