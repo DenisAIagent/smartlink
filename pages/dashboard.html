@@ -527,11 +527,11 @@
 
         /* Empty State */
         .empty-state {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, #e73c7e 100%);
             border-radius: 20px;
             padding: 60px 40px;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 40px rgba(220, 38, 38, 0.15);
             color: white;
             position: relative;
             overflow: hidden;
@@ -698,10 +698,6 @@
                 <a href="/pages/dashboard.html" class="nav-item active">
                     <span class="nav-icon">📊</span>
                     <span>Dashboard</span>
-                </a>
-                <a href="/pages/analytics.html" class="nav-item">
-                    <span class="nav-icon">📈</span>
-                    <span>Analytics</span>
                 </a>
                 <a href="/pages/list-smartlinks.html" class="nav-item">
                     <span class="nav-icon">🔗</span>
@@ -1334,9 +1330,19 @@
             // Always hide loading state when updating
             hideLoadingState();
 
-            if (!analyticsData || (analyticsData.total_clicks === 0 && (!analyticsData.platform_stats || analyticsData.platform_stats.length === 0))) {
+            // Show empty state only if no SmartLinks exist at all
+            if (!allSmartLinks || allSmartLinks.length === 0) {
                 showEmptyState();
                 return;
+            }
+
+            // If SmartLinks exist but no analytics data, show default values (0s)
+            if (!analyticsData) {
+                analyticsData = {
+                    total_clicks: 0,
+                    unique_visitors: 0,
+                    platform_stats: []
+                };
             }
 
             mainContent.classList.remove('hidden');
