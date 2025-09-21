@@ -80,7 +80,8 @@
       "Bash(pkill:*)",
       "Bash(open \"http://localhost:3003/pages/login.html\")",
       "Bash(open \"http://localhost:3003/pages/dashboard.html\")",
-      "Bash(open \"http://localhost:3003/pages/list-smartlinks.html\")"
+      "Bash(open \"http://localhost:3003/pages/list-smartlinks.html\")",
+      "Bash(open \"http://localhost:3003/pages/edit-smartlink.html?id=31\")"
     ],
     "deny": [],
     "ask": []

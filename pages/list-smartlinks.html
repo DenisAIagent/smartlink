@@ -611,7 +611,7 @@
 
                     <div class="smartlink-left">
                         <div class="smartlink-cover-small">
-                            <img src="${smartlink.cover_url || '/assets/images/default-cover.jpg'}"
+                            <img src="${smartlink.cover_url ? `/api/proxy/image?url=${encodeURIComponent(smartlink.cover_url)}` : '/assets/images/default-cover.jpg'}"
                                  alt="${smartlink.title}" loading="lazy">
                         </div>
 
