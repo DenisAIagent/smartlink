@@ -84,6 +84,35 @@ if (process.env.NODE_ENV === 'production' || process.env.DEBUG_AUTH === 'true') 
   console.log('🔍 DEBUG MODE ACTIVATED FOR PRODUCTION');
 }
 
+// Middleware pour injecter les variables d'environnement dans les pages HTML
+app.use((req, res, next) => {
+  // Only process HTML files
+  if (req.path.endsWith('.html')) {
+    const fs = require('fs');
+    const filePath = path.join(__dirname, req.path);
+
+    // Check if file exists
+    if (fs.existsSync(filePath)) {
+      try {
+        let html = fs.readFileSync(filePath, 'utf8');
+
+        // Replace Google Analytics ID placeholder
+        const gaId = process.env.GOOGLE_ANALYTICS_ID || 'GA_MEASUREMENT_ID_PLACEHOLDER';
+        html = html.replace(/G-P11JTJ21NZ/g, gaId);
+        html = html.replace(/GA_MEASUREMENT_ID_PLACEHOLDER/g, gaId);
+
+        // Set appropriate headers
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.send(html);
+        return;
+      } catch (error) {
+        console.error('Error processing HTML file:', error);
+      }
+    }
+  }
+  next();
+});
+
 // Servir les fichiers statiques
 app.use(express.static(path.join(__dirname)));
 

@@ -1,9 +1,10 @@
 const { smartlinks } = require('../lib/smartlinks');
 const jwt = require('jsonwebtoken');
+const { generateTrackingScripts, generateTrackingEvents } = require('../lib/tracking-generator');
 
 // Function to generate modern SmartLink HTML page
 function generateSmartLinkHTML(smartlink) {
-  const { title, artist, cover_url, platforms, customization, slug } = smartlink;
+  const { title, artist, cover_url, platforms, customization, slug, tracking_pixels } = smartlink;
   const fs = require('fs');
   const path = require('path');
   
@@ -117,6 +118,10 @@ function generateSmartLinkHTML(smartlink) {
     `;
   }).join('');
 
+  // Generate tracking scripts for this SmartLink
+  const trackingScripts = generateTrackingScripts(tracking_pixels);
+  const trackingEvents = generateTrackingEvents(tracking_pixels, smartlink);
+
   // Replace template placeholders
   template = template
     .replace(/\{\{TITLE\}\}/g, title || 'Titre')
@@ -124,7 +129,10 @@ function generateSmartLinkHTML(smartlink) {
     .replace(/\{\{COVER_URL\}\}/g, cover_url || '')
     .replace(/\{\{COVER_URL_ENCODED\}\}/g, encodeURIComponent(cover_url || ''))
     .replace(/\{\{SLUG\}\}/g, slug || '')
-    .replace(/\{\{PLATFORMS_HTML\}\}/g, platformsHTML);
+    .replace(/\{\{PLATFORMS_HTML\}\}/g, platformsHTML)
+    .replace(/\{\{TRACKING_HEAD\}\}/g, trackingScripts.head || '')
+    .replace(/\{\{TRACKING_BODY_START\}\}/g, trackingScripts.bodyStart || '')
+    .replace(/\{\{TRACKING_EVENTS\}\}/g, trackingEvents || '');
 
   return template;
 }

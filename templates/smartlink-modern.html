@@ -24,7 +24,10 @@
   <meta name="twitter:image" content="{{COVER_URL}}">
   
   <!-- Favicon -->
-  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0iI0U1MDkxNCIvPgo8cGF0aCBkPSJNOCAxMkgxNlYyMEg4VjEyWiIgZmlsbD0id2hpdGUiLz4KPHA+dGggZD0iTTIwIDhIMjhWMTZIMjBWOFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yMCAyMEgyOFYyOEgyMFYyMFoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo=" type="image/svg+xml">
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0iI0U1MDkxNCIvPgo8cGF0aCBkPSJNOCAxMkgxNlYyMEg4VjEyWiIgZmlsbD0id2hpdGUiLz4KPHA+dGggZD0iTTIwIDhIMjhWMTZIMjBWOFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik0yMCAyMEgyOFYyOEgyMFYyMFoiIGZpbGw9IndoaXRlIi9+Cjwvc3ZnPgo=" type="image/svg+xml">
+
+  <!-- Tracking Scripts - Head -->
+  {{TRACKING_HEAD}}
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -401,6 +404,9 @@
 </head>
 
 <body>
+  <!-- Tracking Scripts - Body Start -->
+  {{TRACKING_BODY_START}}
+
   <!-- Background artwork flouté -->
   <div class="background-artwork"></div>
   <div class="background-overlay"></div>
@@ -451,6 +457,11 @@
         body: JSON.stringify({ platform: platformId })
       }).catch(() => {});
 
+      // Custom tracking events
+      if (typeof trackPlatformClick === 'function') {
+        trackPlatformClick(platformId, url);
+      }
+
       // Log pour développement
       console.log('🎵 Click on ' + platformId + ' for {{TITLE}}');
 
@@ -483,5 +494,8 @@
       testImg.src = imageUrl;
     });
   </script>
+
+  <!-- Custom Tracking Events -->
+  {{TRACKING_EVENTS}}
 </body>
 </html>

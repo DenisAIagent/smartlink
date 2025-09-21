@@ -3,7 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="ga-measurement-id" content="GA_MEASUREMENT_ID_PLACEHOLDER">
     <title>Analytics SmartLinks</title>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID_PLACEHOLDER"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'GA_MEASUREMENT_ID_PLACEHOLDER');
+    </script>
     <style>
         :root {
             --primary: #E50914;
@@ -1045,6 +1056,33 @@
                 loadAnalytics();
             });
         }
+
+        // Track analytics events for dashboard
+        if (window.MDMCAnalytics) {
+            // Track dashboard view
+            window.MDMCAnalytics.trackPageView('/dashboard', 'Dashboard Analytics');
+
+            // Track filter changes
+            smartlinkSelect.addEventListener('change', () => {
+                window.MDMCAnalytics.trackUserAction('smartlink_filter_change', {
+                    selected_smartlink: currentSmartLink
+                });
+            });
+
+            periodSelect.addEventListener('change', () => {
+                window.MDMCAnalytics.trackUserAction('period_filter_change', {
+                    selected_period: currentPeriod
+                });
+            });
+
+            // Track refresh clicks
+            refreshBtn.addEventListener('click', () => {
+                window.MDMCAnalytics.trackUserAction('dashboard_refresh');
+            });
+        }
     </script>
+
+    <!-- MDMC Analytics Integration -->
+    <script src="/assets/js/google-analytics.js"></script>
 </body>
 </html>
