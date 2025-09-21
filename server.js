@@ -25,12 +25,54 @@ if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1); // Local development - fixed for rate limiting
 }
 
-// Middleware de sécurité - Configuration différente pour SmartLinks vs Admin
+// Fonction pour détecter les bots sociaux
+const isSocialBot = (userAgent) => {
+  if (!userAgent) return false;
+  const socialBots = [
+    'facebookexternalhit',
+    'Facebot',
+    'Twitterbot',
+    'LinkedInBot',
+    'WhatsApp',
+    'Pinterestbot',
+    'SlackBot',
+    'TelegramBot',
+    'SkypeUriPreview',
+    'vkShare',
+    'redditbot'
+  ];
+  return socialBots.some(bot => userAgent.toLowerCase().includes(bot.toLowerCase()));
+};
+
+// Middleware de sécurité - Configuration différente pour SmartLinks vs Admin vs Bots Sociaux
 app.use((req, res, next) => {
-  if (req.path.startsWith('/s/')) {
+  const userAgent = req.get('User-Agent') || '';
+
+  if (isSocialBot(userAgent)) {
+    // Configuration ultra permissive pour les bots sociaux
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false,
+      crossOriginOpenerPolicy: false,
+      crossOriginResourcePolicy: false,
+      dnsPrefetchControl: false,
+      frameguard: false,
+      hidePoweredBy: false,
+      hsts: false,
+      ieNoOpen: false,
+      noSniff: false,
+      originAgentCluster: false,
+      permittedCrossDomainPolicies: false,
+      referrerPolicy: false,
+      xssFilter: false
+    })(req, res, next);
+  } else if (req.path.startsWith('/s/')) {
     // CSP très permissif pour les SmartLinks publics (permettre background-image CSS)
     helmet({
-      contentSecurityPolicy: false  // Désactiver CSP complètement pour les SmartLinks
+      contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false,
+      crossOriginOpenerPolicy: false,
+      crossOriginResourcePolicy: false
     })(req, res, next);
   } else {
     // CSP standard pour l'interface admin

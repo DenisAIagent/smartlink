@@ -1,65 +1,32 @@
-# MDMC Admin - Outil interne
-# Bloque tous les robots d'indexation
-
 User-agent: *
-Disallow: /
+Allow: /
 
-# Blocage spécifique des SmartLinks
-User-agent: *
-Disallow: /s/
-Disallow: /smartlinks/
-Disallow: /api/
-Disallow: /pages/
-Disallow: /assets/
-Disallow: /login
-Disallow: /dashboard
-
-# Blocage des robots d'IA
-User-agent: GPTBot
-Disallow: /
-
-User-agent: ChatGPT-User
-Disallow: /
-
-User-agent: CCBot
-Disallow: /
-
-User-agent: anthropic-ai
-Disallow: /
-
-User-agent: Claude-Web
-Disallow: /
-
-# Blocage des moteurs de recherche
-User-agent: Googlebot
-Disallow: /
-
-User-agent: Bingbot
-Disallow: /
-
-User-agent: Slurp
-Disallow: /
-
-User-agent: DuckDuckBot
-Disallow: /
-
-User-agent: Baiduspider
-Disallow: /
-
+# Allow Facebook crawlers for social media previews
 User-agent: facebookexternalhit
-Disallow: /
+Allow: /
 
+# Allow Twitter crawlers
 User-agent: Twitterbot
-Disallow: /
+Allow: /
 
+# Allow LinkedIn crawlers
 User-agent: LinkedInBot
-Disallow: /
+Allow: /
 
+# Allow WhatsApp crawlers
 User-agent: WhatsApp
-Disallow: /
+Allow: /
 
-User-agent: Applebot
-Disallow: /
+# Allow Pinterest crawlers
+User-agent: Pinterestbot
+Allow: /
 
-# Aucun sitemap disponible
-Sitemap:
+# Allow all social media bots
+User-agent: facebookexternalhit/*
+Allow: /
+
+User-agent: Twitterbot/*
+Allow: /
+
+# Sitemap (optional)
+# Sitemap: https://smartlink.mdmcmusicads.com/sitemap.xml
