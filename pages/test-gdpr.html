@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test RGPD - MDMC SmartLinks</title>
+
+  <!-- GDPR Consent Manager -->
+  <script src="/src/lib/consent-manager.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1000px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .status {
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .success { background: #d4edda; color: #155724; }
+    .error { background: #f8d7da; color: #721c24; }
+    .info { background: #d1ecf1; color: #0c5460; }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .test-section {
+      margin: 30px 0;
+      padding: 20px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+    }
+    .consent-status {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 10px 0;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <!-- Simulated tracking pixels configuration -->
+  <script>
+    window.TRACKING_PIXELS = {
+      google_analytics: 'G-098G18MJ7M',
+      google_tag_manager: 'GTM-572GXWPP',
+      meta_pixel: null,
+      tiktok_pixel: null,
+      custom_scripts: []
+    };
+  </script>
+
+  <div class="container">
+    <h1>🧪 Test Système RGPD - MDMC SmartLinks</h1>
+    <p>Cette page teste le système de gestion du consentement RGPD.</p>
+
+    <div class="test-section">
+      <h2>📊 État actuel du consentement</h2>
+      <div id="consent-status" class="consent-status">
+        Chargement...
+      </div>
+      <button onclick="refreshConsentStatus()">🔄 Actualiser</button>
+    </div>
+
+    <div class="test-section">
+      <h2>🍪 Actions de test</h2>
+      <button onclick="showConsentBanner()">🍪 Afficher bannière de consentement</button>
+      <button onclick="showConsentModal()">⚙️ Ouvrir modal de personnalisation</button>
+      <button onclick="clearConsent()">🗑️ Effacer le consentement</button>
+      <button onclick="testConsentAPI()">🔗 Tester API de consentement</button>
+    </div>
+
+    <div class="test-section">
+      <h2>🎯 Test des pixels de tracking</h2>
+      <div id="tracking-status" class="status info">
+        ⏳ Vérification des pixels en cours...
+      </div>
+      <button onclick="checkTrackingPixels()">🔍 Vérifier les pixels</button>
+      <button onclick="testTrackingEvents()">📡 Tester les événements</button>
+    </div>
+
+    <div class="test-section">
+      <h2>📋 Journal des événements</h2>
+      <div id="event-log" style="height: 200px; overflow-y: auto; background: #f8f9fa; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 12px;">
+        [Initialisation du journal...]<br>
+      </div>
+      <button onclick="clearLog()">🧹 Vider le journal</button>
+    </div>
+
+    <div class="test-section">
+      <h2>⚖️ Conformité RGPD</h2>
+      <div id="gdpr-compliance" class="status info">
+        ⏳ Vérification de la conformité...
+      </div>
+      <ul id="compliance-checklist">
+        <li>Bannière de consentement présente</li>
+        <li>Consentement granulaire (analytique/marketing)</li>
+        <li>Possibilité de retirer le consentement</li>
+        <li>Politique de confidentialité accessible</li>
+        <li>Audit trail des consentements</li>
+        <li>Expiration du consentement (12 mois)</li>
+      </ul>
+    </div>
+
+    <div class="test-section">
+      <h2>🔗 Liens utiles</h2>
+      <a href="/privacy-policy" target="_blank" style="color: #007bff; text-decoration: none; margin-right: 20px;">
+        📄 Politique de confidentialité
+      </a>
+      <a href="/api/consent/audit" target="_blank" style="color: #007bff; text-decoration: none;">
+        📊 Audit des consentements (Admin)
+      </a>
+    </div>
+  </div>
+
+  <script>
+    let eventLog = [];
+
+    function log(message, type = 'info') {
+      const timestamp = new Date().toLocaleTimeString();
+      const logEntry = `[${timestamp}] ${message}`;
+      eventLog.push(logEntry);
+
+      const logElement = document.getElementById('event-log');
+      logElement.innerHTML += logEntry + '<br>';
+      logElement.scrollTop = logElement.scrollHeight;
+    }
+
+    function clearLog() {
+      eventLog = [];
+      document.getElementById('event-log').innerHTML = '[Journal vidé]<br>';
+    }
+
+    function refreshConsentStatus() {
+      if (!window.consentManager) {
+        document.getElementById('consent-status').textContent = 'Gestionnaire de consentement non chargé';
+        return;
+      }
+
+      const status = {
+        hasValidConsent: window.consentManager.hasValidConsent(),
+        consentData: window.consentManager.consentData,
+        isConsentValid: window.consentManager.isConsentValid()
+      };
+
+      document.getElementById('consent-status').textContent = JSON.stringify(status, null, 2);
+      log('État du consentement actualisé');
+    }
+
+    function showConsentBanner() {
+      if (window.consentManager) {
+        // Force l'affichage en supprimant temporairement le timestamp
+        const originalTimestamp = window.consentManager.consentData.timestamp;
+        window.consentManager.consentData.timestamp = null;
+        window.consentManager.showConsentBanner();
+        window.consentManager.consentData.timestamp = originalTimestamp;
+        log('Bannière de consentement affichée (forcée)');
+      } else {
+        log('Gestionnaire de consentement non disponible', 'error');
+      }
+    }
+
+    function showConsentModal() {
+      if (window.consentManager) {
+        window.consentManager.showConsentModal();
+        log('Modal de personnalisation affichée');
+      } else {
+        log('Gestionnaire de consentement non disponible', 'error');
+      }
+    }
+
+    function clearConsent() {
+      localStorage.removeItem('mdmc_consent');
+      log('Consentement effacé du localStorage');
+      refreshConsentStatus();
+    }
+
+    async function testConsentAPI() {
+      try {
+        // Test de sauvegarde de consentement
+        const testConsent = {
+          functional: true,
+          analytics: true,
+          marketing: false,
+          timestamp: new Date().toISOString(),
+          version: '1.0',
+          userAgent: navigator.userAgent,
+          ipAddress: 'test'
+        };
+
+        const response = await fetch('/api/consent/save', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(testConsent)
+        });
+
+        const result = await response.json();
+        log(`API de consentement testée: ${JSON.stringify(result)}`);
+
+        // Test de récupération d'IP
+        const ipResponse = await fetch('/api/client-ip');
+        const ipResult = await ipResponse.json();
+        log(`IP du client: ${ipResult.ip}`);
+
+      } catch (error) {
+        log(`Erreur lors du test API: ${error.message}`, 'error');
+      }
+    }
+
+    function checkTrackingPixels() {
+      let pixelsDetected = 0;
+      let totalPixels = 0;
+
+      // Vérifier Google Analytics
+      if (window.TRACKING_PIXELS.google_analytics) {
+        totalPixels++;
+        if (typeof gtag !== 'undefined' && window.dataLayer) {
+          pixelsDetected++;
+          log('✅ Google Analytics détecté');
+        } else {
+          log('❌ Google Analytics non détecté');
+        }
+      }
+
+      // Vérifier Google Tag Manager
+      if (window.TRACKING_PIXELS.google_tag_manager) {
+        totalPixels++;
+        if (window.dataLayer && window.dataLayer.length > 0) {
+          pixelsDetected++;
+          log('✅ Google Tag Manager détecté');
+        } else {
+          log('❌ Google Tag Manager non détecté');
+        }
+      }
+
+      // Vérifier Meta Pixel
+      if (window.TRACKING_PIXELS.meta_pixel) {
+        totalPixels++;
+        if (typeof fbq !== 'undefined') {
+          pixelsDetected++;
+          log('✅ Meta Pixel détecté');
+        } else {
+          log('❌ Meta Pixel non détecté');
+        }
+      }
+
+      // Vérifier TikTok Pixel
+      if (window.TRACKING_PIXELS.tiktok_pixel) {
+        totalPixels++;
+        if (typeof ttq !== 'undefined') {
+          pixelsDetected++;
+          log('✅ TikTok Pixel détecté');
+        } else {
+          log('❌ TikTok Pixel non détecté');
+        }
+      }
+
+      const statusElement = document.getElementById('tracking-status');
+      if (pixelsDetected === totalPixels) {
+        statusElement.innerHTML = `✅ Tous les pixels détectés (${pixelsDetected}/${totalPixels})`;
+        statusElement.className = 'status success';
+      } else {
+        statusElement.innerHTML = `⚠️ Pixels partiellement détectés (${pixelsDetected}/${totalPixels})`;
+        statusElement.className = 'status error';
+      }
+
+      log(`Vérification pixels: ${pixelsDetected}/${totalPixels} détectés`);
+    }
+
+    function testTrackingEvents() {
+      // Test d'événements Google Analytics
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'gdpr_test', {
+          event_category: 'test',
+          event_label: 'gdpr_system_test'
+        });
+        log('Événement Google Analytics envoyé');
+      }
+
+      // Test d'événements Meta Pixel
+      if (typeof fbq !== 'undefined') {
+        fbq('track', 'ViewContent', {
+          content_name: 'GDPR Test',
+          content_category: 'Test'
+        });
+        log('Événement Meta Pixel envoyé');
+      }
+
+      // Test d'événements TikTok Pixel
+      if (typeof ttq !== 'undefined') {
+        ttq.track('ViewContent', {
+          content_name: 'GDPR Test'
+        });
+        log('Événement TikTok Pixel envoyé');
+      }
+
+      log('Tests d\'événements terminés');
+    }
+
+    // Écouteur d'événements de consentement
+    window.addEventListener('consentChanged', function(event) {
+      log(`Consentement modifié: ${JSON.stringify(event.detail)}`);
+      refreshConsentStatus();
+      checkTrackingPixels();
+    });
+
+    // Initialisation automatique
+    window.addEventListener('load', function() {
+      log('Page de test RGPD chargée');
+
+      setTimeout(() => {
+        refreshConsentStatus();
+        checkTrackingPixels();
+        log('Tests automatiques terminés');
+      }, 2000);
+    });
+
+    // Vérification périodique de la conformité
+    setInterval(() => {
+      const complianceElement = document.getElementById('gdpr-compliance');
+
+      if (window.consentManager) {
+        complianceElement.innerHTML = '✅ Système RGPD opérationnel';
+        complianceElement.className = 'status success';
+      } else {
+        complianceElement.innerHTML = '❌ Gestionnaire de consentement non chargé';
+        complianceElement.className = 'status error';
+      }
+    }, 5000);
+  </script>
+</body>
+</html>

@@ -10,6 +10,7 @@ const { healthCheck } = require('./src/lib/db');
 const odesliController = require('./src/api/odesli');
 const smartlinksController = require('./src/api/smartlinks');
 const authController = require('./src/api/auth');
+const { router: consentController, initializeConsentSystem } = require('./src/api/consent');
 const multer = require('multer');
 const { uploadService } = require('./src/lib/cloudinary');
 
@@ -248,6 +249,16 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'pages', 'login.html'));
 });
 
+// Route politique de confidentialité (RGPD)
+app.get('/privacy-policy', (req, res) => {
+  res.sendFile(path.join(__dirname, 'pages', 'privacy-policy.html'));
+});
+
+// Route de test RGPD (développement)
+app.get('/test-gdpr', (req, res) => {
+  res.sendFile(path.join(__dirname, 'pages', 'test-gdpr.html'));
+});
+
 // Configuration dynamique pour le frontend
 app.get('/config.js', (req, res) => {
   const config = {
@@ -447,6 +458,9 @@ app.post('/api/upload/image', authMiddleware, upload.single('image'), async (req
 app.get('/s/:slug', smartlinksController.getPublicSmartLink);
 // Tracking endpoint (will be added later if needed)
 // app.post('/api/smartlinks/:slug/click', smartlinksController.trackPlatformClick);
+
+// API Routes - GDPR Consent Management
+app.use('/api/consent', consentController);
 
 // Enhanced Health check with database status
 app.get('/health', async (req, res) => {
@@ -673,7 +687,7 @@ if (process.env.NODE_ENV === 'production' || process.env.DEBUG_AUTH === 'true') 
   });
 }
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   console.log(`
 🎯 MDMC Admin Interface v2.0 démarrée
 📍 Port: ${PORT}
@@ -684,7 +698,11 @@ const server = app.listen(PORT, () => {
 🗄️  PostgreSQL: ${process.env.DATABASE_URL ? '✅ Configuré' : '❌ Non configuré'}
 🎵 Odesli: ✅ Intégré avec cache
 🔐 Auth: JWT + bcrypt
-  `);
+🍪 GDPR: Initialisation...`);
+
+  // Initialize GDPR consent system
+  await initializeConsentSystem();
+  console.log('🍪 GDPR: ✅ Système de consentement initialisé');
 });
 
 // Graceful shutdown

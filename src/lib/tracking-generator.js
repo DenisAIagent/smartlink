@@ -109,45 +109,136 @@ function generateCustomScripts(customScripts) {
 }
 
 /**
- * Generate complete tracking scripts for a SmartLink
+ * Generate GDPR-compliant tracking setup script
+ */
+function generateGDPRTrackingSetup(trackingPixels) {
+  if (!trackingPixels || typeof trackingPixels !== 'object') {
+    return '';
+  }
+
+  return `
+    <!-- GDPR Tracking Configuration -->
+    <script>
+      // Store tracking pixels configuration for consent manager
+      window.TRACKING_PIXELS = ${JSON.stringify(trackingPixels)};
+
+      // GDPR-compliant tracking initialization
+      window.initializeTracking = function() {
+        if (!window.consentManager) {
+          console.warn('Consent manager not loaded yet');
+          return;
+        }
+
+        // Only load tracking if consent is given
+        const consent = window.consentManager.consentData;
+
+        if (consent.analytics) {
+          loadAnalyticsTracking();
+        }
+
+        if (consent.marketing) {
+          loadMarketingTracking();
+        }
+      };
+
+      function loadAnalyticsTracking() {
+        ${trackingPixels.google_analytics ? `
+        // Load Google Analytics
+        if (!window.gtag) {
+          const gaScript = document.createElement('script');
+          gaScript.async = true;
+          gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=${trackingPixels.google_analytics}';
+          document.head.appendChild(gaScript);
+
+          const gaConfig = document.createElement('script');
+          gaConfig.innerHTML = \`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${trackingPixels.google_analytics}', {
+              anonymize_ip: true,
+              cookie_expires: 63072000
+            });
+          \`;
+          document.head.appendChild(gaConfig);
+        }` : ''}
+
+        ${trackingPixels.google_tag_manager ? `
+        // Load Google Tag Manager
+        if (!window.dataLayer || !window.dataLayer.find(item => item['gtm.start'])) {
+          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer','${trackingPixels.google_tag_manager}');
+
+          // Add noscript fallback
+          const noscript = document.createElement('noscript');
+          noscript.innerHTML = '<iframe src="https://www.googletagmanager.com/ns.html?id=${trackingPixels.google_tag_manager}" height="0" width="0" style="display:none;visibility:hidden"></iframe>';
+          document.body.appendChild(noscript);
+        }` : ''}
+      }
+
+      function loadMarketingTracking() {
+        ${trackingPixels.meta_pixel ? `
+        // Load Meta Pixel
+        if (!window.fbq) {
+          !function(f,b,e,v,n,t,s)
+          {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+          n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+          if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+          n.queue=[];t=b.createElement(e);t.async=!0;
+          t.src=v;s=b.getElementsByTagName(e)[0];
+          s.parentNode.insertBefore(t,s)}(window, document,'script',
+          'https://connect.facebook.net/en_US/fbevents.js');
+          fbq('init', '${trackingPixels.meta_pixel}');
+          fbq('track', 'PageView');
+        }` : ''}
+
+        ${trackingPixels.tiktok_pixel ? `
+        // Load TikTok Pixel
+        if (!window.ttq) {
+          !function (w, d, t) {
+            w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
+            ttq.load('${trackingPixels.tiktok_pixel}');
+            ttq.page();
+          }(window, document, 'ttq');
+        }` : ''}
+      }
+
+      // Listen for consent changes
+      window.addEventListener('consentChanged', function(event) {
+        if (event.detail.analytics) {
+          loadAnalyticsTracking();
+        }
+        if (event.detail.marketing) {
+          loadMarketingTracking();
+        }
+      });
+
+      // Initialize tracking when consent manager is ready
+      document.addEventListener('DOMContentLoaded', function() {
+        if (window.consentManager && window.consentManager.hasValidConsent()) {
+          initializeTracking();
+        }
+      });
+    </script>`;
+}
+
+/**
+ * Generate complete tracking scripts for a SmartLink (GDPR-compliant)
  */
 function generateTrackingScripts(trackingPixels) {
   if (!trackingPixels || typeof trackingPixels !== 'object') {
     return { head: '', bodyStart: '' };
   }
 
-  const headScripts = [];
-  const bodyStartScripts = [];
-
-  // Google Analytics
-  if (trackingPixels.google_analytics) {
-    headScripts.push(generateGoogleAnalytics(trackingPixels.google_analytics));
-  }
-
-  // Google Tag Manager
-  if (trackingPixels.google_tag_manager) {
-    headScripts.push(generateGoogleTagManager(trackingPixels.google_tag_manager));
-    bodyStartScripts.push(generateGoogleTagManagerNoscript(trackingPixels.google_tag_manager));
-  }
-
-  // Meta Pixel
-  if (trackingPixels.meta_pixel) {
-    headScripts.push(generateMetaPixel(trackingPixels.meta_pixel));
-  }
-
-  // TikTok Pixel
-  if (trackingPixels.tiktok_pixel) {
-    headScripts.push(generateTikTokPixel(trackingPixels.tiktok_pixel));
-  }
-
-  // Custom Scripts
-  if (trackingPixels.custom_scripts) {
-    headScripts.push(generateCustomScripts(trackingPixels.custom_scripts));
-  }
+  // Generate GDPR-compliant setup instead of direct scripts
+  const gdprSetup = generateGDPRTrackingSetup(trackingPixels);
 
   return {
-    head: headScripts.filter(Boolean).join('\n'),
-    bodyStart: bodyStartScripts.filter(Boolean).join('\n')
+    head: gdprSetup,
+    bodyStart: '' // No immediate body scripts - loaded via consent
   };
 }
 
