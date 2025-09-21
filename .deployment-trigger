@@ -1,0 +1,5 @@
+Railway deployment trigger - Navigation fix
+Timestamp: 2025-09-21 19:30:00
+Commit: 16aae22
+Issue: Navigation structure inconsistency on production
+Status: Forcing redeploy to sync latest nav structure
