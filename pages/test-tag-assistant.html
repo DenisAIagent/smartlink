@@ -11,7 +11,9 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-P11JTJ21NZ');
+    gtag('config', 'G-P11JTJ21NZ', {
+      debug_mode: true
+    });
   </script>
 
   <!-- Google Tag Manager -->
@@ -65,10 +67,13 @@
     </div>
 
     <div class="status info">
-      <strong>Instructions :</strong><br>
-      1. Installer Tag Assistant Companion<br>
+      <strong>Instructions Tag Assistant :</strong><br>
+      1. Installer l'extension <strong>Tag Assistant Companion</strong><br>
       2. Actualiser cette page<br>
-      3. Vérifier la détection dans l'extension
+      3. Cliquer sur l'extension Tag Assistant<br>
+      4. Cliquer sur <strong>"Troubleshoot tag"</strong><br>
+      5. Se connecter et démarrer une session de debug<br>
+      6. Vérifier que les pixels sont maintenant détectés
     </div>
 
     <button onclick="testGA()" style="padding: 15px 30px; font-size: 16px; background: #4285f4; color: white; border: none; border-radius: 5px; cursor: pointer;">

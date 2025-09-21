@@ -38,11 +38,33 @@ app.use((req, res, next) => {
         directives: {
           defaultSrc: ["'self'"],
           styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.jsdelivr.net"],
-          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+          scriptSrc: [
+            "'self'", "'unsafe-inline'", "'unsafe-eval'",
+            "https://www.googletagmanager.com",
+            "https://www.google-analytics.com",
+            "https://connect.facebook.net",
+            "https://analytics.tiktok.com"
+          ],
           scriptSrcAttr: ["'self'", "'unsafe-inline'"],
           fontSrc: ["'self'", "https://fonts.gstatic.com"],
-          imgSrc: ["'self'", "data:", "https:", "http:", "https://res.cloudinary.com"],
-          connectSrc: ["'self'", BACKEND_URL, "https://res.cloudinary.com", "https://api.cloudinary.com"],
+          imgSrc: [
+            "'self'", "data:", "https:", "http:",
+            "https://res.cloudinary.com",
+            "https://www.google-analytics.com",
+            "https://www.facebook.com",
+            "https://connect.facebook.net",
+            "https://analytics.tiktok.com"
+          ],
+          connectSrc: [
+            "'self'", BACKEND_URL,
+            "https://res.cloudinary.com",
+            "https://api.cloudinary.com",
+            "https://www.google-analytics.com",
+            "https://analytics.google.com",
+            "https://www.googletagmanager.com",
+            "https://connect.facebook.net",
+            "https://analytics.tiktok.com"
+          ],
           formAction: ["'self'"],
           frameAncestors: ["'none'"]
         }
