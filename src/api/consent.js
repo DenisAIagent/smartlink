@@ -209,6 +209,7 @@ router.get('/audit', async (req, res) => {
  * Create consent_records table if it doesn't exist
  */
 async function createConsentTable() {
+  // Create table first
   await query(`
     CREATE TABLE IF NOT EXISTS consent_records (
       id SERIAL PRIMARY KEY,
@@ -219,12 +220,21 @@ async function createConsentTable() {
       marketing_consent BOOLEAN NOT NULL DEFAULT false,
       consent_timestamp TIMESTAMP NOT NULL,
       consent_version VARCHAR(10) NOT NULL DEFAULT '1.0',
-      created_at TIMESTAMP DEFAULT NOW(),
-
-      INDEX idx_consent_ip (ip_address),
-      INDEX idx_consent_timestamp (consent_timestamp),
-      INDEX idx_consent_created (created_at)
+      created_at TIMESTAMP DEFAULT NOW()
     );
+  `);
+
+  // Create indexes separately
+  await query(`
+    CREATE INDEX IF NOT EXISTS idx_consent_ip ON consent_records (ip_address);
+  `);
+
+  await query(`
+    CREATE INDEX IF NOT EXISTS idx_consent_timestamp ON consent_records (consent_timestamp);
+  `);
+
+  await query(`
+    CREATE INDEX IF NOT EXISTS idx_consent_created ON consent_records (created_at);
   `);
 
   console.log('✅ Consent records table created successfully');
