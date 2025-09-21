@@ -85,29 +85,73 @@ app.use(cors({
   credentials: true
 }));
 
-// Rate limiting - Configuration augmentée
+// Rate limiting - Configuration avec whitelist
+// Récupérer les IPs whitelistées depuis les variables d'environnement
+const getWhitelistIPs = () => {
+  const defaultIPs = [
+    '127.0.0.1',           // Localhost
+    '::1',                 // IPv6 localhost
+    '::ffff:127.0.0.1',    // IPv4-mapped IPv6 localhost
+  ];
+
+  // Ajouter les IPs depuis la variable d'environnement
+  if (process.env.WHITELIST_IPS) {
+    const envIPs = process.env.WHITELIST_IPS.split(',').map(ip => ip.trim()).filter(Boolean);
+    return [...defaultIPs, ...envIPs];
+  }
+
+  return defaultIPs;
+};
+
+const WHITELIST_IPS = getWhitelistIPs();
+
+// Fonction pour vérifier si une IP est whitelistée
+const isWhitelisted = (req) => {
+  const clientIp = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
+
+  // Log l'IP pour debug (vous pourrez voir votre vraie IP dans les logs)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔍 Client IP detected:', clientIp);
+  }
+
+  // Vérifier si l'IP est dans la whitelist
+  return WHITELIST_IPS.some(whitelistedIp => {
+    return clientIp === whitelistedIp ||
+           clientIp === `::ffff:${whitelistedIp}` ||
+           (clientIp && clientIp.includes(whitelistedIp));
+  });
+};
+
+// Configuration du rate limiting principal
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 500, // Augmenté à 500 requêtes par fenêtre (était 100)
+  max: 100, // Retour à 100 requêtes par fenêtre pour les autres
   message: 'Trop de requêtes depuis cette IP, réessayez plus tard.',
   standardHeaders: true, // Retourne les headers `RateLimit-*`
   legacyHeaders: false, // Désactive les headers `X-RateLimit-*`
   skipSuccessfulRequests: false,
-  skipFailedRequests: true // Ne compte pas les erreurs 4xx/5xx
+  skipFailedRequests: true, // Ne compte pas les erreurs 4xx/5xx
+  skip: (req) => isWhitelisted(req) // Skip rate limiting pour IPs whitelistées
 });
 
-// Application du rate limiting seulement pour les routes API sensibles
-app.use('/api/auth/login', rateLimit({
+// Rate limiting strict pour login (même pour whitelist)
+const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10, // 10 tentatives de login par 15 minutes
-  message: 'Trop de tentatives de connexion, réessayez plus tard.'
-}));
+  message: 'Trop de tentatives de connexion, réessayez plus tard.',
+  skip: (req) => false // Pas de skip pour la sécurité du login
+});
 
-app.use('/api/smartlinks', limiter); // Limite normale pour SmartLinks
-app.use('/api/odesli', limiter); // Limite normale pour Odesli
+// Application du rate limiting
+app.use('/api/auth/login', loginLimiter);
+app.use('/api/smartlinks', limiter);
+app.use('/api/odesli', limiter);
+app.use('/api', limiter); // Toutes les autres routes API
 
-// Pas de limite pour les pages statiques et SmartLinks publics
-// app.use(limiter); // Commenté pour éviter le rate limiting global
+// Message de debug pour whitelist en dev
+if (process.env.NODE_ENV === 'development') {
+  console.log('📋 Whitelisted IPs:', WHITELIST_IPS);
+}
 
 // Middleware pour parsing JSON
 app.use(express.json({ limit: '10mb' }));
@@ -273,6 +317,11 @@ app.get('/privacy-policy', (req, res) => {
 // Route de test RGPD (développement)
 app.get('/test-gdpr', (req, res) => {
   res.sendFile(path.join(__dirname, 'pages', 'test-gdpr.html'));
+});
+
+// Route de test IP pour whitelist
+app.get('/test-ip', (req, res) => {
+  res.sendFile(path.join(__dirname, 'pages', 'test-ip.html'));
 });
 
 // Configuration dynamique pour le frontend
