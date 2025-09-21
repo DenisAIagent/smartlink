@@ -196,6 +196,145 @@
             background: rgba(0,0,0,0.1);
             margin: 0 8px;
         }
+
+        /* Styles pour les SmartLink en liste */
+        .smartlinks-list {
+            margin-top: 24px;
+        }
+
+        .smartlink-item {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            margin-bottom: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .smartlink-item:hover {
+            box-shadow: var(--shadow-medium);
+        }
+
+        .smartlink-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .smartlink-cover-small {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .smartlink-cover-small img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .smartlink-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .smartlink-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--secondary);
+        }
+
+        .smartlink-artist {
+            color: var(--gray-medium);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .smartlink-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 12px;
+            flex-wrap: wrap;
+        }
+
+        .smartlink-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 11px;
+        }
+
+        .status-published {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-draft {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .smartlink-date {
+            color: var(--gray-medium);
+        }
+
+        .smartlink-url-display {
+            color: var(--gray-medium);
+            font-size: 12px;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .smartlink-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .action-btn {
+            background: var(--gray-light);
+            color: var(--secondary);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+            min-height: 36px;
+        }
+
+        .action-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .action-btn-danger:hover {
+            background: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+
+        .smartlink-stats {
+            color: var(--gray-medium);
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -428,7 +567,7 @@
             const pageItems = filteredSmartLinks.slice(startIndex, endIndex);
 
             const html = `
-                <div class="smartlinks-grid">
+                <div class="smartlinks-list">
                     ${pageItems.map(sl => renderSmartLinkCard(sl)).join('')}
                 </div>
             `;
@@ -436,62 +575,63 @@
             container.innerHTML = html;
         }
 
-        // Rendu d'une carte SmartLink
+        // Rendu d'une ligne SmartLink
         function renderSmartLinkCard(smartlink) {
             const smartlinkUrl = `${window.location.protocol}//${window.location.hostname === 'localhost' ? 'localhost:3003' : 'smartlink.mdmcmusicads.com'}/s/${smartlink.slug}`;
             const isSelected = selectedIds.has(smartlink.id);
 
             return `
-                <div class="smartlink-card ${isSelected ? 'selected' : ''}" data-id="${smartlink.id}">
+                <div class="smartlink-item ${isSelected ? 'selected' : ''}" data-id="${smartlink.id}">
                     <input type="checkbox"
                            class="smartlink-checkbox"
                            data-id="${smartlink.id}"
                            ${isSelected ? 'checked' : ''}
                            onchange="toggleSelection('${smartlink.id}')">
-                    <div class="smartlink-cover">
-                        <img src="${smartlink.cover_url || '/assets/images/default-cover.jpg'}"
-                             alt="${smartlink.title}" loading="lazy">
-                        <div class="smartlink-overlay">
-                            <div class="smartlink-actions">
-                                <button onclick="copySmartLinkUrl('${smartlinkUrl}')" 
-                                        class="action-btn" title="Copier le lien">
-                                    📋
-                                </button>
-                                <a href="${smartlinkUrl}" target="_blank" 
-                                   class="action-btn" title="Voir">
-                                    👁️
-                                </a>
-                                <button onclick="deleteSmartLink('${smartlink.id}', '${smartlink.title}${smartlink.artist ? ' - ' + smartlink.artist : ''}')" 
-                                        class="action-btn action-btn-danger" title="Supprimer">
-                                    🗑️
-                                </button>
+
+                    <div class="smartlink-left">
+                        <div class="smartlink-cover-small">
+                            <img src="${smartlink.cover_url || '/assets/images/default-cover.jpg'}"
+                                 alt="${smartlink.title}" loading="lazy">
+                        </div>
+
+                        <div class="smartlink-details">
+                            <h3 class="smartlink-title">${smartlink.title || 'Sans titre'}</h3>
+                            <p class="smartlink-artist">${smartlink.artist || 'Artiste inconnu'}</p>
+
+                            <div class="smartlink-meta">
+                                <span class="smartlink-status ${smartlink.is_active ? 'status-published' : 'status-draft'}">
+                                    ${smartlink.is_active ? '🟢 Actif' : '🟡 Inactif'}
+                                </span>
+                                <span class="smartlink-date">
+                                    Depuis ${mdmcAdmin.formatDate(smartlink.created_at, { month: 'short', day: 'numeric' })}
+                                </span>
+                                <span class="smartlink-stats">
+                                    🔗 ${mdmcAdmin.formatNumber(smartlink.click_count || 0)} clics
+                                </span>
+                                <span class="smartlink-url-display">
+                                    ${smartlinkUrl}
+                                </span>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="smartlink-info">
-                        <h3 class="smartlink-title">${smartlink.title || 'Sans titre'}</h3>
-                        <p class="smartlink-artist">${smartlink.artist || 'Artiste inconnu'}</p>
-                        
-                        <div class="smartlink-meta">
-                            <span class="smartlink-status ${smartlink.is_active ? 'status-published' : 'status-draft'}">
-                                ${smartlink.is_active ? '🟢 Actif' : '🟡 Inactif'}
-                            </span>
-                            <span class="smartlink-date">
-                                ${mdmcAdmin.formatDate(smartlink.created_at, { month: 'short', day: 'numeric' })}
-                            </span>
-                        </div>
-                        
-                        <div class="smartlink-stats">
-                            <span class="stat-item">
-                                🔗 ${mdmcAdmin.formatNumber(smartlink.click_count || 0)} clics
-                            </span>
-                        </div>
-                        
-                        <div class="smartlink-url">
-                            <input type="text" value="${smartlinkUrl}" readonly 
-                                   onclick="this.select(); mdmcAdmin.copyToClipboard('${smartlinkUrl}')">
-                        </div>
+
+                    <div class="smartlink-actions">
+                        <button onclick="copySmartLinkUrl('${smartlinkUrl}')"
+                                class="action-btn" title="Copier le lien">
+                            📋
+                        </button>
+                        <a href="${smartlinkUrl}" target="_blank"
+                           class="action-btn" title="Voir">
+                            👁️
+                        </a>
+                        <a href="/pages/edit-smartlink.html?id=${smartlink.id}"
+                           class="action-btn" title="Éditer">
+                            ✏️
+                        </a>
+                        <button onclick="deleteSmartLink('${smartlink.id}', '${smartlink.title}${smartlink.artist ? ' - ' + smartlink.artist : ''}')"
+                                class="action-btn action-btn-danger" title="Supprimer">
+                            🗑️
+                        </button>
                     </div>
                 </div>
             `;
