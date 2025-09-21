@@ -319,27 +319,22 @@
                 <span class="logo-text">MDMC Admin</span>
             </div>
             
-            <nav>
-                <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="/pages/dashboard.html" class="nav-link">
-                            <span class="nav-icon">📊</span>
-                            Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/pages/list-smartlinks.html" class="nav-link">
-                            <span class="nav-icon">🔗</span>
-                            SmartLinks
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/pages/create-smartlink.html" class="nav-link">
-                            <span class="nav-icon">✨</span>
-                            Créer un SmartLink
-                        </a>
-                    </li>
-                </ul>
+            <nav class="nav-menu" role="navigation" aria-label="Navigation principale">
+                <a href="/pages/dashboard.html" class="nav-item">
+                    <span>Dashboard</span>
+                </a>
+                <a href="/pages/list-smartlinks.html" class="nav-item">
+                    <span>SmartLinks</span>
+                </a>
+                <a href="/pages/create-smartlink.html" class="nav-item">
+                    <span>Créer SmartLink</span>
+                </a>
+                <a href="/pages/settings.html" class="nav-item">
+                    <span>Settings</span>
+                </a>
+                <a href="#" class="nav-item" onclick="logout()">
+                    <span>Déconnexion</span>
+                </a>
             </nav>
         </aside>
 
@@ -1040,6 +1035,24 @@
         document.addEventListener('DOMContentLoaded', () => {
             checkEditMode();
         });
+
+        // Logout function
+        async function logout() {
+            try {
+                // Call server logout endpoint to clear cookie
+                await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            } finally {
+                // Always clear local storage and redirect
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('user');
+                window.location.href = '/pages/login.html';
+            }
+        }
     </script>
 </body>
 </html>
