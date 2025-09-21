@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Professionnelle - MDMC Admin</title>
+    <link rel="stylesheet" href="/assets/css/professional-nav.css">
+    <style>
+        /* Styles de base pour la démo */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: #ffffff;
+            border-right: 1px solid #e5e7eb;
+            flex-shrink: 0;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+        }
+
+        .demo-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar avec navigation professionnelle -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span>🔗</span>
+                    <span>SmartLinks</span>
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="nav-menu" role="navigation" aria-label="Navigation principale">
+                <a href="/pages/dashboard.html"
+                   class="nav-item active"
+                   aria-current="page"
+                   role="menuitem">
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="/pages/list-smartlinks.html"
+                   class="nav-item"
+                   role="menuitem">
+                    <span>SmartLinks</span>
+                </a>
+
+                <a href="/pages/create-smartlink.html"
+                   class="nav-item"
+                   role="menuitem">
+                    <span>Créer SmartLink</span>
+                </a>
+
+                <a href="/pages/analytics.html"
+                   class="nav-item"
+                   role="menuitem">
+                    <span>Analytics</span>
+                </a>
+
+                <a href="/pages/settings.html"
+                   class="nav-item"
+                   role="menuitem">
+                    <span>Settings</span>
+                </a>
+
+                <!-- Séparateur et action de déconnexion -->
+                <a href="#"
+                   class="nav-item"
+                   onclick="logout()"
+                   role="menuitem">
+                    <span>Déconnexion</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Contenu principal -->
+        <main class="main-content">
+            <div class="demo-content">
+                <h1>Navigation Professionnelle</h1>
+                <p>Cette navigation est conçue selon les standards des grandes plateformes modernes :</p>
+
+                <h2>Caractéristiques</h2>
+                <ul>
+                    <li><strong>Design moderne</strong> : États hover et active subtils et élégants</li>
+                    <li><strong>Accessibilité</strong> : Support complet des lecteurs d'écran et navigation clavier</li>
+                    <li><strong>Typographie</strong> : Optimisée pour la lisibilité avec font-smoothing</li>
+                    <li><strong>Responsive</strong> : Adaptation automatique mobile/desktop</li>
+                    <li><strong>Dark mode</strong> : Support automatique du mode sombre</li>
+                    <li><strong>Animations fluides</strong> : Transitions CSS optimisées</li>
+                    <li><strong>États focus</strong> : Indicateurs visuels pour la navigation clavier</li>
+                </ul>
+
+                <h2>Technologies utilisées</h2>
+                <ul>
+                    <li>CSS Grid et Flexbox modernes</li>
+                    <li>Variables CSS pour la theming</li>
+                    <li>Transitions cubic-bezier pour des animations fluides</li>
+                    <li>Media queries pour responsive et préférences utilisateur</li>
+                </ul>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Gestion de la navigation active
+        document.addEventListener('DOMContentLoaded', function() {
+            const navItems = document.querySelectorAll('.nav-item');
+
+            navItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    // Ne pas traiter le clic si c'est le bouton de déconnexion
+                    if (this.onclick) return;
+
+                    // Empêcher la navigation pour la démo
+                    e.preventDefault();
+
+                    // Retirer l'état actif de tous les éléments
+                    navItems.forEach(nav => {
+                        nav.classList.remove('active');
+                        nav.removeAttribute('aria-current');
+                    });
+
+                    // Ajouter l'état actif à l'élément cliqué
+                    this.classList.add('active');
+                    this.setAttribute('aria-current', 'page');
+                });
+            });
+        });
+
+        function logout() {
+            if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                alert('Déconnexion simulée pour la démo');
+                // Ici vous ajouteriez votre logique de déconnexion
+            }
+        }
+    </script>
+</body>
+</html>
