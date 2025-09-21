@@ -902,7 +902,7 @@
                         if (!platformCounts[name]) {
                             platformCounts[name] = 0;
                         }
-                        // Estimate platform clicks (in production you'd track these separately)
+                        // Distribute clicks evenly across platforms (temporary until real tracking)
                         platformCounts[name] += Math.floor((sl.click_count || 0) / sl.platforms.length);
                     });
                 }
@@ -917,7 +917,7 @@
 
             return {
                 total_clicks: totalClicks,
-                unique_visitors: totalClicks, // Use same as clicks since we don't track this separately yet
+                unique_visitors: 0, // Will be implemented when we add proper visitor tracking
                 platform_stats,
                 top_platform: platform_stats.length > 0 ?
                     platform_stats.reduce((max, p) => p.clicks > max.clicks ? p : max).platform : null
@@ -945,9 +945,8 @@
             document.getElementById('totalClicks').textContent = formatNumber(data.total_clicks || 0);
             document.getElementById('uniqueVisitors').textContent = formatNumber(data.unique_visitors || 0);
 
-            const convRate = data.total_clicks > 0 ?
-                ((data.unique_visitors / data.total_clicks) * 100).toFixed(1) : 0;
-            document.getElementById('conversionRate').textContent = convRate + '%';
+            // Conversion rate calculation will be implemented when we have proper tracking
+            document.getElementById('conversionRate').textContent = '-';
 
             document.getElementById('topPlatform').textContent = data.top_platform || '-';
 
