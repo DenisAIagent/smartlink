@@ -324,6 +324,11 @@ app.get('/test-ip', (req, res) => {
   res.sendFile(path.join(__dirname, 'pages', 'test-ip.html'));
 });
 
+// Route de test social media preview
+app.get('/test-social-preview', (req, res) => {
+  res.sendFile(path.join(__dirname, 'pages', 'test-social-preview.html'));
+});
+
 // Configuration dynamique pour le frontend
 app.get('/config.js', (req, res) => {
   const config = {

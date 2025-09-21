@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Social Media Preview - MDMC Admin</title>
+  <link rel="icon" href="/public/assets/favicon.png">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .test-form {
+      background: #f8f9fa;
+      padding: 25px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #333;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    button {
+      background: #4285f4;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px;
+    }
+    button:hover {
+      background: #3367d6;
+    }
+    .preview {
+      margin-top: 30px;
+    }
+    .preview-card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+      background: white;
+    }
+    .facebook-preview {
+      border-left: 4px solid #1877f2;
+    }
+    .twitter-preview {
+      border-left: 4px solid #1da1f2;
+    }
+    .linkedin-preview {
+      border-left: 4px solid #0077b5;
+    }
+    .whatsapp-preview {
+      border-left: 4px solid #25d366;
+    }
+    .preview-image {
+      width: 100%;
+      max-width: 500px;
+      height: 262px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    .preview-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #1877f2;
+    }
+    .twitter-preview .preview-title {
+      color: #1da1f2;
+    }
+    .linkedin-preview .preview-title {
+      color: #0077b5;
+    }
+    .whatsapp-preview .preview-title {
+      color: #25d366;
+    }
+    .preview-description {
+      color: #65676b;
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+    .preview-url {
+      color: #65676b;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+    .meta-tags {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    .meta-tags pre {
+      background: white;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 12px;
+    }
+    .success {
+      background: #d4edda;
+      color: #155724;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 15px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔍 Test Social Media Preview</h1>
+      <p>Testez l'aperçu de vos SmartLinks sur les réseaux sociaux</p>
+    </div>
+
+    <div class="test-form">
+      <h2>📝 Informations du SmartLink</h2>
+
+      <div class="form-group">
+        <label for="title">Titre du morceau</label>
+        <input type="text" id="title" placeholder="Ex: My New Song" value="Mon Nouveau Single">
+      </div>
+
+      <div class="form-group">
+        <label for="artist">Artiste</label>
+        <input type="text" id="artist" placeholder="Ex: John Doe" value="Artiste Test">
+      </div>
+
+      <div class="form-group">
+        <label for="cover">URL de la pochette</label>
+        <input type="url" id="cover" placeholder="https://example.com/cover.jpg" value="https://picsum.photos/1200/1200">
+      </div>
+
+      <div class="form-group">
+        <label for="slug">Slug du SmartLink</label>
+        <input type="text" id="slug" placeholder="mon-nouveau-single" value="test-social-preview">
+      </div>
+
+      <button onclick="generatePreviews()">🚀 Générer les aperçus</button>
+      <button onclick="testRealSmartLink()">🔗 Tester SmartLink existant</button>
+    </div>
+
+    <div id="previews" class="preview" style="display: none;">
+      <h2>📱 Aperçus sur les réseaux sociaux</h2>
+
+      <!-- Facebook Preview -->
+      <div class="preview-card facebook-preview">
+        <h3>📘 Facebook</h3>
+        <img id="fb-image" class="preview-image" src="" alt="Preview">
+        <div id="fb-title" class="preview-title"></div>
+        <div id="fb-description" class="preview-description"></div>
+        <div id="fb-url" class="preview-url"></div>
+      </div>
+
+      <!-- Twitter Preview -->
+      <div class="preview-card twitter-preview">
+        <h3>🐦 Twitter</h3>
+        <img id="tw-image" class="preview-image" src="" alt="Preview">
+        <div id="tw-title" class="preview-title"></div>
+        <div id="tw-description" class="preview-description"></div>
+        <div id="tw-url" class="preview-url"></div>
+      </div>
+
+      <!-- LinkedIn Preview -->
+      <div class="preview-card linkedin-preview">
+        <h3>💼 LinkedIn</h3>
+        <img id="li-image" class="preview-image" src="" alt="Preview">
+        <div id="li-title" class="preview-title"></div>
+        <div id="li-description" class="preview-description"></div>
+        <div id="li-url" class="preview-url"></div>
+      </div>
+
+      <!-- WhatsApp Preview -->
+      <div class="preview-card whatsapp-preview">
+        <h3>💬 WhatsApp</h3>
+        <img id="wa-image" class="preview-image" src="" alt="Preview">
+        <div id="wa-title" class="preview-title"></div>
+        <div id="wa-description" class="preview-description"></div>
+        <div id="wa-url" class="preview-url"></div>
+      </div>
+
+      <!-- Meta Tags -->
+      <div class="meta-tags">
+        <h3>🏷️ Meta Tags générés</h3>
+        <pre id="meta-output"></pre>
+      </div>
+    </div>
+
+    <div class="success">
+      💡 <strong>Conseils pour maximiser l'engagement :</strong><br>
+      • Image de pochette en haute qualité (1200x1200px minimum)<br>
+      • Titre accrocheur avec emojis<br>
+      • Description engageante et claire<br>
+      • Hashtags pertinents pour Twitter
+    </div>
+  </div>
+
+  <script>
+    function generatePreviews() {
+      const title = document.getElementById('title').value || 'Titre';
+      const artist = document.getElementById('artist').value || 'Artiste';
+      const cover = document.getElementById('cover').value || 'https://picsum.photos/1200/1200';
+      const slug = document.getElementById('slug').value || 'test';
+
+      // Facebook
+      document.getElementById('fb-image').src = cover;
+      document.getElementById('fb-title').textContent = `🎵 ${title} - ${artist}`;
+      document.getElementById('fb-description').textContent = `Découvrez le nouveau titre '${title}' de ${artist} ! Disponible sur toutes les plateformes de streaming musical. 🎶`;
+      document.getElementById('fb-url').textContent = `smartlink.mdmcmusicads.com/${slug}`;
+
+      // Twitter
+      document.getElementById('tw-image').src = cover;
+      document.getElementById('tw-title').textContent = `🎵 ${title} - ${artist}`;
+      document.getElementById('tw-description').textContent = `Nouveau titre disponible sur toutes les plateformes ! 🎶 #NouvelleMusique #${artist.replace(/\s+/g, '')}`;
+      document.getElementById('tw-url').textContent = `smartlink.mdmcmusicads.com/${slug}`;
+
+      // LinkedIn
+      document.getElementById('li-image').src = cover;
+      document.getElementById('li-title').textContent = `🎵 ${title} - ${artist}`;
+      document.getElementById('li-description').textContent = `Découvrez le nouveau titre '${title}' de ${artist} ! Disponible sur toutes les plateformes de streaming musical. 🎶`;
+      document.getElementById('li-url').textContent = `smartlink.mdmcmusicads.com/${slug}`;
+
+      // WhatsApp
+      document.getElementById('wa-image').src = cover;
+      document.getElementById('wa-title').textContent = `🎵 ${title} - ${artist}`;
+      document.getElementById('wa-description').textContent = `Découvrez le nouveau titre '${title}' de ${artist} ! Disponible sur toutes les plateformes de streaming musical. 🎶`;
+      document.getElementById('wa-url').textContent = `smartlink.mdmcmusicads.com/${slug}`;
+
+      // Generate meta tags
+      const metaTags = `
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="music.song">
+<meta property="og:site_name" content="MDMC Music Ads">
+<meta property="og:title" content="🎵 ${title} - ${artist}">
+<meta property="og:description" content="Découvrez le nouveau titre '${title}' de ${artist} ! Disponible sur toutes les plateformes de streaming musical. 🎶">
+<meta property="og:image" content="${cover}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="1200">
+<meta property="og:image:alt" content="Pochette de ${title} par ${artist}">
+<meta property="og:url" content="https://smartlink.mdmcmusicads.com/${slug}">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@mdmcmusicads">
+<meta name="twitter:title" content="🎵 ${title} - ${artist}">
+<meta name="twitter:description" content="Nouveau titre disponible sur toutes les plateformes ! 🎶 #NouvelleMusique #${artist.replace(/\s+/g, '')}">
+<meta name="twitter:image" content="${cover}">
+<meta name="twitter:image:alt" content="Pochette de ${title} par ${artist}">
+
+<!-- Music specific -->
+<meta property="music:musician" content="${artist}">
+<meta property="music:song" content="${title}">`;
+
+      document.getElementById('meta-output').textContent = metaTags;
+      document.getElementById('previews').style.display = 'block';
+    }
+
+    async function testRealSmartLink() {
+      try {
+        const response = await fetch('/api/smartlinks');
+        const data = await response.json();
+
+        if (data.success && data.smartlinks.length > 0) {
+          const smartlink = data.smartlinks[0];
+          document.getElementById('title').value = smartlink.title;
+          document.getElementById('artist').value = smartlink.artist;
+          document.getElementById('cover').value = smartlink.cover_url;
+          document.getElementById('slug').value = smartlink.slug;
+
+          generatePreviews();
+        } else {
+          alert('Aucun SmartLink trouvé. Créez-en un d\'abord !');
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors du chargement des SmartLinks');
+      }
+    }
+
+    // Auto-generate on load
+    window.addEventListener('load', () => {
+      generatePreviews();
+    });
+  </script>
+</body>
+</html>
