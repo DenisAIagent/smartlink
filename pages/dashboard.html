@@ -95,6 +95,25 @@
             border-right: 3px solid var(--primary);
         }
 
+        .nav-item .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+            transition: var(--transition);
+        }
+
+        .nav-item:hover .nav-icon {
+            transform: scale(1.1);
+        }
+
+        .nav-item.active .nav-icon {
+            filter: drop-shadow(0 2px 4px rgba(229, 9, 20, 0.3));
+        }
+
         /* Main Content */
         .main-content {
             flex: 1;
@@ -383,6 +402,96 @@
             color: var(--primary);
         }
 
+        /* Loading Skeletons */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 16px;
+        }
+
+        .skeleton-metric-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .skeleton-metric-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+        }
+
+        .skeleton-metric-title {
+            height: 16px;
+            width: 120px;
+            border-radius: 4px;
+        }
+
+        .skeleton-metric-value {
+            height: 32px;
+            width: 80px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .skeleton-metric-change {
+            height: 14px;
+            width: 60px;
+            border-radius: 4px;
+        }
+
+        .skeleton-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .skeleton-table-header {
+            height: 48px;
+            background: var(--bg-main);
+        }
+
+        .skeleton-table-row {
+            height: 56px;
+            border-top: 1px solid var(--border);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .skeleton-table-cell {
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .skeleton-table-cell.platform {
+            width: 100px;
+        }
+
+        .skeleton-table-cell.clicks {
+            width: 60px;
+        }
+
+        .skeleton-table-cell.conversion {
+            width: 80px;
+        }
+
         /* Platform Table */
         .platform-table {
             background: white;
@@ -418,35 +527,131 @@
 
         /* Empty State */
         .empty-state {
-            background: white;
-            border-radius: 12px;
-            padding: 80px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 60px 40px;
             text-align: center;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            color: white;
+            position: relative;
+            overflow: hidden;
         }
-
+        .empty-state::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.5;
+        }
+        .empty-illustration {
+            position: relative;
+            margin-bottom: 32px;
+        }
         .empty-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 24px;
-            background: var(--bg-main);
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
-            color: var(--text-secondary);
+            font-size: 48px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            animation: float 3s ease-in-out infinite;
         }
-
+        .empty-sparkles {
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            font-size: 24px;
+            animation: sparkle 2s ease-in-out infinite alternate;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes sparkle {
+            0% { opacity: 0.6; transform: rotate(0deg) scale(1); }
+            100% { opacity: 1; transform: rotate(180deg) scale(1.2); }
+        }
         .empty-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 8px;
+            margin: 0 0 16px 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-
         .empty-text {
-            color: var(--text-secondary);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        .empty-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        .btn-primary, .btn-secondary {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
             font-size: 14px;
+        }
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #4F46E5;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .btn-primary:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .empty-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .feature-icon {
+            font-size: 24px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
         }
 
         /* Hidden class */
@@ -491,27 +696,27 @@
             </div>
             <nav class="nav-menu">
                 <a href="/pages/dashboard.html" class="nav-item active">
-                    <span>📊</span>
+                    <span class="nav-icon">📊</span>
                     <span>Dashboard</span>
                 </a>
                 <a href="/pages/analytics.html" class="nav-item">
-                    <span>📈</span>
+                    <span class="nav-icon">📈</span>
                     <span>Analytics</span>
                 </a>
                 <a href="/pages/list-smartlinks.html" class="nav-item">
-                    <span>🔗</span>
+                    <span class="nav-icon">🔗</span>
                     <span>SmartLinks</span>
                 </a>
                 <a href="/pages/create-smartlink.html" class="nav-item">
-                    <span>✨</span>
+                    <span class="nav-icon">✨</span>
                     <span>Créer SmartLink</span>
                 </a>
                 <a href="/pages/settings.html" class="nav-item">
-                    <span>⚙️</span>
+                    <span class="nav-icon">⚙️</span>
                     <span>Settings</span>
                 </a>
                 <a href="#" class="nav-item" onclick="logout()">
-                    <span>🚪</span>
+                    <span class="nav-icon">🚪</span>
                     <span>Déconnexion</span>
                 </a>
             </nav>
@@ -612,6 +817,71 @@
                             </div>
                         </div>
 
+                        <!-- Loading Skeletons -->
+                        <div id="loadingSkeletons" class="hidden">
+                            <!-- Skeleton Metric Cards -->
+                            <div class="metrics-grid">
+                                <div class="skeleton-metric-card">
+                                    <div class="skeleton-metric-header">
+                                        <div class="skeleton skeleton-metric-icon"></div>
+                                        <div class="skeleton skeleton-metric-title"></div>
+                                    </div>
+                                    <div class="skeleton skeleton-metric-value"></div>
+                                    <div class="skeleton skeleton-metric-change"></div>
+                                </div>
+                                <div class="skeleton-metric-card">
+                                    <div class="skeleton-metric-header">
+                                        <div class="skeleton skeleton-metric-icon"></div>
+                                        <div class="skeleton skeleton-metric-title"></div>
+                                    </div>
+                                    <div class="skeleton skeleton-metric-value"></div>
+                                    <div class="skeleton skeleton-metric-change"></div>
+                                </div>
+                                <div class="skeleton-metric-card">
+                                    <div class="skeleton-metric-header">
+                                        <div class="skeleton skeleton-metric-icon"></div>
+                                        <div class="skeleton skeleton-metric-title"></div>
+                                    </div>
+                                    <div class="skeleton skeleton-metric-value"></div>
+                                    <div class="skeleton skeleton-metric-change"></div>
+                                </div>
+                                <div class="skeleton-metric-card">
+                                    <div class="skeleton-metric-header">
+                                        <div class="skeleton skeleton-metric-icon"></div>
+                                        <div class="skeleton skeleton-metric-title"></div>
+                                    </div>
+                                    <div class="skeleton skeleton-metric-value"></div>
+                                    <div class="skeleton skeleton-metric-change"></div>
+                                </div>
+                            </div>
+
+                            <!-- Skeleton Platform Table -->
+                            <div class="skeleton-table">
+                                <div class="skeleton skeleton-table-header"></div>
+                                <div class="skeleton-table-row">
+                                    <div class="skeleton skeleton-table-cell platform"></div>
+                                    <div class="skeleton skeleton-table-cell clicks"></div>
+                                    <div class="skeleton skeleton-table-cell clicks"></div>
+                                    <div class="skeleton skeleton-table-cell conversion"></div>
+                                    <div class="skeleton skeleton-table-cell conversion"></div>
+                                </div>
+                                <div class="skeleton-table-row">
+                                    <div class="skeleton skeleton-table-cell platform"></div>
+                                    <div class="skeleton skeleton-table-cell clicks"></div>
+                                    <div class="skeleton skeleton-table-cell clicks"></div>
+                                    <div class="skeleton skeleton-table-cell conversion"></div>
+                                    <div class="skeleton skeleton-table-cell conversion"></div>
+                                </div>
+                                <div class="skeleton-table-row">
+                                    <div class="skeleton skeleton-table-cell platform"></div>
+                                    <div class="skeleton skeleton-table-cell clicks"></div>
+                                    <div class="skeleton skeleton-table-cell clicks"></div>
+                                    <div class="skeleton skeleton-table-cell conversion"></div>
+                                    <div class="skeleton skeleton-table-cell conversion"></div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Platform Grid View -->
                         <div id="platformGrid" class="platform-grid">
                             <!-- Platform cards will be populated dynamically -->
@@ -639,9 +909,36 @@
 
                 <!-- Empty State -->
                 <div id="emptyState" class="empty-state hidden">
-                    <div class="empty-icon">📊</div>
-                    <h2 class="empty-title">Aucune donnée disponible</h2>
-                    <p class="empty-text">Les statistiques apparaîtront ici une fois que votre SmartLink aura généré du trafic.</p>
+                    <div class="empty-illustration">
+                        <div class="empty-icon">📊</div>
+                        <div class="empty-sparkles">✨</div>
+                    </div>
+                    <h2 class="empty-title">Vos analytics vous attendent !</h2>
+                    <p class="empty-text">Créez votre premier SmartLink pour commencer à tracker les performances de votre musique.</p>
+                    <div class="empty-actions">
+                        <a href="/pages/create-smartlink.html" class="btn-primary">
+                            <span>🎵</span>
+                            Créer mon premier SmartLink
+                        </a>
+                        <button onclick="loadAnalytics()" class="btn-secondary">
+                            <span>🔄</span>
+                            Actualiser
+                        </button>
+                    </div>
+                    <div class="empty-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">📈</span>
+                            <span>Analytics en temps réel</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🌍</span>
+                            <span>Tracking géographique</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">📱</span>
+                            <span>Stats par plateforme</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -727,6 +1024,7 @@
         const platformTable = document.getElementById('platformTable');
         const mainContent = document.getElementById('mainContent');
         const emptyState = document.getElementById('emptyState');
+        const loadingSkeletons = document.getElementById('loadingSkeletons');
 
         // Dropdown functionality
         function setupDropdown(button, dropdown, label) {
@@ -931,10 +1229,27 @@
         }
 
         // Load and update analytics
+        function showLoadingState() {
+            // Hide content and empty state
+            mainContent.classList.add('hidden');
+            emptyState.classList.add('hidden');
+
+            // Show loading skeletons
+            loadingSkeletons.classList.remove('hidden');
+        }
+
+        function hideLoadingState() {
+            // Hide loading skeletons
+            loadingSkeletons.classList.add('hidden');
+        }
+
         async function loadAnalytics() {
             if (!(await checkAuth())) return;
 
             try {
+                // Show loading state at the beginning
+                showLoadingState();
+
                 const token = getAuthToken();
 
                 if (currentSmartLink) {
@@ -1016,6 +1331,9 @@
 
         // Update analytics display
         function updateAnalytics() {
+            // Always hide loading state when updating
+            hideLoadingState();
+
             if (!analyticsData || (analyticsData.total_clicks === 0 && (!analyticsData.platform_stats || analyticsData.platform_stats.length === 0))) {
                 showEmptyState();
                 return;
@@ -1132,6 +1450,7 @@
 
         // Show empty state
         function showEmptyState() {
+            hideLoadingState();
             mainContent.classList.add('hidden');
             emptyState.classList.remove('hidden');
         }
