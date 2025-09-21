@@ -404,6 +404,7 @@ app.get('/api/auth/me', authController.getCurrentUser);
 app.put('/api/auth/profile', authController.updateProfile);
 
 // API Routes - Admin (user management)
+app.get('/api/admin/users', authController.listUsers);
 app.post('/api/admin/users', authController.createUser);
 
 // API Routes - Odesli Integration

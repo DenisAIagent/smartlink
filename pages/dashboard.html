@@ -510,6 +510,10 @@
                     <span>⚙️</span>
                     <span>Settings</span>
                 </a>
+                <a href="#" class="nav-item" onclick="logout()">
+                    <span>🚪</span>
+                    <span>Déconnexion</span>
+                </a>
             </nav>
         </aside>
 
@@ -765,9 +769,18 @@
             }
         });
 
-        // Setup dropdowns
-        setupDropdown(smartlinkSelect, smartlinkDropdown, smartlinkLabel);
+        // Setup dropdowns (only for period dropdown, smartlink dropdown is handled in populateSmartLinkDropdown)
         setupDropdown(periodSelect, periodDropdown, periodLabel);
+
+        // Setup smartlink dropdown button click (just to open/close)
+        smartlinkSelect.addEventListener('click', () => {
+            const isOpen = smartlinkDropdown.classList.contains('show');
+            closeAllDropdowns();
+            if (!isOpen) {
+                smartlinkDropdown.classList.add('show');
+                smartlinkSelect.classList.add('active');
+            }
+        });
 
         // Refresh button
         refreshBtn.addEventListener('click', async () => {
@@ -797,12 +810,53 @@
             platformGrid.classList.add('hidden');
         });
 
+        // Auth token management
+        function getAuthToken() {
+            return localStorage.getItem('authToken');
+        }
+
+        async function checkAuth() {
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = '/pages/login.html';
+                return false;
+            }
+
+            try {
+                const response = await fetch('/api/auth/me', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    // Token invalide, nettoyer et rediriger
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('user');
+                    window.location.href = '/pages/login.html';
+                    return false;
+                }
+
+                return true;
+            } catch (error) {
+                console.error('Erreur de vérification auth:', error);
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('user');
+                window.location.href = '/pages/login.html';
+                return false;
+            }
+        }
+
         // Load SmartLinks for dropdown
         async function loadSmartLinks() {
+            if (!(await checkAuth())) return;
+
             try {
+                const token = getAuthToken();
                 const response = await fetch('/api/smartlinks', {
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     credentials: 'include'
                 });
@@ -813,6 +867,10 @@
                         allSmartLinks = data.smartlinks || [];
                         populateSmartLinkDropdown();
                     }
+                } else if (response.status === 401) {
+                    // Token expired, redirect to login
+                    localStorage.removeItem('authToken');
+                    window.location.href = '/pages/login.html';
                 }
             } catch (error) {
                 console.error('Error loading SmartLinks:', error);
@@ -829,22 +887,53 @@
                 item.className = 'dropdown-item';
                 item.dataset.value = sl.id;
                 item.textContent = `${sl.title}${sl.artist ? ' - ' + sl.artist : ''}`;
+
+                // Add click event listener to each item
+                item.addEventListener('click', () => {
+                    dropdown.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+                    item.classList.add('selected');
+                    smartlinkLabel.textContent = item.textContent;
+                    closeAllDropdowns();
+
+                    // Update state and reload analytics
+                    currentSmartLink = item.dataset.value;
+                    loadAnalytics();
+                });
+
                 dropdown.appendChild(item);
             });
 
-            // Re-setup event listeners for new items
-            setupDropdown(smartlinkSelect, smartlinkDropdown, smartlinkLabel);
+            // Also update the "Tous les SmartLinks" option
+            const allOption = dropdown.querySelector('[data-value=""]');
+            if (allOption) {
+                allOption.addEventListener('click', () => {
+                    dropdown.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+                    allOption.classList.add('selected');
+                    smartlinkLabel.textContent = allOption.textContent;
+                    closeAllDropdowns();
+
+                    currentSmartLink = '';
+                    loadAnalytics();
+                });
+            }
         }
 
         // Load and update analytics
         async function loadAnalytics() {
+            if (!(await checkAuth())) return;
+
             try {
+                const token = getAuthToken();
+
                 if (currentSmartLink) {
                     // Load specific SmartLink analytics
                     const daysMap = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 };
                     const days = daysMap[currentPeriod] || 30;
 
                     const response = await fetch(`/api/smartlinks/${currentSmartLink}/analytics?days=${days}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
                         credentials: 'include'
                     });
 
@@ -853,6 +942,10 @@
                         if (data.success) {
                             analyticsData = data.analytics;
                         }
+                    } else if (response.status === 401) {
+                        localStorage.removeItem('authToken');
+                        window.location.href = '/pages/login.html';
+                        return;
                     }
                 } else {
                     // Load overview analytics (aggregate all SmartLinks)
@@ -911,7 +1004,7 @@
 
         // Update analytics display
         function updateAnalytics() {
-            if (!analyticsData || analyticsData.total_clicks === 0) {
+            if (!analyticsData || (analyticsData.total_clicks === 0 && (!analyticsData.platform_stats || analyticsData.platform_stats.length === 0))) {
                 showEmptyState();
                 return;
             }
@@ -1042,19 +1135,30 @@
         }
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            loadSmartLinks().then(() => {
-                loadAnalytics();
-            });
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check auth first
+            if (await checkAuth()) {
+                await loadSmartLinks();
+                await loadAnalytics();
+            }
         });
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('user');
+            window.location.href = '/pages/login.html';
+        }
 
         // If DOM is already loaded
         if (document.readyState === 'loading') {
             // Already added event listener above
         } else {
-            loadSmartLinks().then(() => {
-                loadAnalytics();
-            });
+            if (checkAuth()) {
+                loadSmartLinks().then(() => {
+                    loadAnalytics();
+                });
+            }
         }
 
         // Track analytics events for dashboard

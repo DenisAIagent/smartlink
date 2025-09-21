@@ -277,6 +277,72 @@ async function updateProfile(req, res) {
 }
 
 /**
+ * GET /api/admin/users - List all users (admin only)
+ */
+async function listUsers(req, res) {
+  try {
+    // Get token from cookie or Authorization header
+    let token = req.cookies?.auth_token;
+
+    if (!token) {
+      const authHeader = req.headers['authorization'];
+      token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    }
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        error: 'Non authentifié'
+      });
+    }
+
+    // Verify JWT and check admin status
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Check if current user is admin
+    const currentUser = await queryOne(
+      'SELECT is_admin FROM users WHERE id = $1',
+      [decoded.id]
+    );
+
+    if (!currentUser || !currentUser.is_admin) {
+      return res.status(403).json({
+        success: false,
+        error: 'Accès refusé - Privilèges administrateur requis'
+      });
+    }
+
+    // Get all users with their stats
+    const users = await query(
+      `SELECT
+        id, email, display_name, plan, is_admin,
+        smartlinks_count, created_at, updated_at, last_login_at
+       FROM users
+       ORDER BY created_at DESC`
+    );
+
+    res.json({
+      success: true,
+      users: users || []
+    });
+
+  } catch (error) {
+    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+      return res.status(401).json({
+        success: false,
+        error: 'Token invalide ou expiré'
+      });
+    }
+
+    console.error('❌ List users error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur serveur'
+    });
+  }
+}
+
+/**
  * POST /api/admin/users - Create a new user (admin only)
  */
 async function createUser(req, res) {
@@ -374,5 +440,6 @@ module.exports = {
   getCurrentUser,
   updateProfile,
   createUser,
+  listUsers,
   authMiddleware
 };
