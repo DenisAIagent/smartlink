@@ -118,10 +118,17 @@ app.use((req, res, next) => {
       try {
         let html = fs.readFileSync(filePath, 'utf8');
 
-        // Replace Google Analytics ID placeholder
-        const gaId = process.env.GOOGLE_ANALYTICS_ID || 'GA_MEASUREMENT_ID_PLACEHOLDER';
-        html = html.replace(/G-P11JTJ21NZ/g, gaId);
+        // Replace tracking placeholders with environment variables
+        const gaId = process.env.GOOGLE_ANALYTICS_ID || 'G-P11JTJ21NZ';
+        const gtmId = process.env.GOOGLE_TAG_MANAGER_ID || 'GTM-572GXWPP';
+        const metaId = process.env.META_PIXEL_ID || '123456789012345';
+        const tiktokId = process.env.TIKTOK_PIXEL_ID || 'ABCDEFGHIJKLMNOP';
+
+        // Only replace placeholders, NOT real IDs (SmartLinks have their own tracking IDs)
         html = html.replace(/GA_MEASUREMENT_ID_PLACEHOLDER/g, gaId);
+        html = html.replace(/GTM_CONTAINER_ID_PLACEHOLDER/g, gtmId);
+        html = html.replace(/META_PIXEL_ID_PLACEHOLDER/g, metaId);
+        html = html.replace(/TIKTOK_PIXEL_ID_PLACEHOLDER/g, tiktokId);
 
         // Set appropriate headers
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
