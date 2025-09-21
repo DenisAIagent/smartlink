@@ -57,25 +57,32 @@ const smartlinks = {
         // Insert smartlink
         const { rows: [smartlink] } = await client.query(
           `INSERT INTO smartlinks (
-            user_id, slug, title, artist, description, 
-            cover_url, preview_audio_url, platforms, 
-            template, customization, odesli_data, odesli_fetched_at
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            user_id, slug, title, artist, description,
+            cover_url, preview_audio_url, platforms,
+            template, customization, tracking_pixels, odesli_data, odesli_fetched_at
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
           RETURNING *`,
           [
-            userId, 
-            slug, 
-            data.title, 
-            data.artist || null, 
+            userId,
+            slug,
+            data.title,
+            data.artist || null,
             data.description || null,
-            data.coverUrl || null, 
-            data.previewAudioUrl || null, 
+            data.coverUrl || null,
+            data.previewAudioUrl || null,
             JSON.stringify(data.platforms || []),
             data.template || 'default',
             JSON.stringify(data.customization || {
               primaryColor: '#1976d2',
               backgroundColor: '#ffffff',
               textColor: '#333333'
+            }),
+            JSON.stringify(data.trackingPixels || {
+              google_analytics: null,
+              google_tag_manager: null,
+              meta_pixel: null,
+              tiktok_pixel: null,
+              custom_scripts: []
             }),
             odesliData ? JSON.stringify(odesliData) : null,
             odesliData ? new Date() : null
