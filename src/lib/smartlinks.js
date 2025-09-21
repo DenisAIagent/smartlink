@@ -428,12 +428,16 @@ const smartlinks = {
    */
   async getAnalytics(smartlinkId, userId, days = 30) {
     try {
+      console.log('🔍 Analytics query - SmartLink ID:', smartlinkId, 'User ID:', userId, 'Days:', days);
+
       // Verify ownership (if userId is null, it's an admin request)
       if (userId !== null) {
+        console.log('👤 Checking ownership for user ID:', userId);
         const smartlink = await queryOne(
           'SELECT id FROM smartlinks WHERE id = $1 AND user_id = $2',
           [smartlinkId, userId]
         );
+        console.log('🔍 Ownership check result:', smartlink);
 
         if (!smartlink) {
           throw new Error('SmartLink non trouvé');
