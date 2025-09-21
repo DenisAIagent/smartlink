@@ -85,13 +85,29 @@ app.use(cors({
   credentials: true
 }));
 
-// Rate limiting
+// Rate limiting - Configuration augmentée
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limite de 100 requêtes par fenêtre
-  message: 'Trop de requêtes depuis cette IP, réessayez plus tard.'
+  max: 500, // Augmenté à 500 requêtes par fenêtre (était 100)
+  message: 'Trop de requêtes depuis cette IP, réessayez plus tard.',
+  standardHeaders: true, // Retourne les headers `RateLimit-*`
+  legacyHeaders: false, // Désactive les headers `X-RateLimit-*`
+  skipSuccessfulRequests: false,
+  skipFailedRequests: true // Ne compte pas les erreurs 4xx/5xx
 });
-app.use(limiter);
+
+// Application du rate limiting seulement pour les routes API sensibles
+app.use('/api/auth/login', rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10, // 10 tentatives de login par 15 minutes
+  message: 'Trop de tentatives de connexion, réessayez plus tard.'
+}));
+
+app.use('/api/smartlinks', limiter); // Limite normale pour SmartLinks
+app.use('/api/odesli', limiter); // Limite normale pour Odesli
+
+// Pas de limite pour les pages statiques et SmartLinks publics
+// app.use(limiter); // Commenté pour éviter le rate limiting global
 
 // Middleware pour parsing JSON
 app.use(express.json({ limit: '10mb' }));
