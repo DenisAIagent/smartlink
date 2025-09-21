@@ -129,10 +129,68 @@
             padding: 24px 32px;
         }
 
-        .header-title {
-            font-size: 24px;
-            font-weight: 700;
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
             margin-bottom: 24px;
+        }
+
+        .header-main {
+            flex: 1;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .header-subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .quick-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .quick-action-btn.primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .quick-action-btn.primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .quick-action-btn.secondary {
+            background: var(--bg-main);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .quick-action-btn.secondary:hover {
+            background: white;
+            transform: translateY(-1px);
         }
 
         .filters {
@@ -260,12 +318,36 @@
             padding: 24px;
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
         }
 
         .metric-label {
             font-size: 14px;
             color: var(--text-secondary);
-            margin-bottom: 8px;
+            margin: 0;
+        }
+
+        .metric-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
         }
 
         .metric-value {
@@ -273,6 +355,13 @@
             font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 8px;
+        }
+
+        .metric-insight {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            line-height: 1.4;
         }
 
         .metric-change {
@@ -293,6 +382,11 @@
         .metric-change.negative {
             background: #FEE2E2;
             color: #991B1B;
+        }
+
+        .metric-change.neutral {
+            background: #F3F4F6;
+            color: #6B7280;
         }
 
         /* Chart Container */
@@ -654,6 +748,121 @@
             filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
         }
 
+        /* Smart Insights Panel */
+        .insights-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .insights-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="sparkles" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23sparkles)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .insights-header {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .insights-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .insights-content {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .insight-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .insight-type {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        .insight-text {
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .insight-action {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .insight-action:hover {
+            color: white;
+        }
+
+        /* Performance Score */
+        .performance-score {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .score-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .score-excellent {
+            background: #10B981;
+            color: white;
+        }
+
+        .score-good {
+            background: #F59E0B;
+            color: white;
+        }
+
+        .score-needs-improvement {
+            background: #EF4444;
+            color: white;
+        }
+
         /* Hidden class */
         .hidden {
             display: none !important;
@@ -673,13 +882,100 @@
                 padding: 16px;
             }
 
+            .dashboard-header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: stretch;
+            }
+
+            .quick-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .quick-action-btn {
+                justify-content: center;
+                width: 100%;
+            }
+
             .filters {
                 flex-direction: column;
                 align-items: stretch;
+                gap: 12px;
             }
 
             .select-wrapper {
                 width: 100%;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .insights-content {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .insight-item {
+                padding: 12px;
+            }
+
+            .platform-grid {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 12px;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .header-title {
+                font-size: 24px;
+            }
+
+            .header-subtitle {
+                font-size: 14px;
+            }
+
+            .metric-value {
+                font-size: 28px;
+            }
+
+            .insights-panel {
+                padding: 16px;
+            }
+
+            .insights-title {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .metrics-grid {
+                gap: 12px;
+            }
+
+            .metric-card {
+                padding: 16px;
+            }
+
+            .metric-value {
+                font-size: 24px;
+            }
+
+            .platform-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+
+            .insight-text {
+                font-size: 13px;
+            }
+
+            .quick-action-btn {
+                padding: 10px 14px;
+                font-size: 13px;
             }
         }
     </style>
@@ -722,7 +1018,22 @@
         <main class="main-content">
             <!-- Header -->
             <header class="header">
-                <h1 class="header-title">Analytics SmartLinks</h1>
+                <div class="dashboard-header">
+                    <div class="header-main">
+                        <h1 class="header-title" id="dynamicTitle">Analytics SmartLinks</h1>
+                        <p class="header-subtitle" id="dynamicSubtitle">Optimisez votre stratégie de promotion musicale</p>
+                    </div>
+                    <div class="quick-actions">
+                        <a href="/pages/create-smartlink.html" class="quick-action-btn primary">
+                            <span>✨</span>
+                            <span>Nouveau SmartLink</span>
+                        </a>
+                        <button class="quick-action-btn secondary" onclick="generateReport()">
+                            <span>📊</span>
+                            <span>Rapport</span>
+                        </button>
+                    </div>
+                </div>
                 
                 <!-- Filters -->
                 <div class="filters">
@@ -764,35 +1075,62 @@
             <div class="content">
                 <!-- Main Content (with data) -->
                 <div id="mainContent">
+                    <!-- Smart Insights Panel -->
+                    <div class="insights-panel" id="insightsPanel">
+                        <div class="insights-header">
+                            <span>🧠</span>
+                            <h3 class="insights-title">Recommandations intelligentes</h3>
+                        </div>
+                        <div class="insights-content" id="insightsContent">
+                            <!-- Insights will be populated dynamically -->
+                        </div>
+                    </div>
+
                     <!-- Metrics Grid -->
                     <div class="metrics-grid">
                         <div class="metric-card">
-                            <div class="metric-label">Clics Totaux</div>
+                            <div class="metric-header">
+                                <div class="metric-label">Clics Totaux</div>
+                                <div class="metric-icon" style="background: rgba(229, 9, 20, 0.1); color: var(--primary);">📊</div>
+                            </div>
                             <div class="metric-value" id="totalClicks">-</div>
                             <span class="metric-change" id="clicksChange" style="display: none;">
                                 <span id="clicksDirection">↔</span>
                                 <span id="clicksPercent">-</span>
                             </span>
+                            <div class="metric-insight" id="clicksInsight">Suivez la progression de votre audience</div>
                         </div>
                         <div class="metric-card">
-                            <div class="metric-label">Visiteurs Uniques</div>
+                            <div class="metric-header">
+                                <div class="metric-label">Visiteurs Uniques</div>
+                                <div class="metric-icon" style="background: rgba(16, 185, 129, 0.1); color: #10B981;">👥</div>
+                            </div>
                             <div class="metric-value" id="uniqueVisitors">-</div>
                             <span class="metric-change" id="visitorsChange" style="display: none;">
                                 <span id="visitorsDirection">↔</span>
                                 <span id="visitorsPercent">-</span>
                             </span>
+                            <div class="metric-insight" id="visitorsInsight">Votre portée réelle</div>
                         </div>
                         <div class="metric-card">
-                            <div class="metric-label">Taux de Conversion</div>
-                            <div class="metric-value" id="conversionRate">-</div>
-                            <span class="metric-change" id="conversionChange" style="display: none;">
-                                <span id="conversionDirection">↔</span>
-                                <span id="conversionPercent">-</span>
-                            </span>
+                            <div class="metric-header">
+                                <div class="metric-label">Score Performance</div>
+                                <div class="metric-icon" style="background: rgba(245, 158, 11, 0.1); color: #F59E0B;">⚡</div>
+                            </div>
+                            <div class="metric-value" id="performanceScore">-</div>
+                            <div class="performance-score" id="performanceScoreDetails" style="display: none;">
+                                <div class="score-circle" id="scoreCircle">-</div>
+                                <span id="scoreText">-</span>
+                            </div>
+                            <div class="metric-insight" id="performanceInsight">Optimisation possible</div>
                         </div>
                         <div class="metric-card">
-                            <div class="metric-label">Plateforme Favorite</div>
+                            <div class="metric-header">
+                                <div class="metric-label">Plateforme Leader</div>
+                                <div class="metric-icon" style="background: rgba(139, 92, 246, 0.1); color: #8B5CF6;">🎵</div>
+                            </div>
                             <div class="metric-value" id="topPlatform">-</div>
+                            <div class="metric-insight" id="platformInsight">Concentrez vos efforts</div>
                         </div>
                     </div>
 
@@ -1348,17 +1686,205 @@
             mainContent.classList.remove('hidden');
             emptyState.classList.add('hidden');
 
-            // Update metrics
+            // Update metrics and insights
             updateMetrics(analyticsData);
             updatePlatformStats(analyticsData);
+            generateSmartInsights(analyticsData);
         }
 
-        // Update metrics cards
+        // Generate smart insights based on data analysis
+        function generateSmartInsights(data) {
+            const insights = [];
+            const totalClicks = data.total_clicks || 0;
+            const uniqueVisitors = data.unique_visitors || 0;
+            const platformStats = data.platform_stats || [];
+            const performanceScore = calculatePerformanceScore(data);
+
+            // Performance insights
+            if (performanceScore < 40) {
+                insights.push({
+                    type: 'OPTIMISATION',
+                    text: 'Votre score de performance peut être amélioré. Concentrez-vous sur la diversification des plateformes et l\'engagement.',
+                    action: 'Voir les recommandations',
+                    actionUrl: '/pages/create-smartlink.html'
+                });
+            } else if (performanceScore >= 80) {
+                insights.push({
+                    type: 'SUCCÈS',
+                    text: 'Excellent ! Vos performances sont exceptionnelles. Continuez sur cette lancée.',
+                    action: 'Créer un nouveau SmartLink',
+                    actionUrl: '/pages/create-smartlink.html'
+                });
+            }
+
+            // Platform insights
+            if (platformStats.length === 0) {
+                insights.push({
+                    type: 'ACTION REQUISE',
+                    text: 'Aucune donnée de plateforme. Ajoutez des plateformes à vos SmartLinks pour maximiser votre portée.',
+                    action: 'Modifier un SmartLink',
+                    actionUrl: '/pages/list-smartlinks.html'
+                });
+            } else if (platformStats.length === 1) {
+                insights.push({
+                    type: 'DIVERSIFICATION',
+                    text: 'Vous utilisez une seule plateforme. Diversifiez pour toucher plus d\'audience.',
+                    action: 'Ajouter des plateformes',
+                    actionUrl: '/pages/list-smartlinks.html'
+                });
+            } else if (platformStats.length >= 2) {
+                const topPlatform = platformStats[0];
+                const secondPlatform = platformStats[1];
+                if (topPlatform && secondPlatform && topPlatform.clicks > secondPlatform.clicks * 3) {
+                    insights.push({
+                        type: 'ANALYSE',
+                        text: `${platformConfig[topPlatform.platform]?.name || topPlatform.platform} domine largement. Optimisez les autres plateformes.`,
+                        action: 'Analyser les plateformes',
+                        actionUrl: '#'
+                    });
+                }
+            }
+
+            // Traffic insights
+            if (totalClicks === 0) {
+                insights.push({
+                    type: 'DÉMARRAGE',
+                    text: 'Prêt à commencer ? Partagez vos SmartLinks sur les réseaux sociaux pour obtenir vos premiers clics.',
+                    action: 'Guide de promotion',
+                    actionUrl: '#'
+                });
+            } else if (totalClicks > 0 && totalClicks < 10) {
+                insights.push({
+                    type: 'PROMOTION',
+                    text: 'Premiers clics enregistrés ! Intensifiez vos efforts de promotion pour accélérer la croissance.',
+                    action: 'Stratégies de promotion',
+                    actionUrl: '#'
+                });
+            } else if (totalClicks >= 100) {
+                insights.push({
+                    type: 'CROISSANCE',
+                    text: 'Excellent trafic ! Analysez vos heures de pointe pour optimiser le timing de vos publications.',
+                    action: 'Voir les analytics détaillées',
+                    actionUrl: '/pages/list-smartlinks.html'
+                });
+            }
+
+            // Engagement insights
+            if (totalClicks > 0 && uniqueVisitors > 0) {
+                const engagement = totalClicks / uniqueVisitors;
+                if (engagement > 2.5) {
+                    insights.push({
+                        type: 'ENGAGEMENT',
+                        text: 'Excellente fidélisation ! Vos visiteurs reviennent plusieurs fois. Votre contenu plaît.',
+                        action: 'Créer plus de contenu',
+                        actionUrl: '/pages/create-smartlink.html'
+                    });
+                } else if (engagement < 1.2) {
+                    insights.push({
+                        type: 'ENGAGEMENT',
+                        text: 'Faible taux de retour. Améliorez vos call-to-action et l\'expérience utilisateur.',
+                        action: 'Optimiser l\'expérience',
+                        actionUrl: '#'
+                    });
+                }
+            }
+
+            // Show only top 3 insights
+            const topInsights = insights.slice(0, 3);
+
+            // Add default insight if none generated
+            if (topInsights.length === 0) {
+                topInsights.push({
+                    type: 'CONSEIL',
+                    text: 'Continuez à créer des SmartLinks et analyser vos performances pour optimiser votre stratégie musicale.',
+                    action: 'Créer un SmartLink',
+                    actionUrl: '/pages/create-smartlink.html'
+                });
+            }
+
+            displayInsights(topInsights);
+        }
+
+        // Display insights in the panel
+        function displayInsights(insights) {
+            const insightsContent = document.getElementById('insightsContent');
+
+            insightsContent.innerHTML = insights.map(insight => `
+                <div class="insight-item">
+                    <div class="insight-type">${insight.type}</div>
+                    <div class="insight-text">${insight.text}</div>
+                    <a href="${insight.actionUrl}" class="insight-action">
+                        ${insight.action} →
+                    </a>
+                </div>
+            `).join('');
+        }
+
+        // Generate report function
+        function generateReport() {
+            if (!analyticsData) {
+                alert('Aucune donnée disponible pour générer un rapport.');
+                return;
+            }
+
+            const reportData = {
+                date: new Date().toLocaleDateString('fr-FR'),
+                totalClicks: analyticsData.total_clicks || 0,
+                uniqueVisitors: analyticsData.unique_visitors || 0,
+                performanceScore: calculatePerformanceScore(analyticsData),
+                topPlatform: analyticsData.top_platform || 'Aucune',
+                platformStats: analyticsData.platform_stats || []
+            };
+
+            // Create a simple text report
+            let report = `RAPPORT DE PERFORMANCE SMARTLINKS\n`;
+            report += `Date: ${reportData.date}\n\n`;
+            report += `MÉTRIQUES CLÉS:\n`;
+            report += `• Clics totaux: ${formatNumber(reportData.totalClicks)}\n`;
+            report += `• Visiteurs uniques: ${formatNumber(reportData.uniqueVisitors)}\n`;
+            report += `• Score de performance: ${reportData.performanceScore}/100\n`;
+            report += `• Plateforme leader: ${reportData.topPlatform}\n\n`;
+
+            if (reportData.platformStats.length > 0) {
+                report += `PERFORMANCE PAR PLATEFORME:\n`;
+                reportData.platformStats.forEach(platform => {
+                    const config = platformConfig[platform.platform] || { name: platform.platform };
+                    report += `• ${config.name}: ${formatNumber(platform.clicks)} clics\n`;
+                });
+            }
+
+            // Download as text file
+            const blob = new Blob([report], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `rapport-smartlinks-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Update metrics cards with smart insights
         function updateMetrics(data) {
-            document.getElementById('totalClicks').textContent = formatNumber(data.total_clicks || 0);
-            document.getElementById('uniqueVisitors').textContent = formatNumber(data.unique_visitors || 0);
-            document.getElementById('conversionRate').textContent = '-';
-            document.getElementById('topPlatform').textContent = data.top_platform || '-';
+            const totalClicks = data.total_clicks || 0;
+            const uniqueVisitors = data.unique_visitors || 0;
+            const topPlatform = data.top_platform;
+
+            // Update basic metrics
+            document.getElementById('totalClicks').textContent = formatNumber(totalClicks);
+            document.getElementById('uniqueVisitors').textContent = formatNumber(uniqueVisitors);
+            document.getElementById('topPlatform').textContent = topPlatform || 'Aucune';
+
+            // Calculate and display performance score
+            const performanceScore = calculatePerformanceScore(data);
+            updatePerformanceScore(performanceScore);
+
+            // Update insights for each metric
+            updateMetricInsights(data, performanceScore);
+
+            // Update dynamic header based on data
+            updateDynamicHeader(data);
 
             // Hide change indicators until we have historical data
             const changeElements = ['clicksChange', 'visitorsChange', 'conversionChange'];
@@ -1366,6 +1892,140 @@
                 const el = document.getElementById(id);
                 if (el) el.style.display = 'none';
             });
+        }
+
+        // Calculate performance score based on multiple factors
+        function calculatePerformanceScore(data) {
+            let score = 0;
+            let maxScore = 100;
+
+            // Click volume (30% weight)
+            const clickScore = Math.min((data.total_clicks || 0) / 100, 1) * 30;
+            score += clickScore;
+
+            // Platform diversity (25% weight)
+            const platformCount = (data.platform_stats || []).length;
+            const diversityScore = Math.min(platformCount / 5, 1) * 25;
+            score += diversityScore;
+
+            // Engagement quality (25% weight) - clicks to visitors ratio
+            const engagementRatio = data.total_clicks > 0 && data.unique_visitors > 0
+                ? Math.min(data.total_clicks / data.unique_visitors, 3) / 3
+                : 0;
+            const engagementScore = engagementRatio * 25;
+            score += engagementScore;
+
+            // Recency bonus (20% weight) - assumed good if we have recent data
+            const recencyScore = data.total_clicks > 0 ? 20 : 0;
+            score += recencyScore;
+
+            return Math.round(score);
+        }
+
+        // Update performance score display
+        function updatePerformanceScore(score) {
+            document.getElementById('performanceScore').textContent = score + '/100';
+
+            const scoreDetails = document.getElementById('performanceScoreDetails');
+            const scoreCircle = document.getElementById('scoreCircle');
+            const scoreText = document.getElementById('scoreText');
+
+            scoreDetails.style.display = 'flex';
+            scoreCircle.textContent = score;
+
+            if (score >= 80) {
+                scoreCircle.className = 'score-circle score-excellent';
+                scoreText.textContent = 'Excellent';
+            } else if (score >= 60) {
+                scoreCircle.className = 'score-circle score-good';
+                scoreText.textContent = 'Bien';
+            } else {
+                scoreCircle.className = 'score-circle score-needs-improvement';
+                scoreText.textContent = 'À améliorer';
+            }
+        }
+
+        // Update metric insights with intelligent suggestions
+        function updateMetricInsights(data, performanceScore) {
+            const totalClicks = data.total_clicks || 0;
+            const uniqueVisitors = data.unique_visitors || 0;
+            const platformStats = data.platform_stats || [];
+
+            // Clicks insight
+            let clicksInsight = 'Suivez la progression de votre audience';
+            if (totalClicks === 0) {
+                clicksInsight = 'Partagez vos SmartLinks pour commencer';
+            } else if (totalClicks < 50) {
+                clicksInsight = 'Bon début ! Continuez à promouvoir';
+            } else if (totalClicks < 200) {
+                clicksInsight = 'Excellent engagement ! Développez';
+            } else {
+                clicksInsight = 'Performance exceptionnelle !';
+            }
+            document.getElementById('clicksInsight').textContent = clicksInsight;
+
+            // Visitors insight
+            let visitorsInsight = 'Votre portée réelle';
+            if (uniqueVisitors === 0) {
+                visitorsInsight = 'Aucun visiteur encore';
+            } else if (totalClicks > 0 && uniqueVisitors > 0) {
+                const ratio = totalClicks / uniqueVisitors;
+                if (ratio > 2) {
+                    visitorsInsight = 'Très bon engagement par visiteur';
+                } else if (ratio > 1.5) {
+                    visitorsInsight = 'Bon taux de ré-engagement';
+                } else {
+                    visitorsInsight = 'Portée solide, optimisez l\'engagement';
+                }
+            }
+            document.getElementById('visitorsInsight').textContent = visitorsInsight;
+
+            // Performance insight
+            let performanceInsight = 'Optimisation possible';
+            if (performanceScore >= 80) {
+                performanceInsight = 'Performance exceptionnelle !';
+            } else if (performanceScore >= 60) {
+                performanceInsight = 'Bonnes performances, continuez !';
+            } else if (performanceScore >= 40) {
+                performanceInsight = 'Potentiel d\'amélioration identifié';
+            } else {
+                performanceInsight = 'Optimisations recommandées';
+            }
+            document.getElementById('performanceInsight').textContent = performanceInsight;
+
+            // Platform insight
+            let platformInsight = 'Concentrez vos efforts';
+            if (platformStats.length === 0) {
+                platformInsight = 'Ajoutez des plateformes';
+            } else if (platformStats.length === 1) {
+                platformInsight = 'Diversifiez vos plateformes';
+            } else if (platformStats.length <= 3) {
+                platformInsight = 'Bonne diversification';
+            } else {
+                platformInsight = 'Excellente couverture plateformes';
+            }
+            document.getElementById('platformInsight').textContent = platformInsight;
+        }
+
+        // Update dynamic header based on performance
+        function updateDynamicHeader(data) {
+            const totalClicks = data.total_clicks || 0;
+            const title = document.getElementById('dynamicTitle');
+            const subtitle = document.getElementById('dynamicSubtitle');
+
+            if (totalClicks === 0) {
+                title.textContent = 'Prêt pour le décollage ?';
+                subtitle.textContent = 'Créez votre premier SmartLink et commencez à tracker vos performances';
+            } else if (totalClicks < 50) {
+                title.textContent = 'Excellents débuts !';
+                subtitle.textContent = 'Vos premiers clics arrivent, continuez sur cette lancée';
+            } else if (totalClicks < 200) {
+                title.textContent = 'Performance en hausse !';
+                subtitle.textContent = 'Votre audience grandit, optimisez maintenant votre stratégie';
+            } else {
+                title.textContent = 'Succès confirmé !';
+                subtitle.textContent = 'Performances exceptionnelles, explorez de nouvelles opportunités';
+            }
         }
 
         // Update platform statistics
