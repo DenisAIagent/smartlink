@@ -173,24 +173,38 @@ async function createSmartLink(req, res) {
 }
 
 /**
- * GET /api/smartlinks - List user SmartLinks
+ * GET /api/smartlinks - List SmartLinks (user sees own, admin sees all)
  */
 async function listSmartLinks(req, res) {
   try {
     const userId = req.user.id;
+    const isAdmin = req.user.is_admin;
     const { limit, offset, search } = req.query;
-    
-    const result = await smartlinks.listByUser(userId, {
-      limit: limit ? parseInt(limit) : 20,
-      offset: offset ? parseInt(offset) : 0,
-      search: search || ''
-    });
-    
+
+    let result;
+
+    if (isAdmin) {
+      // Admin can see all SmartLinks with creator info
+      result = await smartlinks.listAll({
+        limit: limit ? parseInt(limit) : 20,
+        offset: offset ? parseInt(offset) : 0,
+        search: search || ''
+      });
+    } else {
+      // Regular user sees only their own SmartLinks
+      result = await smartlinks.listByUser(userId, {
+        limit: limit ? parseInt(limit) : 20,
+        offset: offset ? parseInt(offset) : 0,
+        search: search || ''
+      });
+    }
+
     res.json({
       success: true,
+      isAdmin,
       ...result
     });
-    
+
   } catch (error) {
     console.error('❌ List SmartLinks error:', error);
     res.status(500).json({
@@ -301,27 +315,29 @@ async function deleteSmartLink(req, res) {
 async function getSmartLinkAnalytics(req, res) {
   try {
     const userId = req.user.id;
+    const isAdmin = req.user.is_admin;
     const { id } = req.params;
     const days = req.query.days ? parseInt(req.query.days) : 30;
-    
-    const analytics = await smartlinks.getAnalytics(id, userId, days);
-    
+
+    // Admin can see analytics for any SmartLink, users only for their own
+    const analytics = await smartlinks.getAnalytics(id, isAdmin ? null : userId, days);
+
     res.json({
       success: true,
       analytics,
       period: `${days} derniers jours`
     });
-    
+
   } catch (error) {
     console.error('❌ Get analytics error:', error);
-    
+
     if (error.message.includes('non trouvé')) {
       return res.status(404).json({
         success: false,
         error: error.message
       });
     }
-    
+
     res.status(500).json({
       success: false,
       error: 'Erreur lors de la récupération des analytics'

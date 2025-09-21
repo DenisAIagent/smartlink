@@ -239,6 +239,52 @@ const smartlinks = {
   },
 
   /**
+   * List ALL SmartLinks (admin only) with creator info
+   */
+  async listAll({ limit = 20, offset = 0, search = '' } = {}) {
+    try {
+      const searchCondition = search
+        ? 'WHERE (s.title ILIKE $3 OR s.artist ILIKE $3 OR u.display_name ILIKE $3)'
+        : '';
+      const searchParam = search ? `%${search}%` : null;
+
+      const params = searchParam
+        ? [limit, searchParam, offset]
+        : [limit, offset];
+
+      const smartlinks = await query(
+        `SELECT
+          s.id, s.slug, s.title, s.artist, s.cover_url,
+          s.is_active, s.click_count, s.created_at, s.updated_at,
+          u.display_name as creator_name, u.email as creator_email
+         FROM smartlinks s
+         JOIN users u ON s.user_id = u.id
+         ${searchCondition}
+         ORDER BY s.created_at DESC
+         LIMIT $1 OFFSET $${searchParam ? 3 : 2}`,
+        params
+      );
+
+      const total = await queryOne(
+        `SELECT COUNT(*) as count
+         FROM smartlinks s
+         JOIN users u ON s.user_id = u.id
+         ${searchCondition}`,
+        searchParam ? [searchParam] : []
+      );
+
+      return {
+        smartlinks,
+        total: parseInt(total.count),
+        hasMore: offset + smartlinks.length < total.count
+      };
+    } catch (error) {
+      console.error('❌ SmartLinks list all error:', error);
+      throw error;
+    }
+  },
+
+  /**
    * List user SmartLinks
    */
   async listByUser(userId, { limit = 20, offset = 0, search = '' } = {}) {
@@ -382,14 +428,26 @@ const smartlinks = {
    */
   async getAnalytics(smartlinkId, userId, days = 30) {
     try {
-      // Verify ownership
-      const smartlink = await queryOne(
-        'SELECT id FROM smartlinks WHERE id = $1 AND user_id = $2',
-        [smartlinkId, userId]
-      );
+      // Verify ownership (if userId is null, it's an admin request)
+      if (userId !== null) {
+        const smartlink = await queryOne(
+          'SELECT id FROM smartlinks WHERE id = $1 AND user_id = $2',
+          [smartlinkId, userId]
+        );
 
-      if (!smartlink) {
-        throw new Error('SmartLink non trouvé');
+        if (!smartlink) {
+          throw new Error('SmartLink non trouvé');
+        }
+      } else {
+        // Admin request - just verify SmartLink exists
+        const smartlink = await queryOne(
+          'SELECT id FROM smartlinks WHERE id = $1',
+          [smartlinkId]
+        );
+
+        if (!smartlink) {
+          throw new Error('SmartLink non trouvé');
+        }
       }
 
       // Get general analytics

@@ -27,7 +27,7 @@ async function login(req, res) {
     
     // Find user
     const user = await queryOne(
-      'SELECT id, email, password_hash, display_name, plan FROM users WHERE email = $1',
+      'SELECT id, email, password_hash, display_name, plan, is_admin FROM users WHERE email = $1',
       [email.toLowerCase()]
     );
     
@@ -59,7 +59,8 @@ async function login(req, res) {
       {
         id: user.id,
         email: user.email,
-        plan: user.plan
+        plan: user.plan,
+        is_admin: user.is_admin
       },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }

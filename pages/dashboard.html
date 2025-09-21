@@ -710,6 +710,7 @@
         let currentSmartLink = '';
         let currentPeriod = '30d';
         let currentViewMode = 'grid';
+        let isUserAdmin = false;
 
         // DOM Elements
         const smartlinkSelect = document.getElementById('smartlinkSelect');
@@ -837,6 +838,12 @@
                     return false;
                 }
 
+                // Get user data and set admin flag
+                const userData = await response.json();
+                if (userData.success && userData.user) {
+                    isUserAdmin = userData.user.is_admin || false;
+                }
+
                 return true;
             } catch (error) {
                 console.error('Erreur de vérification auth:', error);
@@ -886,7 +893,12 @@
                 const item = document.createElement('div');
                 item.className = 'dropdown-item';
                 item.dataset.value = sl.id;
-                item.textContent = `${sl.title}${sl.artist ? ' - ' + sl.artist : ''}`;
+                // Display format depends on admin status
+                let displayText = `${sl.title}${sl.artist ? ' - ' + sl.artist : ''}`;
+                if (isUserAdmin && sl.creator_name) {
+                    displayText += ` (par ${sl.creator_name})`;
+                }
+                item.textContent = displayText;
 
                 // Add click event listener to each item
                 item.addEventListener('click', () => {
@@ -1144,10 +1156,21 @@
         });
 
         // Logout function
-        function logout() {
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('user');
-            window.location.href = '/pages/login.html';
+        async function logout() {
+            try {
+                // Call server logout endpoint to clear cookie
+                await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            } finally {
+                // Always clear local storage and redirect
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('user');
+                window.location.href = '/pages/login.html';
+            }
         }
 
         // If DOM is already loaded

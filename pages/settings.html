@@ -1107,10 +1107,21 @@
             return true;
         }
 
-        function logout() {
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('user');
-            window.location.href = '/pages/login.html';
+        async function logout() {
+            try {
+                // Call server logout endpoint to clear cookie
+                await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            } finally {
+                // Always clear local storage and redirect
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('user');
+                window.location.href = '/pages/login.html';
+            }
         }
 
         // Tab management
