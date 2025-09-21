@@ -178,7 +178,7 @@ const smartlinks = {
    */
   async getById(id, userId = null) {
     try {
-      const whereClause = userId ? 'id = $1 AND user_id = $2' : 'id = $1';
+      const whereClause = userId ? 's.id = $1 AND s.user_id = $2' : 's.id = $1';
       const params = userId ? [id, userId] : [id];
       
       const smartlink = await queryOne(
