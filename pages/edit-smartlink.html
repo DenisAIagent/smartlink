@@ -587,7 +587,8 @@
                 return;
             }
 
-            if (!trackData.links || Object.keys(trackData.links).length === 0) {
+            // Only check for links in creation mode, not in edit mode
+            if (!isEditMode && (!trackData.links || Object.keys(trackData.links).length === 0)) {
                 mdmcAdmin.showNotification('Aucun lien de plateforme trouvé', 'danger');
                 return;
             }
@@ -615,10 +616,10 @@
                     textColor: '#333333'
                 },
                 trackingPixels: {
-                    google_analytics: 'G-098G18MJ7M',
-                    google_tag_manager: 'GTM-572GXWPP',
-                    meta_pixel: null,
-                    tiktok_pixel: null,
+                    google_analytics: document.getElementById('ga4').value || null,
+                    google_tag_manager: document.getElementById('gtm').value || null,
+                    meta_pixel: document.getElementById('metaPixel').value || null,
+                    tiktok_pixel: document.getElementById('tiktokPixel').value || null,
                     custom_scripts: []
                 }
             };
@@ -639,26 +640,34 @@
                 });
 
                 if (createResponse.success) {
-                    // Notre API PostgreSQL retourne le SmartLink et l'URL directement
-                    const smartlink = createResponse.smartlink;
-                    const generatedLink = createResponse.url;
-                    console.log('🔍 DEBUG - SmartLink créé:', smartlink);
-                    console.log('🔗 DEBUG - URL générée:', generatedLink);
-                    
-                    document.getElementById('step2').classList.add('d-none');
-                    document.getElementById('step3').classList.remove('d-none');
-                    document.getElementById('result-content').innerHTML = `
-                        <p>Votre SmartLink est prêt:</p>
-                        <div class="form-group">
-                            <input type="text" class="form-control" value="${generatedLink}" readonly onclick="this.select()">
-                        </div>
-                        <div style="display: flex; gap: 12px; margin-top: 16px;">
-                            <a href="${generatedLink}" target="_blank" class="btn btn-primary">Voir le SmartLink</a>
-                            <button onclick="mdmcAdmin.copyToClipboard('${generatedLink}')" class="btn btn-outline-primary">Copier le lien</button>
-                        </div>
-                    `;
                     const successMessage = isEditMode ? 'SmartLink mis à jour avec succès !' : 'SmartLink créé avec succès !';
                     mdmcAdmin.showNotification(successMessage, 'success');
+
+                    if (isEditMode) {
+                        // In edit mode, redirect to list after successful update
+                        setTimeout(() => {
+                            window.location.href = '/pages/list-smartlinks.html';
+                        }, 1500);
+                    } else {
+                        // In creation mode, show the result
+                        const smartlink = createResponse.smartlink;
+                        const generatedLink = createResponse.url;
+                        console.log('🔍 DEBUG - SmartLink créé:', smartlink);
+                        console.log('🔗 DEBUG - URL générée:', generatedLink);
+
+                        document.getElementById('step2').classList.add('d-none');
+                        document.getElementById('step3').classList.remove('d-none');
+                        document.getElementById('result-content').innerHTML = `
+                            <p>Votre SmartLink est prêt:</p>
+                            <div class="form-group">
+                                <input type="text" class="form-control" value="${generatedLink}" readonly onclick="this.select()">
+                            </div>
+                            <div style="display: flex; gap: 12px; margin-top: 16px;">
+                                <a href="${generatedLink}" target="_blank" class="btn btn-primary">Voir le SmartLink</a>
+                                <button onclick="mdmcAdmin.copyToClipboard('${generatedLink}')" class="btn btn-outline-primary">Copier le lien</button>
+                            </div>
+                        `;
+                    }
                 } else {
                     mdmcAdmin.showNotification(createResponse.message || 'Erreur lors de la création du SmartLink', 'danger');
                 }
