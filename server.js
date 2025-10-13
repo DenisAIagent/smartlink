@@ -570,7 +570,7 @@ app.post('/api/upload/image', authMiddleware, upload.single('image'), async (req
 // Public SmartLink pages (no auth required)
 app.get('/s/:slug', smartlinksController.getPublicSmartLink);
 // Tracking endpoint for platform-specific clicks
-// app.post('/api/smartlinks/:slug/click', smartlinksController.trackPlatformClick);
+app.post('/api/smartlinks/:slug/click', smartlinksController.trackPlatformClick);
 
 // API Routes - GDPR Consent Management
 app.use('/api/consent', consentController);
