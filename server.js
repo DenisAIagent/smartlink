@@ -108,7 +108,8 @@ app.use((req, res, next) => {
             "https://analytics.google.com",
             "https://www.googletagmanager.com",
             "https://connect.facebook.net",
-            "https://analytics.tiktok.com"
+            "https://analytics.tiktok.com",
+            "https://cdn.jsdelivr.net"
           ],
           formAction: ["'self'"],
           frameAncestors: ["'none'"]

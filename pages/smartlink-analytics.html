@@ -495,9 +495,10 @@
                     const response = await fetch(`/api/smartlinks/${this.smartlinkId}`);
                     if (!response.ok) throw new Error('Smartlink non trouvé');
 
-                    const smartlink = await response.json();
+                    const data = await response.json();
+                    const smartlink = data.smartlink || data; // Handle both response formats
                     document.getElementById('smartlinkTitle').textContent = smartlink.title || 'SmartLink sans titre';
-                    document.getElementById('smartlinkUrl').textContent = `${window.location.origin}/s/${smartlink.slug}`;
+                    document.getElementById('smartlinkUrl').textContent = `${window.location.origin}/s/${smartlink.slug || 'undefined'}`;
                 } catch (error) {
                     console.error('Erreur lors du chargement du smartlink:', error);
                     this.showError('SmartLink introuvable');
@@ -513,7 +514,17 @@
                         throw new Error('Erreur lors du chargement des analytics');
                     }
 
-                    const data = await response.json();
+                    const responseData = await response.json();
+                    console.log('Analytics response:', responseData); // Debug log
+
+                    // Handle different response formats
+                    const analytics = responseData.analytics || responseData;
+                    const data = {
+                        totalClicks: analytics.totalClicks || 0,
+                        platforms: analytics.platforms || [],
+                        timeline: analytics.timeline || []
+                    };
+
                     this.updateKPIs(data);
                     this.updatePlatformsGrid(data.platforms || []);
                     this.updatePlatformsTable(data.platforms || []);
