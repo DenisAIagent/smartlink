@@ -495,13 +495,34 @@ const smartlinks = {
         [smartlinkId]
       );
 
+      // Calculate percentages for platforms
+      const totalClicks = parseInt(analytics.total_clicks);
+      const platformsWithPercentage = platformStats.map(platform => ({
+        platform: platform.platform,
+        clicks: parseInt(platform.clicks),
+        unique_clicks: parseInt(platform.unique_clicks),
+        percentage: totalClicks > 0 ? (parseInt(platform.clicks) / totalClicks) * 100 : 0
+      }));
+
+      // Format timeline data
+      const formattedTimeline = dailyClicks.map(day => ({
+        date: day.date,
+        total: parseInt(day.clicks),
+        // Add platform breakdown for each day (we'll need to enhance this later)
+        ...platformStats.reduce((acc, platform) => {
+          acc[platform.platform] = 0; // Default to 0, will be enhanced with detailed daily data
+          return acc;
+        }, {})
+      }));
+
       return {
-        ...analytics,
-        total_clicks: parseInt(analytics.total_clicks),
+        total_clicks: totalClicks,
         unique_visitors: parseInt(analytics.unique_visitors),
         active_days: parseInt(analytics.active_days),
-        platform_stats: platformStats,
-        daily_clicks: dailyClicks
+        top_platform: analytics.top_platform,
+        top_country: analytics.top_country,
+        platforms: platformsWithPercentage,  // ✅ Correct key name
+        timeline: formattedTimeline          // ✅ Correct key name
       };
 
     } catch (error) {
