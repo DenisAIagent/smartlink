@@ -286,27 +286,46 @@ async function deleteSmartLink(req, res) {
   console.log('🗑️ DELETE request received for SmartLink ID:', req.params.id, 'by user:', req.user.id);
   try {
     const userId = req.user.id;
+    const isAdmin = req.user.is_admin;
     const { id } = req.params;
-    
-    const deleted = await smartlinks.delete(id, userId);
-    
+
+    // Validate ID is numeric
+    if (!id || isNaN(parseInt(id))) {
+      return res.status(400).json({
+        success: false,
+        error: 'ID invalide'
+      });
+    }
+
+    // Allow admin to delete any SmartLink
+    const deleted = await smartlinks.delete(id, isAdmin ? null : userId);
+
     if (!deleted) {
       return res.status(404).json({
         success: false,
-        error: 'SmartLink non trouvé'
+        error: 'SmartLink non trouvé ou vous n\'avez pas les droits pour le supprimer'
       });
     }
-    
+
+    console.log('✅ SmartLink deleted successfully:', id);
     res.json({
       success: true,
       message: 'SmartLink supprimé avec succès'
     });
-    
+
   } catch (error) {
     console.error('❌ Delete SmartLink error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      id: req.params.id,
+      userId: req.user?.id
+    });
+
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la suppression du SmartLink'
+      error: 'Erreur lors de la suppression du SmartLink',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 }

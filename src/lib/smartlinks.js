@@ -333,26 +333,41 @@ const smartlinks = {
   async delete(id, userId) {
     try {
       const result = await transaction(async (client) => {
-        // Delete smartlink
-        const { rows: [deleted] } = await client.query(
-          'DELETE FROM smartlinks WHERE id = $1 AND user_id = $2 RETURNING *',
-          [id, userId]
-        );
-        
-        if (deleted) {
-          // Update user count
+        // If userId is null (admin), delete any smartlink
+        // Otherwise, delete only user's own smartlink
+        let deleteQuery, deleteParams;
+
+        if (userId === null) {
+          // Admin can delete any smartlink
+          deleteQuery = 'DELETE FROM smartlinks WHERE id = $1 RETURNING *';
+          deleteParams = [id];
+        } else {
+          // User can only delete their own smartlinks
+          deleteQuery = 'DELETE FROM smartlinks WHERE id = $1 AND user_id = $2 RETURNING *';
+          deleteParams = [id, userId];
+        }
+
+        const { rows: [deleted] } = await client.query(deleteQuery, deleteParams);
+
+        if (deleted && deleted.user_id) {
+          // Update user count for the original owner
           await client.query(
-            'UPDATE users SET smartlinks_count = smartlinks_count - 1 WHERE id = $1',
-            [userId]
+            'UPDATE users SET smartlinks_count = smartlinks_count - 1 WHERE id = $1 AND smartlinks_count > 0',
+            [deleted.user_id]
           );
         }
-        
+
         return deleted;
       });
-      
+
       return result;
     } catch (error) {
       console.error('❌ SmartLink delete error:', error);
+      console.error('Delete details:', {
+        id,
+        userId,
+        message: error.message
+      });
       throw error;
     }
   },
@@ -368,15 +383,16 @@ const smartlinks = {
         countryCode = clickData.country.substring(0, 2).toUpperCase();
       }
 
+      // Use simple analytics table structure
       await query(
         `INSERT INTO analytics (
           smartlink_id, platform, user_agent, ip_address, country, clicks
         ) VALUES ($1, $2, $3, $4, $5, $6)`,
         [
           smartlinkId,
-          clickData.platform,
-          clickData.user_agent,
-          clickData.ip_address,
+          clickData.platform || 'unknown',
+          clickData.user_agent || '',
+          clickData.ip_address || '0.0.0.0',
           countryCode,
           1 // Default clicks value
         ]
@@ -390,7 +406,16 @@ const smartlinks = {
 
     } catch (error) {
       console.error('❌ Click recording error:', error);
-      // Ne pas faire échouer la requête principale si analytics fail
+      // Try a simpler insert as fallback
+      try {
+        await query(
+          'UPDATE smartlinks SET click_count = click_count + 1 WHERE id = $1',
+          [smartlinkId]
+        );
+        console.log('✅ Fallback: Updated click count without analytics');
+      } catch (fallbackError) {
+        console.error('❌ Fallback failed too:', fallbackError);
+      }
     }
   },
 
