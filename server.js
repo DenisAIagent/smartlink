@@ -87,7 +87,8 @@ app.use((req, res, next) => {
             "https://www.googletagmanager.com",
             "https://www.google-analytics.com",
             "https://connect.facebook.net",
-            "https://analytics.tiktok.com"
+            "https://analytics.tiktok.com",
+            "https://cdn.jsdelivr.net"
           ],
           scriptSrcAttr: ["'self'", "'unsafe-inline'"],
           fontSrc: ["'self'", "https://fonts.gstatic.com"],
