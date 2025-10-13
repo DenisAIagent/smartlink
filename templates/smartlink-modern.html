@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{TITLE}} - {{ARTIST}} | MDMC SmartLink</title>
+
+  <!-- Protection contre l'indexation -->
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <meta name="googlebot" content="noindex, nofollow">
+  <meta name="bingbot" content="noindex, nofollow">
+
+  <!-- Meta Tags SEO et Partage Social -->
+  <meta name="description" content="Écoutez '{{TITLE}}' de {{ARTIST}} sur toutes les plateformes de streaming ! Spotify, Apple Music, Deezer, YouTube Music et plus encore.">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="music.song">
+  <meta property="og:site_name" content="MDMC Music Ads">
+  <meta property="og:title" content="{{TITLE}} - {{ARTIST}}">
+  <meta property="og:description" content="Découvrez le nouveau titre '{{TITLE}}' de {{ARTIST}} ! Disponible sur toutes les plateformes de streaming musical.">
+  <meta property="og:image" content="{{COVER_URL}}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="1200">
+  <meta property="og:image:alt" content="Pochette de {{TITLE}} par {{ARTIST}}">
+  <meta property="og:url" content="https://smartlink.mdmcmusicads.com/s/{{SLUG}}">
+  <meta property="og:locale" content="fr_FR">
+
+  <!-- Music specific Open Graph -->
+  <meta property="music:musician" content="{{ARTIST}}">
+  <meta property="music:song" content="{{TITLE}}">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@mdmcmusicads">
+  <meta name="twitter:title" content="{{TITLE}} - {{ARTIST}}">
+  <meta name="twitter:description" content="Nouveau titre disponible sur toutes les plateformes ! #NouvelleMusique #{{ARTIST}}">
+  <meta name="twitter:image" content="{{COVER_URL}}">
+  <meta name="twitter:image:alt" content="Pochette de {{TITLE}} par {{ARTIST}}">
+
+  <!-- Additional Social Meta Tags -->
+  <meta property="fb:app_id" content="your_facebook_app_id">
+  <meta name="theme-color" content="#4285f4">
+  <meta name="msapplication-TileColor" content="#4285f4">
+
+  <!-- Pinterest -->
+  <meta name="pinterest-rich-pin" content="true">
+  <meta property="article:author" content="{{ARTIST}}">
+
+  <!-- WhatsApp -->
+  <meta property="og:image:type" content="image/jpeg">
+
+  <!-- LinkedIn -->
+  <meta property="og:see_also" content="https://www.mdmcmusicads.com">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="/public/assets/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="/public/assets/favicon.png">
+
+  <!-- GDPR Consent Manager -->
+  <script src="/src/lib/consent-manager.js"></script>
+
+  <!-- Tracking Scripts - Head -->
+  {{TRACKING_HEAD}}
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #4285f4;
+      --primary-hover: #3367d6;
+      --white: #ffffff;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      --radius: 16px;
+      --radius-sm: 12px;
+      --radius-lg: 24px;
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      color: var(--gray-800);
+      overflow-x: hidden;
+      background: var(--gray-100);
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Background artwork flouté */
+    .background-artwork {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('/api/proxy/image?url={{COVER_URL_ENCODED}}');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      /* Flou un peu moins fort et image moins assombrie pour qu'elle soit visible */
+      filter: blur(30px) brightness(0.6);
+      transform: scale(1.1);
+      z-index: 0;
+      opacity: 1;
+    }
+
+    /* Overlay gradient */
+    .background-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      /* Overlay beaucoup plus translucide pour laisser apparaître l'image */
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(10px);
+      z-index: 1;
+    }
+
+    /* Container principal */
+    .container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Carte principale */
+    .smartlink-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-2xl);
+      padding: 32px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .smartlink-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+    }
+
+    /* Artwork avec bouton play */
+    .artwork-container {
+      position: relative;
+      margin-bottom: 24px;
+      display: inline-block;
+    }
+
+    .artwork {
+      width: 140px;
+      height: 140px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      transition: var(--transition);
+    }
+
+    .play-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: none;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+    }
+
+    .artwork-container:hover .play-button {
+      opacity: 1;
+    }
+
+    .play-button:hover {
+      transform: translate(-50%, -50%) scale(1.1);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .play-button svg {
+      width: 20px;
+      height: 20px;
+      color: var(--gray-700);
+      margin-left: 2px;
+    }
+
+    /* Informations du track */
+    .track-info {
+      margin-bottom: 32px;
+    }
+
+    .track-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 4px;
+      letter-spacing: -0.025em;
+    }
+
+    .track-artist {
+      font-size: 16px;
+      color: var(--gray-600);
+      font-weight: 500;
+    }
+
+    .track-subtitle {
+      font-size: 14px;
+      color: var(--gray-500);
+      margin-top: 12px;
+    }
+
+    /* Liste des plateformes */
+    .platforms-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .platform-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+    }
+
+    .platform-item:hover {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: rgba(255, 255, 255, 1);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .platform-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .platform-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .platform-info {
+      flex: 1;
+      text-align: left;
+      min-width: 0;
+    }
+
+    .platform-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--gray-900);
+      margin-bottom: 1px;
+    }
+
+    .platform-description {
+      font-size: 12px;
+      color: var(--gray-500);
+      font-weight: 400;
+    }
+
+    .platform-button {
+      background: #000000;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+
+    .platform-button:hover {
+      background: #333333;
+      transform: scale(1.05);
+    }
+
+    /* Footer */
+    .smartlink-footer {
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.6);
+      font-size: 11px;
+      color: var(--gray-500);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .smartlink-footer a {
+      color: var(--gray-600);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .smartlink-footer a:hover {
+      color: var(--gray-800);
+    }
+
+    /* États spéciaux - tous les boutons sont noirs */
+    .platform-item .platform-button {
+      background: #000000;
+    }
+
+    .platform-item .platform-button:hover {
+      background: #333333;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .container {
+        padding: 16px;
+      }
+      
+      .smartlink-card {
+        padding: 24px;
+        max-width: 100%;
+      }
+      
+      .artwork {
+        width: 120px;
+        height: 120px;
+      }
+      
+      .track-title {
+        font-size: 20px;
+      }
+      
+      .platform-item {
+        padding: 10px 12px;
+      }
+      
+      .platform-name {
+        font-size: 14px;
+      }
+      
+      .platform-description {
+        font-size: 11px;
+      }
+    }
+
+    /* Animations d'entrée */
+    .fade-in {
+      opacity: 0;
+      animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    .slide-up {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: slideUp 0.6s ease-out forwards;
+    }
+
+    .slide-up-delay {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: slideUp 0.6s ease-out 0.2s forwards;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Tracking Scripts - Body Start -->
+  {{TRACKING_BODY_START}}
+
+  <!-- Background artwork flouté -->
+  <div class="background-artwork"></div>
+  <div class="background-overlay"></div>
+
+  <div class="container">
+    <div class="smartlink-card">
+      
+      <!-- Artwork avec bouton play -->
+      <div class="artwork-container fade-in">
+        <img
+          src="/api/proxy/image?url={{COVER_URL_ENCODED}}"
+          alt="{{TITLE}} - {{ARTIST}}"
+          class="artwork"
+          onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTQwIiBoZWlnaHQ9IjE0MCIgdmlld0JveD0iMCAwIDE0MCAxNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNDAiIGhlaWdodD0iMTQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik03MCA0NUw4NSA3MEg1NUw3MCA0NVoiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTQ1IDk1SDk1Vjg1SDQ1Vjk1WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K';"
+        >
+      </div>
+
+      <!-- Informations du track -->
+      <div class="track-info slide-up">
+        <h1 class="track-title">{{TITLE}}</h1>
+        <p class="track-artist">{{ARTIST}}</p>
+        <p class="track-subtitle">Choose music service</p>
+      </div>
+
+      <!-- Liste des plateformes -->
+      <div class="platforms-list slide-up-delay">
+        {{PLATFORMS_HTML}}
+      </div>
+
+      <!-- Footer -->
+      <div class="smartlink-footer">
+        <span>Powered by</span>
+        <a href="https://www.mdmcmusicads.com" target="_blank" rel="noopener noreferrer">
+          <strong>MDMC Music Ads</strong>
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Ouverture d'une plateforme
+    window.openPlatform = function(platformId, url) {
+      // Analytics - tracking du clic
+      fetch('/api/smartlinks/{{SLUG}}/click', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ platform: platformId })
+      }).catch(() => {});
+
+      // Custom tracking events
+      if (typeof trackPlatformClick === 'function') {
+        trackPlatformClick(platformId, url);
+      }
+
+      // Log pour développement
+      console.log('🎵 Click on ' + platformId + ' for {{TITLE}}');
+
+      // Redirection avec délai pour le tracking
+      setTimeout(() => {
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }, 100);
+    };
+
+    // Force background image loading après le chargement de la page
+    document.addEventListener('DOMContentLoaded', function() {
+      const backgroundElement = document.querySelector('.background-artwork');
+      const imageUrl = '/api/proxy/image?url={{COVER_URL_ENCODED}}';
+
+      console.log('🖼️ Loading background image:', imageUrl);
+
+      // Test si l'image peut être chargée
+      const testImg = new Image();
+      testImg.onload = function() {
+        console.log('✅ Background image loaded successfully');
+        backgroundElement.style.backgroundImage = `url('${imageUrl}')`;
+        backgroundElement.style.opacity = '1';
+      };
+      testImg.onerror = function() {
+        console.error('❌ Failed to load background image');
+        // Fallback: gradient de couleur basé sur l'artwork principal
+        backgroundElement.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        backgroundElement.style.opacity = '0.3';
+      };
+      testImg.src = imageUrl;
+    });
+  </script>
+
+  <!-- Custom Tracking Events -->
+  {{TRACKING_EVENTS}}
+</body>
+</html>

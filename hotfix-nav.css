@@ -1,0 +1,89 @@
+/*
+🔥 HOTFIX NAVIGATION - CSS compatible avec les deux structures
+🎯 Permet au menu de s'afficher correctement en attendant le redéploiement Railway
+*/
+
+/* Structure moderne (correcte) : nav.nav-menu > a.nav-item */
+.nav-menu a.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    text-decoration: none;
+    color: var(--gray-medium, #999999);
+    border-radius: var(--border-radius, 12px);
+    transition: var(--transition, all 0.3s ease);
+    font-weight: 500;
+    position: relative;
+    margin-bottom: 8px;
+}
+
+.nav-menu a.nav-item:hover,
+.nav-menu a.nav-item.active {
+    background: rgba(229, 9, 20, 0.08);
+    color: var(--primary, #E50914);
+    transform: translateX(4px);
+}
+
+.nav-menu a.nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 24px;
+    background: var(--primary, #E50914);
+    border-radius: 2px;
+}
+
+/* Structure legacy (Railway actuel) : ul.nav-menu > li.nav-item > a.nav-link */
+.nav-menu li.nav-item {
+    margin-bottom: 8px;
+    list-style: none;
+}
+
+.nav-menu li.nav-item a.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    text-decoration: none;
+    color: var(--gray-medium, #999999);
+    border-radius: var(--border-radius, 12px);
+    transition: var(--transition, all 0.3s ease);
+    font-weight: 500;
+    position: relative;
+}
+
+.nav-menu li.nav-item a.nav-link:hover,
+.nav-menu li.nav-item a.nav-link.active {
+    background: rgba(229, 9, 20, 0.08);
+    color: var(--primary, #E50914);
+    transform: translateX(4px);
+}
+
+.nav-menu li.nav-item a.nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 24px;
+    background: var(--primary, #E50914);
+    border-radius: 2px;
+}
+
+/* Reset ul default styles */
+.nav-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}

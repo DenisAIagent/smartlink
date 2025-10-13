@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Tag Assistant Simple</title>
+
+  <!-- Google tag (gtag.js) avec ton vrai ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-P11JTJ21NZ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-P11JTJ21NZ', {
+      debug_mode: true
+    });
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-572GXWPP');</script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background: #f0f0f0;
+      text-align: center;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 600px;
+      margin: 0 auto;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .status {
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+    .success { background: #d4edda; color: #155724; }
+    .error { background: #f8d7da; color: #721c24; }
+    .info { background: #d1ecf1; color: #0c5460; }
+  </style>
+</head>
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-572GXWPP"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+  <div class="container">
+    <h1>🎯 Test Tag Assistant</h1>
+    <p>Page de test simple pour valider la détection des pixels</p>
+
+    <div id="ga-status" class="status info">
+      ⏳ Vérification de Google Analytics (G-P11JTJ21NZ)...
+    </div>
+
+    <div id="gtm-status" class="status info">
+      ⏳ Vérification de Google Tag Manager (GTM-572GXWPP)...
+    </div>
+
+    <div class="status info">
+      <strong>Instructions Tag Assistant :</strong><br>
+      1. Installer l'extension <strong>Tag Assistant Companion</strong><br>
+      2. Actualiser cette page<br>
+      3. Cliquer sur l'extension Tag Assistant<br>
+      4. Cliquer sur <strong>"Troubleshoot tag"</strong><br>
+      5. Se connecter et démarrer une session de debug<br>
+      6. Vérifier que les pixels sont maintenant détectés
+    </div>
+
+    <button onclick="testGA()" style="padding: 15px 30px; font-size: 16px; background: #4285f4; color: white; border: none; border-radius: 5px; cursor: pointer;">
+      Test Événement GA
+    </button>
+  </div>
+
+  <script>
+    function checkGA() {
+      setTimeout(() => {
+        // Check Google Analytics
+        if (typeof gtag !== 'undefined' && window.dataLayer) {
+          document.getElementById('ga-status').innerHTML = '✅ Google Analytics détecté (G-P11JTJ21NZ)';
+          document.getElementById('ga-status').className = 'status success';
+        } else {
+          document.getElementById('ga-status').innerHTML = '❌ Google Analytics non détecté';
+          document.getElementById('ga-status').className = 'status error';
+        }
+
+        // Check Google Tag Manager
+        if (window.dataLayer && window.dataLayer.length > 0) {
+          document.getElementById('gtm-status').innerHTML = '✅ Google Tag Manager détecté (GTM-572GXWPP)';
+          document.getElementById('gtm-status').className = 'status success';
+        } else {
+          document.getElementById('gtm-status').innerHTML = '❌ Google Tag Manager non détecté';
+          document.getElementById('gtm-status').className = 'status error';
+        }
+      }, 2000);
+    }
+
+    function testGA() {
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'test_click', {
+          'event_category': 'test',
+          'event_label': 'tag_assistant_test'
+        });
+        alert('✅ Événement envoyé à Google Analytics !');
+      } else {
+        alert('❌ Google Analytics non disponible');
+      }
+    }
+
+    // Auto-check on load
+    window.addEventListener('load', checkGA);
+  </script>
+</body>
+</html>

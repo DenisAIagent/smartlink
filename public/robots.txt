@@ -1,0 +1,32 @@
+User-agent: *
+Allow: /
+
+# Allow Facebook crawlers for social media previews
+User-agent: facebookexternalhit
+Allow: /
+
+# Allow Twitter crawlers
+User-agent: Twitterbot
+Allow: /
+
+# Allow LinkedIn crawlers
+User-agent: LinkedInBot
+Allow: /
+
+# Allow WhatsApp crawlers
+User-agent: WhatsApp
+Allow: /
+
+# Allow Pinterest crawlers
+User-agent: Pinterestbot
+Allow: /
+
+# Allow all social media bots
+User-agent: facebookexternalhit/*
+Allow: /
+
+User-agent: Twitterbot/*
+Allow: /
+
+# Sitemap (optional)
+# Sitemap: https://smartlink.mdmcmusicads.com/sitemap.xml

@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics SmartLinks</title>
+    <style>
+        :root {
+            --primary: #E50914;
+            --primary-hover: #d40812;
+            --bg-main: #F8F9FA;
+            --bg-white: #ffffff;
+            --border: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --success: #10b981;
+            --danger: #ef4444;
+            --sidebar-width: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            border-right: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .nav-menu {
+            padding: 16px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-main);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: #FEE2E2;
+            color: var(--primary);
+            border-right: 3px solid var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 24px 32px;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .filters {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        /* Select Dropdowns */
+        .select-wrapper {
+            position: relative;
+            min-width: 200px;
+        }
+
+        .select-button {
+            width: 100%;
+            padding: 10px 16px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+        }
+
+        .select-button:hover {
+            border-color: var(--primary);
+        }
+
+        .select-button.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.1);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 4px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 14px;
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg-main);
+        }
+
+        .dropdown-item.selected {
+            background: #FEE2E2;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .refresh-btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover:not(:disabled) {
+            background: var(--primary-hover);
+        }
+
+        .refresh-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .spinning {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 32px;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .metric-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .metric-change.positive {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .metric-change.negative {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 32px;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chart-placeholder {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Platform Statistics */
+        .platform-section {
+            margin-bottom: 32px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .view-toggle {
+            display: flex;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .view-btn {
+            padding: 8px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+        }
+
+        .view-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .view-btn:hover:not(.active) {
+            color: var(--text-primary);
+        }
+
+        /* Platform Grid */
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 16px;
+        }
+
+        .platform-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .platform-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .platform-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 12px;
+            background: var(--bg-main);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .platform-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .platform-clicks {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Platform Table */
+        .platform-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .platform-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .platform-table th {
+            background: var(--bg-main);
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        .platform-table td {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .platform-table tr:hover {
+            background: var(--bg-main);
+        }
+
+        /* Empty State */
+        .empty-state {
+            background: white;
+            border-radius: 12px;
+            padding: 80px 32px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: var(--bg-main);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: var(--text-secondary);
+        }
+
+        .empty-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .empty-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .header {
+                padding: 16px;
+            }
+
+            .content {
+                padding: 16px;
+            }
+
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .select-wrapper {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span>🔗</span>
+                    <span>SmartLinks</span>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <a href="/pages/dashboard.html" class="nav-item">
+                    <span>📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/pages/analytics.html" class="nav-item active">
+                    <span>📈</span>
+                    <span>Analytics</span>
+                </a>
+                <a href="/pages/list-smartlinks.html" class="nav-item">
+                    <span>🔗</span>
+                    <span>SmartLinks</span>
+                </a>
+                <a href="/pages/create-smartlink.html" class="nav-item">
+                    <span>✨</span>
+                    <span>Créer SmartLink</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span>⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <h1 class="header-title">Analytics SmartLinks</h1>
+
+                <!-- Filters -->
+                <div class="filters">
+                    <!-- SmartLink Selector -->
+                    <div class="select-wrapper">
+                        <button class="select-button" id="smartlinkSelect">
+                            <span id="smartlinkLabel">Tous les SmartLinks</span>
+                            <span>▼</span>
+                        </button>
+                        <div class="dropdown-menu" id="smartlinkDropdown">
+                            <div class="dropdown-item selected" data-value="">Tous les SmartLinks</div>
+                        </div>
+                    </div>
+
+                    <!-- Period Selector -->
+                    <div class="select-wrapper">
+                        <button class="select-button" id="periodSelect">
+                            <span id="periodLabel">30 derniers jours</span>
+                            <span>▼</span>
+                        </button>
+                        <div class="dropdown-menu" id="periodDropdown">
+                            <div class="dropdown-item" data-value="7d">7 derniers jours</div>
+                            <div class="dropdown-item selected" data-value="30d">30 derniers jours</div>
+                            <div class="dropdown-item" data-value="90d">90 derniers jours</div>
+                            <div class="dropdown-item" data-value="1y">Cette année</div>
+                        </div>
+                    </div>
+
+                    <!-- Refresh Button -->
+                    <button class="refresh-btn" id="refreshBtn">
+                        <span id="refreshIcon">⟳</span>
+                        <span>Actualiser</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content">
+                <!-- Main Content (with data) -->
+                <div id="mainContent">
+                    <!-- Metrics Grid -->
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-label">Clics Totaux</div>
+                            <div class="metric-value" id="totalClicks">-</div>
+                            <span class="metric-change positive" id="clicksChange" style="display: none;">
+                                <span>↑</span>
+                                <span>-</span>
+                            </span>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Visiteurs Uniques</div>
+                            <div class="metric-value" id="uniqueVisitors">-</div>
+                            <span class="metric-change positive" id="visitorsChange" style="display: none;">
+                                <span>↑</span>
+                                <span>-</span>
+                            </span>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Taux de Conversion</div>
+                            <div class="metric-value" id="conversionRate">-</div>
+                            <span class="metric-change" id="conversionChange" style="display: none;">
+                                <span>↔</span>
+                                <span>-</span>
+                            </span>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Plateforme Favorite</div>
+                            <div class="metric-value" id="topPlatform">-</div>
+                        </div>
+                    </div>
+
+                    <!-- Chart -->
+                    <div class="chart-container" id="chartContainer">
+                        <div class="chart-placeholder">
+                            📊 Graphique des clics sur la période sélectionnée
+                        </div>
+                    </div>
+
+                    <!-- Platform Statistics -->
+                    <div class="platform-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Statistiques par plateforme</h2>
+                            <div class="view-toggle">
+                                <button class="view-btn active" id="gridViewBtn" title="Vue grille">⊞</button>
+                                <button class="view-btn" id="tableViewBtn" title="Vue tableau">☰</button>
+                            </div>
+                        </div>
+
+                        <!-- Platform Grid View -->
+                        <div id="platformGrid" class="platform-grid">
+                            <!-- Will be populated dynamically -->
+                        </div>
+
+                        <!-- Platform Table View -->
+                        <div id="platformTable" class="platform-table hidden">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Plateforme</th>
+                                        <th>Clics</th>
+                                        <th>Visiteurs</th>
+                                        <th>Conversion</th>
+                                        <th>Tendance</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="platformTableBody">
+                                    <!-- Will be populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state hidden">
+                    <div class="empty-icon">📊</div>
+                    <h2 class="empty-title">Aucune donnée disponible</h2>
+                    <p class="empty-text">Les statistiques apparaîtront ici une fois que votre SmartLink aura généré du trafic.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Load external dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/config.js"></script>
+    <script src="/assets/js/admin.js"></script>
+
+    <script>
+        // Global variables
+        let allSmartLinks = [];
+        let currentSmartLink = '';
+        let currentPeriod = '30d';
+        let currentViewMode = 'grid';
+        let chart = null;
+
+        // DOM Elements
+        const smartlinkSelect = document.getElementById('smartlinkSelect');
+        const smartlinkDropdown = document.getElementById('smartlinkDropdown');
+        const smartlinkLabel = document.getElementById('smartlinkLabel');
+        const periodSelect = document.getElementById('periodSelect');
+        const periodDropdown = document.getElementById('periodDropdown');
+        const periodLabel = document.getElementById('periodLabel');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const refreshIcon = document.getElementById('refreshIcon');
+        const gridViewBtn = document.getElementById('gridViewBtn');
+        const tableViewBtn = document.getElementById('tableViewBtn');
+        const platformGrid = document.getElementById('platformGrid');
+        const platformTable = document.getElementById('platformTable');
+        const mainContent = document.getElementById('mainContent');
+        const emptyState = document.getElementById('emptyState');
+
+        // Platform configuration
+        const platformConfig = {
+            'spotify': {
+                name: 'Spotify',
+                color: '#1DB954',
+                desc: 'Music for everyone',
+                icon: `<img src="/assets/images/platforms/picto_spotify.png" width="24" height="24" alt="Spotify">`
+            },
+            'apple': {
+                name: 'Apple Music',
+                color: '#FA243C',
+                desc: 'Music everywhere',
+                icon: `<img src="/assets/images/platforms/picto_apple.png" width="24" height="24" alt="Apple Music">`
+            },
+            'applemusic': {
+                name: 'Apple Music',
+                color: '#FA243C',
+                desc: 'Music everywhere',
+                icon: `<img src="/assets/images/platforms/picto_apple.png" width="24" height="24" alt="Apple Music">`
+            },
+            'youtube': {
+                name: 'YouTube',
+                color: '#FF0000',
+                desc: 'Watch on YouTube',
+                icon: `<img src="/assets/images/platforms/picto_youtube.png" width="24" height="24" alt="YouTube">`
+            },
+            'youtubemusic': {
+                name: 'YouTube Music',
+                color: '#FF0000',
+                desc: 'Music videos & more',
+                icon: `<img src="/assets/images/platforms/picto_youtubemusic.png" width="24" height="24" alt="YouTube Music">`
+            },
+            'deezer': {
+                name: 'Deezer',
+                color: '#FF6600',
+                desc: 'Flow your music',
+                icon: `<img src="/assets/images/platforms/picto_deezer.png" width="24" height="24" alt="Deezer">`
+            },
+            'soundcloud': {
+                name: 'SoundCloud',
+                color: '#FF5500',
+                desc: 'Hear the future',
+                icon: `<img src="/assets/images/platforms/picto_soundcloud.png" width="24" height="24" alt="SoundCloud">`
+            },
+            'tidal': {
+                name: 'Tidal',
+                color: '#000000',
+                desc: 'High fidelity',
+                icon: `<img src="/assets/images/platforms/picto_tidal.png" width="24" height="24" alt="Tidal">`
+            },
+            'amazon': {
+                name: 'Amazon Music',
+                color: '#FF9900',
+                desc: 'Music unlimited',
+                icon: `<img src="/assets/images/platforms/picto_amazon.png" width="24" height="24" alt="Amazon Music">`
+            },
+            'amazonmusic': {
+                name: 'Amazon Music',
+                color: '#FF9900',
+                desc: 'Music unlimited',
+                icon: `<img src="/assets/images/platforms/picto_amazon.png" width="24" height="24" alt="Amazon Music">`
+            }
+        };
+
+        // Initialize on DOM loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            setupDropdowns();
+            setupEventListeners();
+            loadSmartLinks();
+            loadAnalytics();
+        });
+
+        // Dropdown functionality
+        function setupDropdown(button, dropdown, label) {
+            button.addEventListener('click', () => {
+                const isOpen = dropdown.classList.contains('show');
+                closeAllDropdowns();
+                if (!isOpen) {
+                    dropdown.classList.add('show');
+                    button.classList.add('active');
+                }
+            });
+
+            dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    dropdown.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+                    item.classList.add('selected');
+                    label.textContent = item.textContent;
+                    closeAllDropdowns();
+
+                    // Update state based on dropdown
+                    if (dropdown === smartlinkDropdown) {
+                        currentSmartLink = item.dataset.value;
+                        loadAnalytics();
+                    } else if (dropdown === periodDropdown) {
+                        currentPeriod = item.dataset.value;
+                        loadAnalytics();
+                    }
+                });
+            });
+        }
+
+        function closeAllDropdowns() {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('show'));
+            document.querySelectorAll('.select-button').forEach(btn => btn.classList.remove('active'));
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.select-wrapper')) {
+                closeAllDropdowns();
+            }
+        });
+
+        // Setup all dropdowns and event listeners
+        function setupDropdowns() {
+            setupDropdown(smartlinkSelect, smartlinkDropdown, smartlinkLabel);
+            setupDropdown(periodSelect, periodDropdown, periodLabel);
+        }
+
+        function setupEventListeners() {
+            // Refresh button
+            refreshBtn.addEventListener('click', async () => {
+                refreshBtn.disabled = true;
+                refreshIcon.classList.add('spinning');
+
+                await loadAnalytics();
+
+                refreshBtn.disabled = false;
+                refreshIcon.classList.remove('spinning');
+            });
+
+            // View mode toggle
+            gridViewBtn.addEventListener('click', () => {
+                currentViewMode = 'grid';
+                gridViewBtn.classList.add('active');
+                tableViewBtn.classList.remove('active');
+                platformGrid.classList.remove('hidden');
+                platformTable.classList.add('hidden');
+            });
+
+            tableViewBtn.addEventListener('click', () => {
+                currentViewMode = 'table';
+                tableViewBtn.classList.add('active');
+                gridViewBtn.classList.remove('active');
+                platformTable.classList.remove('hidden');
+                platformGrid.classList.add('hidden');
+            });
+        }
+
+        // Load SmartLinks for dropdown
+        async function loadSmartLinks() {
+            try {
+                const response = await fetch('/api/smartlinks', {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        allSmartLinks = data.smartlinks || [];
+                        populateSmartLinkDropdown();
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading SmartLinks:', error);
+            }
+        }
+
+        // Populate SmartLink dropdown with actual data
+        function populateSmartLinkDropdown() {
+            const dropdown = smartlinkDropdown;
+            dropdown.innerHTML = '<div class="dropdown-item selected" data-value="">Tous les SmartLinks</div>';
+
+            allSmartLinks.forEach(sl => {
+                const item = document.createElement('div');
+                item.className = 'dropdown-item';
+                item.dataset.value = sl.id;
+                item.textContent = `${sl.title}${sl.artist ? ' - ' + sl.artist : ''}`;
+                dropdown.appendChild(item);
+            });
+
+            // Re-setup event listeners for new items
+            setupDropdown(smartlinkSelect, smartlinkDropdown, smartlinkLabel);
+        }
+
+        // Load and update analytics based on selection
+        async function loadAnalytics() {
+            try {
+                let analyticsData;
+
+                if (currentSmartLink) {
+                    // Load specific SmartLink analytics
+                    const daysMap = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 };
+                    const days = daysMap[currentPeriod] || 30;
+
+                    const response = await fetch(`/api/smartlinks/${currentSmartLink}/analytics?days=${days}`, {
+                        credentials: 'include'
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success) {
+                            analyticsData = data.analytics;
+                        }
+                    }
+                } else {
+                    // Load overview analytics (aggregate all SmartLinks)
+                    analyticsData = await loadOverviewAnalytics();
+                }
+
+                updateAnalytics(analyticsData);
+
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+                showEmptyState();
+            }
+        }
+
+        // Load overview analytics by aggregating SmartLinks data
+        async function loadOverviewAnalytics() {
+            if (!allSmartLinks.length) {
+                return { total_clicks: 0, unique_visitors: 0, platform_stats: [] };
+            }
+
+            let totalClicks = 0;
+            let platformCounts = {};
+
+            // Aggregate click counts and platform data
+            allSmartLinks.forEach(sl => {
+                totalClicks += sl.click_count || 0;
+
+                // Count platforms
+                if (sl.platforms && Array.isArray(sl.platforms)) {
+                    sl.platforms.forEach(platform => {
+                        const name = platform.name.toLowerCase();
+                        if (!platformCounts[name]) {
+                            platformCounts[name] = 0;
+                        }
+                        // Distribute clicks evenly across platforms (temporary until real tracking)
+                        platformCounts[name] += Math.floor((sl.click_count || 0) / sl.platforms.length);
+                    });
+                }
+            });
+
+            // Convert to platform stats format
+            const platform_stats = Object.entries(platformCounts).map(([platform, clicks]) => ({
+                platform,
+                clicks,
+                unique_clicks: clicks // Use same as clicks since we don't track this separately yet
+            }));
+
+            return {
+                total_clicks: totalClicks,
+                unique_visitors: 0, // Will be implemented when we add proper visitor tracking
+                platform_stats,
+                top_platform: platform_stats.length > 0 ?
+                    platform_stats.reduce((max, p) => p.clicks > max.clicks ? p : max).platform : null
+            };
+        }
+
+        // Update analytics display based on current selection
+        function updateAnalytics(data = null) {
+            if (!data || data.total_clicks === 0) {
+                showEmptyState();
+                return;
+            }
+
+            mainContent.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            // Update metrics
+            updateMetrics(data);
+            updateChart(data);
+            updatePlatformStats(data);
+        }
+
+        // Update metrics cards
+        function updateMetrics(data) {
+            document.getElementById('totalClicks').textContent = formatNumber(data.total_clicks || 0);
+            document.getElementById('uniqueVisitors').textContent = formatNumber(data.unique_visitors || 0);
+
+            // Conversion rate calculation will be implemented when we have proper tracking
+            document.getElementById('conversionRate').textContent = '-';
+
+            document.getElementById('topPlatform').textContent = data.top_platform || '-';
+
+            // Update change indicators (hide for now - would need historical data)
+            const changeElements = ['clicksChange', 'visitorsChange', 'conversionChange'];
+            changeElements.forEach((id) => {
+                const el = document.getElementById(id);
+                el.style.display = 'none'; // Hide until we have historical data
+            });
+        }
+
+        // Update chart
+        function updateChart(data) {
+            const chartContainer = document.getElementById('chartContainer');
+
+            if (!chart) {
+                chartContainer.innerHTML = '<canvas id="clicksChart" style="max-height: 350px;"></canvas>';
+                const ctx = document.getElementById('clicksChart').getContext('2d');
+
+                // Use real daily clicks data from API
+                const dailyClicks = data.daily_clicks || [];
+                const labels = [];
+                const values = [];
+
+                if (dailyClicks.length > 0) {
+                    // Use real data from API
+                    dailyClicks.forEach(day => {
+                        const date = new Date(day.date);
+                        labels.push(date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }));
+                        values.push(parseInt(day.clicks) || 0);
+                    });
+                } else {
+                    // Show empty chart if no data
+                    const daysMap = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 };
+                    const days = daysMap[currentPeriod] || 30;
+
+                    for (let i = days - 1; i >= 0; i--) {
+                        const date = new Date();
+                        date.setDate(date.getDate() - i);
+                        labels.push(date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }));
+                        values.push(0);
+                    }
+                }
+
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Clics',
+                            data: values,
+                            borderColor: '#E50914',
+                            backgroundColor: 'rgba(229, 9, 20, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { precision: 0 }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Update platform statistics
+        function updatePlatformStats(data) {
+            const platforms = data.platform_stats || [];
+            const totalClicks = data.total_clicks || 0;
+
+            if (currentViewMode === 'grid') {
+                updatePlatformGrid(platforms, totalClicks);
+            } else {
+                updatePlatformTable(platforms, totalClicks);
+            }
+        }
+
+        // Update platform grid view
+        function updatePlatformGrid(platforms, totalClicks) {
+            if (!platforms.length) {
+                platformGrid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #6B7280;">
+                        📊 Aucune donnée de plateforme disponible
+                    </div>
+                `;
+                return;
+            }
+
+            platformGrid.innerHTML = platforms.map(item => {
+                const platform = item.platform;
+                const clicks = item.clicks || 0;
+                const percentage = totalClicks > 0 ? ((clicks / totalClicks) * 100).toFixed(1) : 0;
+                const config = platformConfig[platform.toLowerCase()] || {
+                    name: platform,
+                    color: '#666',
+                    icon: '<div style="width:24px;height:24px;background:#666;border-radius:4px;"></div>'
+                };
+
+                return `
+                    <div class="platform-card">
+                        <div class="platform-icon">
+                            ${config.icon}
+                        </div>
+                        <div class="platform-name">${config.name}</div>
+                        <div class="platform-clicks">${formatNumber(clicks)}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                            ${percentage}% du total
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update platform table view
+        function updatePlatformTable(platforms, totalClicks) {
+            const tbody = document.getElementById('platformTableBody');
+
+            if (!platforms.length) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #6B7280;">
+                            📊 Aucune donnée de plateforme disponible
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = platforms.map(item => {
+                const platform = item.platform;
+                const clicks = item.clicks || 0;
+                const uniqueClicks = item.unique_clicks || clicks;
+                const percentage = totalClicks > 0 ? ((clicks / totalClicks) * 100).toFixed(1) : 0;
+                const config = platformConfig[platform.toLowerCase()] || {
+                    name: platform,
+                    icon: '<div style="width:24px;height:24px;background:#666;border-radius:4px;"></div>'
+                };
+
+                return `
+                    <tr>
+                        <td style="display: flex; align-items: center; gap: 8px;">
+                            ${config.icon}
+                            ${config.name}
+                        </td>
+                        <td><strong>${formatNumber(clicks)}</strong></td>
+                        <td>${formatNumber(uniqueClicks)}</td>
+                        <td>${percentage}%</td>
+                        <td style="color: var(--text-secondary);">-</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Show empty state
+        function showEmptyState() {
+            mainContent.classList.add('hidden');
+            emptyState.classList.remove('hidden');
+        }
+
+        // Utility function to format numbers
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+    </script>
+</body>
+</html>

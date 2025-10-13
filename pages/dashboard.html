@@ -1,0 +1,2198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="ga-measurement-id" content="GA_MEASUREMENT_ID_PLACEHOLDER">
+    <title>Analytics SmartLinks</title>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID_PLACEHOLDER"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'GA_MEASUREMENT_ID_PLACEHOLDER');
+    </script>
+    <style>
+        :root {
+            --primary: #E50914;
+            --primary-hover: #d40812;
+            --bg-main: #F8F9FA;
+            --bg-white: #ffffff;
+            --border: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --success: #10b981;
+            --danger: #ef4444;
+            --sidebar-width: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            border-right: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .nav-menu {
+            padding: 16px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-main);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: #FEE2E2;
+            color: var(--primary);
+            border-right: 3px solid var(--primary);
+        }
+
+        .nav-item .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+            transition: var(--transition);
+        }
+
+        .nav-item:hover .nav-icon {
+            transform: scale(1.1);
+        }
+
+        .nav-item.active .nav-icon {
+            filter: drop-shadow(0 2px 4px rgba(229, 9, 20, 0.3));
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 24px 32px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+
+        .header-main {
+            flex: 1;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .header-subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .quick-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .quick-action-btn.primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .quick-action-btn.primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .quick-action-btn.secondary {
+            background: var(--bg-main);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .quick-action-btn.secondary:hover {
+            background: white;
+            transform: translateY(-1px);
+        }
+
+        .filters {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        /* Select Dropdowns */
+        .select-wrapper {
+            position: relative;
+            min-width: 200px;
+        }
+
+        .select-button {
+            width: 100%;
+            padding: 10px 16px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+        }
+
+        .select-button:hover {
+            border-color: var(--primary);
+        }
+
+        .select-button.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.1);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 4px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 14px;
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg-main);
+        }
+
+        .dropdown-item.selected {
+            background: #FEE2E2;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .refresh-btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover:not(:disabled) {
+            background: var(--primary-hover);
+        }
+
+        .refresh-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .spinning {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 32px;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .metric-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .metric-insight {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        .metric-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .metric-change.positive {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .metric-change.negative {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .metric-change.neutral {
+            background: #F3F4F6;
+            color: #6B7280;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 32px;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chart-placeholder {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Platform Statistics */
+        .platform-section {
+            margin-bottom: 32px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .view-toggle {
+            display: flex;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .view-btn {
+            padding: 8px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+        }
+
+        .view-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .view-btn:hover:not(.active) {
+            color: var(--text-primary);
+        }
+
+        /* Platform Grid */
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 16px;
+        }
+
+        .platform-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .platform-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .platform-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 12px;
+            background: var(--bg-main);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .platform-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .platform-clicks {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Loading Skeletons */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 16px;
+        }
+
+        .skeleton-metric-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .skeleton-metric-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+        }
+
+        .skeleton-metric-title {
+            height: 16px;
+            width: 120px;
+            border-radius: 4px;
+        }
+
+        .skeleton-metric-value {
+            height: 32px;
+            width: 80px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .skeleton-metric-change {
+            height: 14px;
+            width: 60px;
+            border-radius: 4px;
+        }
+
+        .skeleton-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .skeleton-table-header {
+            height: 48px;
+            background: var(--bg-main);
+        }
+
+        .skeleton-table-row {
+            height: 56px;
+            border-top: 1px solid var(--border);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .skeleton-table-cell {
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .skeleton-table-cell.platform {
+            width: 100px;
+        }
+
+        .skeleton-table-cell.clicks {
+            width: 60px;
+        }
+
+        .skeleton-table-cell.conversion {
+            width: 80px;
+        }
+
+        /* Platform Table */
+        .platform-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .platform-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .platform-table th {
+            background: var(--bg-main);
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        .platform-table td {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .platform-table tr:hover {
+            background: var(--bg-main);
+        }
+
+        /* Empty State */
+        .empty-state {
+            background: linear-gradient(135deg, var(--primary) 0%, #e73c7e 100%);
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(220, 38, 38, 0.15);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .empty-state::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.5;
+        }
+        .empty-illustration {
+            position: relative;
+            margin-bottom: 32px;
+        }
+        .empty-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+        .empty-sparkles {
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            font-size: 24px;
+            animation: sparkle 2s ease-in-out infinite alternate;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes sparkle {
+            0% { opacity: 0.6; transform: rotate(0deg) scale(1); }
+            100% { opacity: 1; transform: rotate(180deg) scale(1.2); }
+        }
+        .empty-title {
+            margin: 0 0 16px 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .empty-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        .empty-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        .btn-primary, .btn-secondary {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #4F46E5;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .btn-primary:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .empty-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .feature-icon {
+            font-size: 24px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        /* Smart Insights Panel */
+        .insights-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .insights-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="sparkles" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23sparkles)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .insights-header {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .insights-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .insights-content {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .insight-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .insight-type {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        .insight-text {
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .insight-action {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .insight-action:hover {
+            color: white;
+        }
+
+        /* Performance Score */
+        .performance-score {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .score-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .score-excellent {
+            background: #10B981;
+            color: white;
+        }
+
+        .score-good {
+            background: #F59E0B;
+            color: white;
+        }
+
+        .score-needs-improvement {
+            background: #EF4444;
+            color: white;
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .header {
+                padding: 16px;
+            }
+
+            .content {
+                padding: 16px;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: stretch;
+            }
+
+            .quick-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .quick-action-btn {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .select-wrapper {
+                width: 100%;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .insights-content {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .insight-item {
+                padding: 12px;
+            }
+
+            .platform-grid {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 12px;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .header-title {
+                font-size: 24px;
+            }
+
+            .header-subtitle {
+                font-size: 14px;
+            }
+
+            .metric-value {
+                font-size: 28px;
+            }
+
+            .insights-panel {
+                padding: 16px;
+            }
+
+            .insights-title {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .metrics-grid {
+                gap: 12px;
+            }
+
+            .metric-card {
+                padding: 16px;
+            }
+
+            .metric-value {
+                font-size: 24px;
+            }
+
+            .platform-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+
+            .insight-text {
+                font-size: 13px;
+            }
+
+            .quick-action-btn {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+        }
+    </style>
+    <!-- Navigation Hotfix -->
+    <link rel="stylesheet" href="/hotfix-nav.css">
+    <script src="/public/nav-hotfix.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span>🔗</span>
+                    <span>SmartLinks</span>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <a href="/pages/dashboard.html" class="nav-item active">
+                    <span>Dashboard</span>
+                </a>
+                <a href="/pages/list-smartlinks.html" class="nav-item">
+                    <span>SmartLinks</span>
+                </a>
+                <a href="/pages/create-smartlink.html" class="nav-item">
+                    <span>Créer SmartLink</span>
+                </a>
+                <a href="/pages/settings.html" class="nav-item">
+                    <span>Settings</span>
+                </a>
+                <a href="#" class="nav-item" onclick="logout()">
+                    <span>Déconnexion</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="dashboard-header">
+                    <div class="header-main">
+                        <h1 class="header-title" id="dynamicTitle">Analytics SmartLinks</h1>
+                        <p class="header-subtitle" id="dynamicSubtitle">Optimisez votre stratégie de promotion musicale</p>
+                    </div>
+                    <div class="quick-actions">
+                        <a href="/pages/create-smartlink.html" class="quick-action-btn primary">
+                            <span>✨</span>
+                            <span>Nouveau SmartLink</span>
+                        </a>
+                        <button class="quick-action-btn secondary" onclick="generateReport()">
+                            <span>📊</span>
+                            <span>Rapport</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Filters -->
+                <div class="filters">
+                    <!-- SmartLink Selector -->
+                    <div class="select-wrapper">
+                        <button class="select-button" id="smartlinkSelect">
+                            <span id="smartlinkLabel">Tous les SmartLinks</span>
+                            <span>▼</span>
+                        </button>
+                        <div class="dropdown-menu" id="smartlinkDropdown">
+                            <div class="dropdown-item selected" data-value="">Tous les SmartLinks</div>
+                            <!-- SmartLinks will be populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Period Selector -->
+                    <div class="select-wrapper">
+                        <button class="select-button" id="periodSelect">
+                            <span id="periodLabel">30 derniers jours</span>
+                            <span>▼</span>
+                        </button>
+                        <div class="dropdown-menu" id="periodDropdown">
+                            <div class="dropdown-item" data-value="7d">7 derniers jours</div>
+                            <div class="dropdown-item selected" data-value="30d">30 derniers jours</div>
+                            <div class="dropdown-item" data-value="90d">90 derniers jours</div>
+                            <div class="dropdown-item" data-value="1y">Cette année</div>
+                        </div>
+                    </div>
+
+                    <!-- Refresh Button -->
+                    <button class="refresh-btn" id="refreshBtn">
+                        <span id="refreshIcon">⟳</span>
+                        <span>Actualiser</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content">
+                <!-- Main Content (with data) -->
+                <div id="mainContent">
+                    <!-- Smart Insights Panel -->
+                    <div class="insights-panel" id="insightsPanel">
+                        <div class="insights-header">
+                            <span>🧠</span>
+                            <h3 class="insights-title">Recommandations intelligentes</h3>
+                        </div>
+                        <div class="insights-content" id="insightsContent">
+                            <!-- Insights will be populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Metrics Grid -->
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div class="metric-label">Clics Totaux</div>
+                                <div class="metric-icon" style="background: rgba(229, 9, 20, 0.1); color: var(--primary);">📊</div>
+                            </div>
+                            <div class="metric-value" id="totalClicks">-</div>
+                            <span class="metric-change" id="clicksChange" style="display: none;">
+                                <span id="clicksDirection">↔</span>
+                                <span id="clicksPercent">-</span>
+                            </span>
+                            <div class="metric-insight" id="clicksInsight">Suivez la progression de votre audience</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div class="metric-label">Visiteurs Uniques</div>
+                                <div class="metric-icon" style="background: rgba(16, 185, 129, 0.1); color: #10B981;">👥</div>
+                            </div>
+                            <div class="metric-value" id="uniqueVisitors">-</div>
+                            <span class="metric-change" id="visitorsChange" style="display: none;">
+                                <span id="visitorsDirection">↔</span>
+                                <span id="visitorsPercent">-</span>
+                            </span>
+                            <div class="metric-insight" id="visitorsInsight">Votre portée réelle</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div class="metric-label">Score Performance</div>
+                                <div class="metric-icon" style="background: rgba(245, 158, 11, 0.1); color: #F59E0B;">⚡</div>
+                            </div>
+                            <div class="metric-value" id="performanceScore">-</div>
+                            <div class="performance-score" id="performanceScoreDetails" style="display: none;">
+                                <div class="score-circle" id="scoreCircle">-</div>
+                                <span id="scoreText">-</span>
+                            </div>
+                            <div class="metric-insight" id="performanceInsight">Optimisation possible</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div class="metric-label">Plateforme Leader</div>
+                                <div class="metric-icon" style="background: rgba(139, 92, 246, 0.1); color: #8B5CF6;">🎵</div>
+                            </div>
+                            <div class="metric-value" id="topPlatform">-</div>
+                            <div class="metric-insight" id="platformInsight">Concentrez vos efforts</div>
+                        </div>
+                    </div>
+
+                    <!-- Chart -->
+                    <div class="chart-container">
+                        <div class="chart-placeholder">
+                            📊 Graphique des clics sur la période sélectionnée
+                        </div>
+                    </div>
+
+                    <!-- Platform Statistics -->
+                    <div class="platform-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Statistiques par plateforme</h2>
+                            <div class="view-toggle">
+                                <button class="view-btn active" id="gridViewBtn" title="Vue grille">⊞</button>
+                                <button class="view-btn" id="tableViewBtn" title="Vue tableau">☰</button>
+                            </div>
+                        </div>
+
+                        <!-- Loading Skeletons -->
+                        <div id="loadingSkeletons" class="hidden">
+                            <!-- Skeleton Metric Cards -->
+                            <div class="metrics-grid">
+                                <div class="skeleton-metric-card">
+                                    <div class="skeleton-metric-header">
+                                        <div class="skeleton skeleton-metric-icon"></div>
+                                        <div class="skeleton skeleton-metric-title"></div>
+                                    </div>
+                                    <div class="skeleton skeleton-metric-value"></div>
+                                    <div class="skeleton skeleton-metric-change"></div>
+                                </div>
+                                <div class="skeleton-metric-card">
+                                    <div class="skeleton-metric-header">
+                                        <div class="skeleton skeleton-metric-icon"></div>
+                                        <div class="skeleton skeleton-metric-title"></div>
+                                    </div>
+                                    <div class="skeleton skeleton-metric-value"></div>
+                                    <div class="skeleton skeleton-metric-change"></div>
+                                </div>
+                                <div class="skeleton-metric-card">
+                                    <div class="skeleton-metric-header">
+                                        <div class="skeleton skeleton-metric-icon"></div>
+                                        <div class="skeleton skeleton-metric-title"></div>
+                                    </div>
+                                    <div class="skeleton skeleton-metric-value"></div>
+                                    <div class="skeleton skeleton-metric-change"></div>
+                                </div>
+                                <div class="skeleton-metric-card">
+                                    <div class="skeleton-metric-header">
+                                        <div class="skeleton skeleton-metric-icon"></div>
+                                        <div class="skeleton skeleton-metric-title"></div>
+                                    </div>
+                                    <div class="skeleton skeleton-metric-value"></div>
+                                    <div class="skeleton skeleton-metric-change"></div>
+                                </div>
+                            </div>
+
+                            <!-- Skeleton Platform Table -->
+                            <div class="skeleton-table">
+                                <div class="skeleton skeleton-table-header"></div>
+                                <div class="skeleton-table-row">
+                                    <div class="skeleton skeleton-table-cell platform"></div>
+                                    <div class="skeleton skeleton-table-cell clicks"></div>
+                                    <div class="skeleton skeleton-table-cell clicks"></div>
+                                    <div class="skeleton skeleton-table-cell conversion"></div>
+                                    <div class="skeleton skeleton-table-cell conversion"></div>
+                                </div>
+                                <div class="skeleton-table-row">
+                                    <div class="skeleton skeleton-table-cell platform"></div>
+                                    <div class="skeleton skeleton-table-cell clicks"></div>
+                                    <div class="skeleton skeleton-table-cell clicks"></div>
+                                    <div class="skeleton skeleton-table-cell conversion"></div>
+                                    <div class="skeleton skeleton-table-cell conversion"></div>
+                                </div>
+                                <div class="skeleton-table-row">
+                                    <div class="skeleton skeleton-table-cell platform"></div>
+                                    <div class="skeleton skeleton-table-cell clicks"></div>
+                                    <div class="skeleton skeleton-table-cell clicks"></div>
+                                    <div class="skeleton skeleton-table-cell conversion"></div>
+                                    <div class="skeleton skeleton-table-cell conversion"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Platform Grid View -->
+                        <div id="platformGrid" class="platform-grid">
+                            <!-- Platform cards will be populated dynamically -->
+                        </div>
+
+                        <!-- Platform Table View -->
+                        <div id="platformTable" class="platform-table hidden">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Plateforme</th>
+                                        <th>Clics</th>
+                                        <th>Visiteurs</th>
+                                        <th>Conversion</th>
+                                        <th>Tendance</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="platformTableBody">
+                                    <!-- Table rows will be populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state hidden">
+                    <div class="empty-illustration">
+                        <div class="empty-icon">📊</div>
+                        <div class="empty-sparkles">✨</div>
+                    </div>
+                    <h2 class="empty-title">Vos analytics vous attendent !</h2>
+                    <p class="empty-text">Créez votre premier SmartLink pour commencer à tracker les performances de votre musique.</p>
+                    <div class="empty-actions">
+                        <a href="/pages/create-smartlink.html" class="btn-primary">
+                            <span>🎵</span>
+                            Créer mon premier SmartLink
+                        </a>
+                        <button onclick="loadAnalytics()" class="btn-secondary">
+                            <span>🔄</span>
+                            Actualiser
+                        </button>
+                    </div>
+                    <div class="empty-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">📈</span>
+                            <span>Analytics en temps réel</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🌍</span>
+                            <span>Tracking géographique</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">📱</span>
+                            <span>Stats par plateforme</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Global variables
+        let allSmartLinks = [];
+        let analyticsData = null;
+
+        // Platform configuration
+        const platformConfig = {
+            'spotify': {
+                name: 'Spotify',
+                color: '#1DB954',
+                icon: '🎵'
+            },
+            'apple': {
+                name: 'Apple Music',
+                color: '#FA243C',
+                icon: '🍎'
+            },
+            'applemusic': {
+                name: 'Apple Music',
+                color: '#FA243C',
+                icon: '🍎'
+            },
+            'youtube': {
+                name: 'YouTube',
+                color: '#FF0000',
+                icon: '▶️'
+            },
+            'youtubemusic': {
+                name: 'YouTube Music',
+                color: '#FF0000',
+                icon: '🎵'
+            },
+            'deezer': {
+                name: 'Deezer',
+                color: '#FF6600',
+                icon: '🎧'
+            },
+            'soundcloud': {
+                name: 'SoundCloud',
+                color: '#FF5500',
+                icon: '☁️'
+            },
+            'tidal': {
+                name: 'Tidal',
+                color: '#000000',
+                icon: '🌊'
+            },
+            'amazon': {
+                name: 'Amazon Music',
+                color: '#FF9900',
+                icon: '🎵'
+            },
+            'amazonmusic': {
+                name: 'Amazon Music',
+                color: '#FF9900',
+                icon: '🎵'
+            }
+        };
+
+        // State
+        let currentSmartLink = '';
+        let currentPeriod = '30d';
+        let currentViewMode = 'grid';
+        let isUserAdmin = false;
+
+        // DOM Elements
+        const smartlinkSelect = document.getElementById('smartlinkSelect');
+        const smartlinkDropdown = document.getElementById('smartlinkDropdown');
+        const smartlinkLabel = document.getElementById('smartlinkLabel');
+        const periodSelect = document.getElementById('periodSelect');
+        const periodDropdown = document.getElementById('periodDropdown');
+        const periodLabel = document.getElementById('periodLabel');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const refreshIcon = document.getElementById('refreshIcon');
+        const gridViewBtn = document.getElementById('gridViewBtn');
+        const tableViewBtn = document.getElementById('tableViewBtn');
+        const platformGrid = document.getElementById('platformGrid');
+        const platformTable = document.getElementById('platformTable');
+        const mainContent = document.getElementById('mainContent');
+        const emptyState = document.getElementById('emptyState');
+        const loadingSkeletons = document.getElementById('loadingSkeletons');
+
+        // Dropdown functionality
+        function setupDropdown(button, dropdown, label) {
+            button.addEventListener('click', () => {
+                const isOpen = dropdown.classList.contains('show');
+                closeAllDropdowns();
+                if (!isOpen) {
+                    dropdown.classList.add('show');
+                    button.classList.add('active');
+                }
+            });
+
+            dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    dropdown.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+                    item.classList.add('selected');
+                    label.textContent = item.textContent;
+                    closeAllDropdowns();
+                    
+                    // Update state based on dropdown
+                    if (dropdown === smartlinkDropdown) {
+                        currentSmartLink = item.dataset.value;
+                        loadAnalytics();
+                    } else if (dropdown === periodDropdown) {
+                        currentPeriod = item.dataset.value;
+                        loadAnalytics();
+                    }
+                });
+            });
+        }
+
+        function closeAllDropdowns() {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('show'));
+            document.querySelectorAll('.select-button').forEach(btn => btn.classList.remove('active'));
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.select-wrapper')) {
+                closeAllDropdowns();
+            }
+        });
+
+        // Setup dropdowns (only for period dropdown, smartlink dropdown is handled in populateSmartLinkDropdown)
+        setupDropdown(periodSelect, periodDropdown, periodLabel);
+
+        // Setup smartlink dropdown button click (just to open/close)
+        smartlinkSelect.addEventListener('click', () => {
+            const isOpen = smartlinkDropdown.classList.contains('show');
+            closeAllDropdowns();
+            if (!isOpen) {
+                smartlinkDropdown.classList.add('show');
+                smartlinkSelect.classList.add('active');
+            }
+        });
+
+        // Refresh button
+        refreshBtn.addEventListener('click', async () => {
+            refreshBtn.disabled = true;
+            refreshIcon.classList.add('spinning');
+
+            await loadAnalytics();
+
+            refreshBtn.disabled = false;
+            refreshIcon.classList.remove('spinning');
+        });
+
+        // View mode toggle
+        gridViewBtn.addEventListener('click', () => {
+            currentViewMode = 'grid';
+            gridViewBtn.classList.add('active');
+            tableViewBtn.classList.remove('active');
+            platformGrid.classList.remove('hidden');
+            platformTable.classList.add('hidden');
+        });
+
+        tableViewBtn.addEventListener('click', () => {
+            currentViewMode = 'table';
+            tableViewBtn.classList.add('active');
+            gridViewBtn.classList.remove('active');
+            platformTable.classList.remove('hidden');
+            platformGrid.classList.add('hidden');
+        });
+
+        // Auth token management
+        function getAuthToken() {
+            return localStorage.getItem('authToken');
+        }
+
+        async function checkAuth() {
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = '/pages/login.html';
+                return false;
+            }
+
+            try {
+                const response = await fetch('/api/auth/me', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    // Token invalide, nettoyer et rediriger
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('user');
+                    window.location.href = '/pages/login.html';
+                    return false;
+                }
+
+                // Get user data and set admin flag
+                const userData = await response.json();
+                if (userData.success && userData.user) {
+                    isUserAdmin = userData.user.is_admin || false;
+                }
+
+                return true;
+            } catch (error) {
+                console.error('Erreur de vérification auth:', error);
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('user');
+                window.location.href = '/pages/login.html';
+                return false;
+            }
+        }
+
+        // Load SmartLinks for dropdown
+        async function loadSmartLinks() {
+            if (!(await checkAuth())) return;
+
+            try {
+                const token = getAuthToken();
+                const response = await fetch('/api/smartlinks', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        allSmartLinks = data.smartlinks || [];
+                        populateSmartLinkDropdown();
+                    }
+                } else if (response.status === 401) {
+                    // Token expired, redirect to login
+                    localStorage.removeItem('authToken');
+                    window.location.href = '/pages/login.html';
+                }
+            } catch (error) {
+                console.error('Error loading SmartLinks:', error);
+            }
+        }
+
+        // Populate SmartLink dropdown with actual data
+        function populateSmartLinkDropdown() {
+            const dropdown = smartlinkDropdown;
+            dropdown.innerHTML = '<div class="dropdown-item selected" data-value="">Tous les SmartLinks</div>';
+
+            allSmartLinks.forEach(sl => {
+                const item = document.createElement('div');
+                item.className = 'dropdown-item';
+                item.dataset.value = sl.id;
+                // Display format depends on admin status
+                let displayText = `${sl.title}${sl.artist ? ' - ' + sl.artist : ''}`;
+                if (isUserAdmin && sl.creator_name) {
+                    displayText += ` (par ${sl.creator_name})`;
+                }
+                item.textContent = displayText;
+
+                // Add click event listener to each item
+                item.addEventListener('click', () => {
+                    dropdown.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+                    item.classList.add('selected');
+                    smartlinkLabel.textContent = item.textContent;
+                    closeAllDropdowns();
+
+                    // Update state and reload analytics
+                    currentSmartLink = item.dataset.value;
+                    loadAnalytics();
+                });
+
+                dropdown.appendChild(item);
+            });
+
+            // Also update the "Tous les SmartLinks" option
+            const allOption = dropdown.querySelector('[data-value=""]');
+            if (allOption) {
+                allOption.addEventListener('click', () => {
+                    dropdown.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+                    allOption.classList.add('selected');
+                    smartlinkLabel.textContent = allOption.textContent;
+                    closeAllDropdowns();
+
+                    currentSmartLink = '';
+                    loadAnalytics();
+                });
+            }
+        }
+
+        // Load and update analytics
+        function showLoadingState() {
+            // Hide content and empty state
+            mainContent.classList.add('hidden');
+            emptyState.classList.add('hidden');
+
+            // Show loading skeletons
+            loadingSkeletons.classList.remove('hidden');
+        }
+
+        function hideLoadingState() {
+            // Hide loading skeletons
+            loadingSkeletons.classList.add('hidden');
+        }
+
+        async function loadAnalytics() {
+            if (!(await checkAuth())) return;
+
+            try {
+                // Show loading state at the beginning
+                showLoadingState();
+
+                const token = getAuthToken();
+
+                if (currentSmartLink) {
+                    // Load specific SmartLink analytics
+                    const daysMap = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 };
+                    const days = daysMap[currentPeriod] || 30;
+
+                    const response = await fetch(`/api/smartlinks/${currentSmartLink}/analytics?days=${days}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        credentials: 'include'
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success) {
+                            analyticsData = data.analytics;
+                        }
+                    } else if (response.status === 401) {
+                        localStorage.removeItem('authToken');
+                        window.location.href = '/pages/login.html';
+                        return;
+                    }
+                } else {
+                    // Load overview analytics (aggregate all SmartLinks)
+                    analyticsData = await loadOverviewAnalytics();
+                }
+
+                updateAnalytics();
+
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+                showEmptyState();
+            }
+        }
+
+        // Load overview analytics by aggregating SmartLinks data
+        async function loadOverviewAnalytics() {
+            if (!allSmartLinks.length) {
+                return { total_clicks: 0, unique_visitors: 0, platform_stats: [] };
+            }
+
+            let totalClicks = 0;
+            let platformCounts = {};
+
+            // Aggregate click counts and platform data
+            allSmartLinks.forEach(sl => {
+                totalClicks += sl.click_count || 0;
+
+                // Count platforms
+                if (sl.platforms && Array.isArray(sl.platforms)) {
+                    sl.platforms.forEach(platform => {
+                        const name = platform.name.toLowerCase();
+                        if (!platformCounts[name]) {
+                            platformCounts[name] = 0;
+                        }
+                        // Distribute clicks evenly across platforms
+                        platformCounts[name] += Math.floor((sl.click_count || 0) / sl.platforms.length);
+                    });
+                }
+            });
+
+            // Convert to platform stats format
+            const platform_stats = Object.entries(platformCounts).map(([platform, clicks]) => ({
+                platform,
+                clicks,
+                unique_clicks: clicks
+            }));
+
+            return {
+                total_clicks: totalClicks,
+                unique_visitors: 0,
+                platform_stats,
+                top_platform: platform_stats.length > 0 ?
+                    platform_stats.reduce((max, p) => p.clicks > max.clicks ? p : max).platform : null
+            };
+        }
+
+        // Update analytics display
+        function updateAnalytics() {
+            // Always hide loading state when updating
+            hideLoadingState();
+
+            // Show empty state only if no SmartLinks exist at all
+            if (!allSmartLinks || allSmartLinks.length === 0) {
+                showEmptyState();
+                return;
+            }
+
+            // If SmartLinks exist but no analytics data, show default values (0s)
+            if (!analyticsData) {
+                analyticsData = {
+                    total_clicks: 0,
+                    unique_visitors: 0,
+                    platform_stats: []
+                };
+            }
+
+            mainContent.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            // Update metrics and insights
+            updateMetrics(analyticsData);
+            updatePlatformStats(analyticsData);
+            generateSmartInsights(analyticsData);
+        }
+
+        // Generate smart insights based on data analysis
+        function generateSmartInsights(data) {
+            const insights = [];
+            const totalClicks = data.total_clicks || 0;
+            const uniqueVisitors = data.unique_visitors || 0;
+            const platformStats = data.platform_stats || [];
+            const performanceScore = calculatePerformanceScore(data);
+
+            // Performance insights
+            if (performanceScore < 40) {
+                insights.push({
+                    type: 'OPTIMISATION',
+                    text: 'Votre score de performance peut être amélioré. Concentrez-vous sur la diversification des plateformes et l\'engagement.',
+                    action: 'Voir les recommandations',
+                    actionUrl: '/pages/create-smartlink.html'
+                });
+            } else if (performanceScore >= 80) {
+                insights.push({
+                    type: 'SUCCÈS',
+                    text: 'Excellent ! Vos performances sont exceptionnelles. Continuez sur cette lancée.',
+                    action: 'Créer un nouveau SmartLink',
+                    actionUrl: '/pages/create-smartlink.html'
+                });
+            }
+
+            // Platform insights
+            if (platformStats.length === 0) {
+                insights.push({
+                    type: 'ACTION REQUISE',
+                    text: 'Aucune donnée de plateforme. Ajoutez des plateformes à vos SmartLinks pour maximiser votre portée.',
+                    action: 'Modifier un SmartLink',
+                    actionUrl: '/pages/list-smartlinks.html'
+                });
+            } else if (platformStats.length === 1) {
+                insights.push({
+                    type: 'DIVERSIFICATION',
+                    text: 'Vous utilisez une seule plateforme. Diversifiez pour toucher plus d\'audience.',
+                    action: 'Ajouter des plateformes',
+                    actionUrl: '/pages/list-smartlinks.html'
+                });
+            } else if (platformStats.length >= 2) {
+                const topPlatform = platformStats[0];
+                const secondPlatform = platformStats[1];
+                if (topPlatform && secondPlatform && topPlatform.clicks > secondPlatform.clicks * 3) {
+                    insights.push({
+                        type: 'ANALYSE',
+                        text: `${platformConfig[topPlatform.platform]?.name || topPlatform.platform} domine largement. Optimisez les autres plateformes.`,
+                        action: 'Analyser les plateformes',
+                        actionUrl: '#'
+                    });
+                }
+            }
+
+            // Traffic insights
+            if (totalClicks === 0) {
+                insights.push({
+                    type: 'DÉMARRAGE',
+                    text: 'Prêt à commencer ? Partagez vos SmartLinks sur les réseaux sociaux pour obtenir vos premiers clics.',
+                    action: 'Guide de promotion',
+                    actionUrl: '#'
+                });
+            } else if (totalClicks > 0 && totalClicks < 10) {
+                insights.push({
+                    type: 'PROMOTION',
+                    text: 'Premiers clics enregistrés ! Intensifiez vos efforts de promotion pour accélérer la croissance.',
+                    action: 'Stratégies de promotion',
+                    actionUrl: '#'
+                });
+            } else if (totalClicks >= 100) {
+                insights.push({
+                    type: 'CROISSANCE',
+                    text: 'Excellent trafic ! Analysez vos heures de pointe pour optimiser le timing de vos publications.',
+                    action: 'Voir les analytics détaillées',
+                    actionUrl: '/pages/list-smartlinks.html'
+                });
+            }
+
+            // Engagement insights
+            if (totalClicks > 0 && uniqueVisitors > 0) {
+                const engagement = totalClicks / uniqueVisitors;
+                if (engagement > 2.5) {
+                    insights.push({
+                        type: 'ENGAGEMENT',
+                        text: 'Excellente fidélisation ! Vos visiteurs reviennent plusieurs fois. Votre contenu plaît.',
+                        action: 'Créer plus de contenu',
+                        actionUrl: '/pages/create-smartlink.html'
+                    });
+                } else if (engagement < 1.2) {
+                    insights.push({
+                        type: 'ENGAGEMENT',
+                        text: 'Faible taux de retour. Améliorez vos call-to-action et l\'expérience utilisateur.',
+                        action: 'Optimiser l\'expérience',
+                        actionUrl: '#'
+                    });
+                }
+            }
+
+            // Show only top 3 insights
+            const topInsights = insights.slice(0, 3);
+
+            // Add default insight if none generated
+            if (topInsights.length === 0) {
+                topInsights.push({
+                    type: 'CONSEIL',
+                    text: 'Continuez à créer des SmartLinks et analyser vos performances pour optimiser votre stratégie musicale.',
+                    action: 'Créer un SmartLink',
+                    actionUrl: '/pages/create-smartlink.html'
+                });
+            }
+
+            displayInsights(topInsights);
+        }
+
+        // Display insights in the panel
+        function displayInsights(insights) {
+            const insightsContent = document.getElementById('insightsContent');
+
+            insightsContent.innerHTML = insights.map(insight => `
+                <div class="insight-item">
+                    <div class="insight-type">${insight.type}</div>
+                    <div class="insight-text">${insight.text}</div>
+                    <a href="${insight.actionUrl}" class="insight-action">
+                        ${insight.action} →
+                    </a>
+                </div>
+            `).join('');
+        }
+
+        // Generate report function
+        function generateReport() {
+            if (!analyticsData) {
+                alert('Aucune donnée disponible pour générer un rapport.');
+                return;
+            }
+
+            const reportData = {
+                date: new Date().toLocaleDateString('fr-FR'),
+                totalClicks: analyticsData.total_clicks || 0,
+                uniqueVisitors: analyticsData.unique_visitors || 0,
+                performanceScore: calculatePerformanceScore(analyticsData),
+                topPlatform: analyticsData.top_platform || 'Aucune',
+                platformStats: analyticsData.platform_stats || []
+            };
+
+            // Create a simple text report
+            let report = `RAPPORT DE PERFORMANCE SMARTLINKS\n`;
+            report += `Date: ${reportData.date}\n\n`;
+            report += `MÉTRIQUES CLÉS:\n`;
+            report += `• Clics totaux: ${formatNumber(reportData.totalClicks)}\n`;
+            report += `• Visiteurs uniques: ${formatNumber(reportData.uniqueVisitors)}\n`;
+            report += `• Score de performance: ${reportData.performanceScore}/100\n`;
+            report += `• Plateforme leader: ${reportData.topPlatform}\n\n`;
+
+            if (reportData.platformStats.length > 0) {
+                report += `PERFORMANCE PAR PLATEFORME:\n`;
+                reportData.platformStats.forEach(platform => {
+                    const config = platformConfig[platform.platform] || { name: platform.platform };
+                    report += `• ${config.name}: ${formatNumber(platform.clicks)} clics\n`;
+                });
+            }
+
+            // Download as text file
+            const blob = new Blob([report], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `rapport-smartlinks-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Update metrics cards with smart insights
+        function updateMetrics(data) {
+            const totalClicks = data.total_clicks || 0;
+            const uniqueVisitors = data.unique_visitors || 0;
+            const topPlatform = data.top_platform;
+
+            // Update basic metrics
+            document.getElementById('totalClicks').textContent = formatNumber(totalClicks);
+            document.getElementById('uniqueVisitors').textContent = formatNumber(uniqueVisitors);
+            document.getElementById('topPlatform').textContent = topPlatform || 'Aucune';
+
+            // Calculate and display performance score
+            const performanceScore = calculatePerformanceScore(data);
+            updatePerformanceScore(performanceScore);
+
+            // Update insights for each metric
+            updateMetricInsights(data, performanceScore);
+
+            // Update dynamic header based on data
+            updateDynamicHeader(data);
+
+            // Hide change indicators until we have historical data
+            const changeElements = ['clicksChange', 'visitorsChange', 'conversionChange'];
+            changeElements.forEach((id) => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+        }
+
+        // Calculate performance score based on multiple factors
+        function calculatePerformanceScore(data) {
+            let score = 0;
+            let maxScore = 100;
+
+            // Click volume (30% weight)
+            const clickScore = Math.min((data.total_clicks || 0) / 100, 1) * 30;
+            score += clickScore;
+
+            // Platform diversity (25% weight)
+            const platformCount = (data.platform_stats || []).length;
+            const diversityScore = Math.min(platformCount / 5, 1) * 25;
+            score += diversityScore;
+
+            // Engagement quality (25% weight) - clicks to visitors ratio
+            const engagementRatio = data.total_clicks > 0 && data.unique_visitors > 0
+                ? Math.min(data.total_clicks / data.unique_visitors, 3) / 3
+                : 0;
+            const engagementScore = engagementRatio * 25;
+            score += engagementScore;
+
+            // Recency bonus (20% weight) - assumed good if we have recent data
+            const recencyScore = data.total_clicks > 0 ? 20 : 0;
+            score += recencyScore;
+
+            return Math.round(score);
+        }
+
+        // Update performance score display
+        function updatePerformanceScore(score) {
+            document.getElementById('performanceScore').textContent = score + '/100';
+
+            const scoreDetails = document.getElementById('performanceScoreDetails');
+            const scoreCircle = document.getElementById('scoreCircle');
+            const scoreText = document.getElementById('scoreText');
+
+            scoreDetails.style.display = 'flex';
+            scoreCircle.textContent = score;
+
+            if (score >= 80) {
+                scoreCircle.className = 'score-circle score-excellent';
+                scoreText.textContent = 'Excellent';
+            } else if (score >= 60) {
+                scoreCircle.className = 'score-circle score-good';
+                scoreText.textContent = 'Bien';
+            } else {
+                scoreCircle.className = 'score-circle score-needs-improvement';
+                scoreText.textContent = 'À améliorer';
+            }
+        }
+
+        // Update metric insights with intelligent suggestions
+        function updateMetricInsights(data, performanceScore) {
+            const totalClicks = data.total_clicks || 0;
+            const uniqueVisitors = data.unique_visitors || 0;
+            const platformStats = data.platform_stats || [];
+
+            // Clicks insight
+            let clicksInsight = 'Suivez la progression de votre audience';
+            if (totalClicks === 0) {
+                clicksInsight = 'Partagez vos SmartLinks pour commencer';
+            } else if (totalClicks < 50) {
+                clicksInsight = 'Bon début ! Continuez à promouvoir';
+            } else if (totalClicks < 200) {
+                clicksInsight = 'Excellent engagement ! Développez';
+            } else {
+                clicksInsight = 'Performance exceptionnelle !';
+            }
+            document.getElementById('clicksInsight').textContent = clicksInsight;
+
+            // Visitors insight
+            let visitorsInsight = 'Votre portée réelle';
+            if (uniqueVisitors === 0) {
+                visitorsInsight = 'Aucun visiteur encore';
+            } else if (totalClicks > 0 && uniqueVisitors > 0) {
+                const ratio = totalClicks / uniqueVisitors;
+                if (ratio > 2) {
+                    visitorsInsight = 'Très bon engagement par visiteur';
+                } else if (ratio > 1.5) {
+                    visitorsInsight = 'Bon taux de ré-engagement';
+                } else {
+                    visitorsInsight = 'Portée solide, optimisez l\'engagement';
+                }
+            }
+            document.getElementById('visitorsInsight').textContent = visitorsInsight;
+
+            // Performance insight
+            let performanceInsight = 'Optimisation possible';
+            if (performanceScore >= 80) {
+                performanceInsight = 'Performance exceptionnelle !';
+            } else if (performanceScore >= 60) {
+                performanceInsight = 'Bonnes performances, continuez !';
+            } else if (performanceScore >= 40) {
+                performanceInsight = 'Potentiel d\'amélioration identifié';
+            } else {
+                performanceInsight = 'Optimisations recommandées';
+            }
+            document.getElementById('performanceInsight').textContent = performanceInsight;
+
+            // Platform insight
+            let platformInsight = 'Concentrez vos efforts';
+            if (platformStats.length === 0) {
+                platformInsight = 'Ajoutez des plateformes';
+            } else if (platformStats.length === 1) {
+                platformInsight = 'Diversifiez vos plateformes';
+            } else if (platformStats.length <= 3) {
+                platformInsight = 'Bonne diversification';
+            } else {
+                platformInsight = 'Excellente couverture plateformes';
+            }
+            document.getElementById('platformInsight').textContent = platformInsight;
+        }
+
+        // Update dynamic header based on performance
+        function updateDynamicHeader(data) {
+            const totalClicks = data.total_clicks || 0;
+            const title = document.getElementById('dynamicTitle');
+            const subtitle = document.getElementById('dynamicSubtitle');
+
+            if (totalClicks === 0) {
+                title.textContent = 'Prêt pour le décollage ?';
+                subtitle.textContent = 'Créez votre premier SmartLink et commencez à tracker vos performances';
+            } else if (totalClicks < 50) {
+                title.textContent = 'Excellents débuts !';
+                subtitle.textContent = 'Vos premiers clics arrivent, continuez sur cette lancée';
+            } else if (totalClicks < 200) {
+                title.textContent = 'Performance en hausse !';
+                subtitle.textContent = 'Votre audience grandit, optimisez maintenant votre stratégie';
+            } else {
+                title.textContent = 'Succès confirmé !';
+                subtitle.textContent = 'Performances exceptionnelles, explorez de nouvelles opportunités';
+            }
+        }
+
+        // Update platform statistics
+        function updatePlatformStats(data) {
+            const platforms = data.platform_stats || [];
+            const totalClicks = data.total_clicks || 0;
+
+            if (currentViewMode === 'grid') {
+                updatePlatformGrid(platforms, totalClicks);
+            } else {
+                updatePlatformTable(platforms, totalClicks);
+            }
+        }
+
+        // Update platform grid view
+        function updatePlatformGrid(platforms, totalClicks) {
+            if (!platforms.length) {
+                platformGrid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #6B7280;">
+                        📊 Aucune donnée de plateforme disponible
+                    </div>
+                `;
+                return;
+            }
+
+            platformGrid.innerHTML = platforms.map(item => {
+                const platform = item.platform;
+                const clicks = item.clicks || 0;
+                const percentage = totalClicks > 0 ? ((clicks / totalClicks) * 100).toFixed(1) : 0;
+                const config = platformConfig[platform.toLowerCase()] || {
+                    name: platform,
+                    color: '#666',
+                    icon: '🎵'
+                };
+
+                return `
+                    <div class="platform-card">
+                        <div class="platform-icon">${config.icon}</div>
+                        <div class="platform-name">${config.name}</div>
+                        <div class="platform-clicks">${formatNumber(clicks)}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                            ${percentage}% du total
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update platform table view
+        function updatePlatformTable(platforms, totalClicks) {
+            const tbody = document.getElementById('platformTableBody');
+
+            if (!platforms.length) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #6B7280;">
+                            📊 Aucune donnée de plateforme disponible
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = platforms.map(item => {
+                const platform = item.platform;
+                const clicks = item.clicks || 0;
+                const uniqueClicks = item.unique_clicks || clicks;
+                const percentage = totalClicks > 0 ? ((clicks / totalClicks) * 100).toFixed(1) : 0;
+                const config = platformConfig[platform.toLowerCase()] || {
+                    name: platform,
+                    icon: '🎵'
+                };
+
+                return `
+                    <tr>
+                        <td style="display: flex; align-items: center; gap: 8px;">
+                            ${config.icon}
+                            ${config.name}
+                        </td>
+                        <td><strong>${formatNumber(clicks)}</strong></td>
+                        <td>${formatNumber(uniqueClicks)}</td>
+                        <td>${percentage}%</td>
+                        <td style="color: var(--text-secondary);">-</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Show empty state
+        function showEmptyState() {
+            hideLoadingState();
+            mainContent.classList.add('hidden');
+            emptyState.classList.remove('hidden');
+        }
+
+        // Utility function to format numbers
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check auth first
+            if (await checkAuth()) {
+                await loadSmartLinks();
+                await loadAnalytics();
+            }
+        });
+
+        // Logout function
+        async function logout() {
+            try {
+                // Call server logout endpoint to clear cookie
+                await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            } finally {
+                // Always clear local storage and redirect
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('user');
+                window.location.href = '/pages/login.html';
+            }
+        }
+
+        // If DOM is already loaded
+        if (document.readyState === 'loading') {
+            // Already added event listener above
+        } else {
+            if (checkAuth()) {
+                loadSmartLinks().then(() => {
+                    loadAnalytics();
+                });
+            }
+        }
+
+        // Track analytics events for dashboard
+        if (window.MDMCAnalytics) {
+            // Track dashboard view
+            window.MDMCAnalytics.trackPageView('/dashboard', 'Dashboard Analytics');
+
+            // Track filter changes
+            smartlinkSelect.addEventListener('change', () => {
+                window.MDMCAnalytics.trackUserAction('smartlink_filter_change', {
+                    selected_smartlink: currentSmartLink
+                });
+            });
+
+            periodSelect.addEventListener('change', () => {
+                window.MDMCAnalytics.trackUserAction('period_filter_change', {
+                    selected_period: currentPeriod
+                });
+            });
+
+            // Track refresh clicks
+            refreshBtn.addEventListener('click', () => {
+                window.MDMCAnalytics.trackUserAction('dashboard_refresh');
+            });
+        }
+    </script>
+
+    <!-- MDMC Analytics Integration -->
+    <script src="/assets/js/google-analytics.js"></script>
+</body>
+</html>

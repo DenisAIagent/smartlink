@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Navigation</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .nav-link {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f0f0f0;
+            text-decoration: none;
+            color: black;
+        }
+        .nav-link:hover { background: #e0e0e0; }
+    </style>
+</head>
+<body>
+    <h1>Test de Navigation</h1>
+    <p>Cliquez sur les liens ci-dessous pour tester la navigation :</p>
+
+    <a href="/pages/dashboard.html" class="nav-link">📊 Dashboard</a>
+    <a href="/pages/analytics.html" class="nav-link">📈 Analytics</a>
+    <a href="/pages/list-smartlinks.html" class="nav-link">🔗 SmartLinks</a>
+    <a href="/pages/create-smartlink.html" class="nav-link">✨ Créer SmartLink</a>
+    <a href="/pages/settings.html" class="nav-link">⚙️ Settings</a>
+
+    <hr>
+
+    <h2>Tests absolus :</h2>
+    <a href="http://localhost:3003/pages/dashboard.html" class="nav-link">Dashboard (URL absolue)</a>
+    <a href="http://localhost:3003/pages/create-smartlink.html" class="nav-link">Créer SmartLink (URL absolue)</a>
+
+    <script>
+        console.log('Test navigation page loaded');
+
+        // Test click handler
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                console.log('Clicking on:', this.href);
+            });
+        });
+    </script>
+</body>
+</html>

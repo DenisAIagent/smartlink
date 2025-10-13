@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Tracking Plateformes | MDMC Admin</title>
+    <link rel="icon" href="/public/assets/favicon.png">
+    <style>
+        :root {
+            --primary: #E50914;
+            --primary-hover: #d40812;
+            --bg-main: #F8F9FA;
+            --bg-white: #ffffff;
+            --border: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #ffc107;
+            --info: #3b82f6;
+            --sidebar-width: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            border-right: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            padding: 16px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-main);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: #FEE2E2;
+            color: var(--primary);
+            border-right: 3px solid var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 24px 32px;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .header-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Content */
+        .content {
+            flex: 1;
+            padding: 32px;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        /* Platform Buttons */
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .platform-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 20px;
+            background: white;
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .platform-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(229, 9, 20, 0.2);
+        }
+
+        /* Input Group */
+        .input-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.1);
+        }
+
+        .btn-primary {
+            padding: 10px 24px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(229, 9, 20, 0.2);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            padding: 16px;
+            background: var(--bg-main);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-detail {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Console */
+        .console {
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 16px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+        }
+
+        .console-entry {
+            margin: 4px 0;
+            padding: 4px 8px;
+            border-left: 3px solid var(--info);
+            color: #e0e0e0;
+        }
+
+        .console-entry.success {
+            border-left-color: var(--success);
+            color: #86efac;
+        }
+
+        .console-entry.error {
+            border-left-color: var(--danger);
+            color: #fca5a5;
+        }
+
+        .console-entry.warning {
+            border-left-color: var(--warning);
+            color: #fde047;
+        }
+
+        .timestamp {
+            color: #6b7280;
+            margin-right: 8px;
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: var(--success);
+            color: white;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge.danger {
+            background: var(--danger);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <a href="/pages/dashboard.html" class="logo">
+                    🎵 MDMC Admin
+                </a>
+            </div>
+            <nav class="nav-menu">
+                <a href="/pages/dashboard.html" class="nav-item">
+                    <span>📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/pages/list-smartlinks.html" class="nav-item">
+                    <span>🔗</span>
+                    <span>SmartLinks</span>
+                </a>
+                <a href="/pages/create-smartlink.html" class="nav-item">
+                    <span>➕</span>
+                    <span>Créer</span>
+                </a>
+                <a href="#" class="nav-item active">
+                    <span>🧪</span>
+                    <span>Test Tracking</span>
+                </a>
+                <a href="/pages/settings.html" class="nav-item">
+                    <span>⚙️</span>
+                    <span>Paramètres</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1 class="header-title">🧪 Test de Tracking des Plateformes</h1>
+                <p class="header-subtitle">Vérifiez que les clics par plateforme sont bien enregistrés</p>
+            </div>
+
+            <!-- Content -->
+            <div class="content">
+                <!-- Test SmartLink Input -->
+                <div class="card">
+                    <h2 class="card-title">
+                        <span>🎯</span>
+                        <span>SmartLink à tester</span>
+                    </h2>
+                    <p class="card-description">
+                        Entrez le slug de votre SmartLink pour tester le tracking des clics par plateforme
+                    </p>
+                    <div class="input-group">
+                        <input type="text"
+                               id="slugInput"
+                               class="input"
+                               placeholder="Ex: mon-smartlink ou test-tracking"
+                               value="">
+                        <button class="btn-primary" onclick="setTestSlug()">
+                            Définir le SmartLink
+                        </button>
+                    </div>
+                    <div id="currentSlug" style="margin-top: 10px; color: var(--text-secondary); font-size: 14px;">
+                        Slug actuel : <span id="slugDisplay" style="font-weight: 600; color: var(--primary);">non défini</span>
+                    </div>
+                </div>
+
+                <!-- Platform Click Simulation -->
+                <div class="card">
+                    <h2 class="card-title">
+                        <span>🎵</span>
+                        <span>Simuler des clics sur les plateformes</span>
+                    </h2>
+                    <p class="card-description">
+                        Cliquez sur les plateformes pour envoyer des événements de tracking
+                    </p>
+                    <div class="platform-grid">
+                        <button class="platform-btn" onclick="trackClick('spotify')">
+                            <span>🎧</span> Spotify
+                        </button>
+                        <button class="platform-btn" onclick="trackClick('deezer')">
+                            <span>🎶</span> Deezer
+                        </button>
+                        <button class="platform-btn" onclick="trackClick('apple_music')">
+                            <span>🍎</span> Apple Music
+                        </button>
+                        <button class="platform-btn" onclick="trackClick('youtube_music')">
+                            <span>📺</span> YouTube Music
+                        </button>
+                        <button class="platform-btn" onclick="trackClick('tidal')">
+                            <span>🌊</span> Tidal
+                        </button>
+                        <button class="platform-btn" onclick="trackClick('amazon_music')">
+                            <span>📦</span> Amazon Music
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Analytics Display -->
+                <div class="card">
+                    <h2 class="card-title">
+                        <span>📈</span>
+                        <span>Statistiques en temps réel</span>
+                    </h2>
+                    <p class="card-description">
+                        Vérifiez que les clics sont bien enregistrés dans la base de données
+                    </p>
+                    <button class="btn-primary" onclick="fetchStats()" style="margin-bottom: 20px;">
+                        Rafraîchir les statistiques
+                    </button>
+                    <div id="statsDisplay" class="stats-grid"></div>
+                </div>
+
+                <!-- Console -->
+                <div class="card">
+                    <h2 class="card-title">
+                        <span>💻</span>
+                        <span>Console de débogage</span>
+                    </h2>
+                    <div class="console" id="console">
+                        <div class="console-entry">
+                            <span class="timestamp">[READY]</span>
+                            Console de test initialisée
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlug = localStorage.getItem('testSlug') || '';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (currentSlug) {
+                document.getElementById('slugInput').value = currentSlug;
+                document.getElementById('slugDisplay').textContent = currentSlug;
+                log(`SmartLink de test restauré: "${currentSlug}"`, 'success');
+            }
+
+            const token = localStorage.getItem('token');
+            if (!token) {
+                log('⚠️ Non connecté - Les statistiques ne seront pas accessibles', 'warning');
+                log('Connectez-vous d\'abord au backoffice', 'warning');
+            } else {
+                log('✅ Authentification détectée', 'success');
+            }
+        });
+
+        function log(message, type = 'info') {
+            const console = document.getElementById('console');
+            const timestamp = new Date().toLocaleTimeString('fr-FR');
+            const entry = document.createElement('div');
+            entry.className = `console-entry ${type}`;
+            entry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
+            console.appendChild(entry);
+            console.scrollTop = console.scrollHeight;
+        }
+
+        function setTestSlug() {
+            currentSlug = document.getElementById('slugInput').value.trim();
+            if (!currentSlug) {
+                log('Veuillez entrer un slug valide', 'error');
+                return;
+            }
+            localStorage.setItem('testSlug', currentSlug);
+            document.getElementById('slugDisplay').textContent = currentSlug;
+            log(`SmartLink de test défini: "${currentSlug}"`, 'success');
+        }
+
+        async function trackClick(platform) {
+            if (!currentSlug) {
+                log('Veuillez d\'abord définir un slug de SmartLink', 'error');
+                return;
+            }
+
+            log(`📤 Envoi d'un clic ${platform} pour "${currentSlug}"...`);
+
+            try {
+                const response = await fetch(`/api/smartlinks/${currentSlug}/click`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        platform: platform,
+                        timestamp: new Date().toISOString(),
+                        userAgent: navigator.userAgent
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    log(`✅ Clic ${platform} enregistré avec succès`, 'success');
+                } else {
+                    log(`❌ Erreur: ${data.error || 'Erreur inconnue'}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur réseau: ${error.message}`, 'error');
+            }
+        }
+
+        async function fetchStats() {
+            if (!currentSlug) {
+                log('Veuillez d\'abord définir un slug de SmartLink', 'error');
+                return;
+            }
+
+            log(`📊 Récupération des statistiques pour "${currentSlug}"...`);
+
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    throw new Error('Non authentifié');
+                }
+
+                // Get SmartLink ID
+                const searchResponse = await fetch(`/api/smartlinks?search=${currentSlug}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!searchResponse.ok) {
+                    throw new Error('SmartLink non trouvé');
+                }
+
+                const searchData = await searchResponse.json();
+                const smartlink = searchData.smartlinks?.find(s => s.slug === currentSlug);
+
+                if (!smartlink) {
+                    throw new Error(`SmartLink "${currentSlug}" non trouvé`);
+                }
+
+                // Get analytics
+                const analyticsResponse = await fetch(`/api/smartlinks/${smartlink.id}/analytics?days=7`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!analyticsResponse.ok) {
+                    throw new Error('Impossible de récupérer les analytics');
+                }
+
+                const analyticsData = await analyticsResponse.json();
+                displayStats(analyticsData.analytics);
+
+                log('✅ Statistiques récupérées', 'success');
+
+                // Log platform stats
+                if (analyticsData.analytics.platform_stats?.length > 0) {
+                    analyticsData.analytics.platform_stats.forEach(stat => {
+                        log(`📊 ${stat.platform}: ${stat.clicks} clics (${stat.unique_clicks} uniques)`, 'success');
+                    });
+                } else {
+                    log('Aucune statistique de plateforme pour le moment', 'warning');
+                }
+
+            } catch (error) {
+                log(`❌ ${error.message}`, 'error');
+            }
+        }
+
+        function displayStats(analytics) {
+            const statsDisplay = document.getElementById('statsDisplay');
+
+            if (!analytics) {
+                statsDisplay.innerHTML = '<p style="color: var(--text-secondary);">Aucune donnée disponible</p>';
+                return;
+            }
+
+            let html = `
+                <div class="stat-card">
+                    <div class="stat-label">Total Clics</div>
+                    <div class="stat-value">${analytics.total_clicks || 0}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Visiteurs Uniques</div>
+                    <div class="stat-value">${analytics.unique_visitors || 0}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Top Plateforme</div>
+                    <div class="stat-value" style="font-size: 18px;">${analytics.top_platform || 'N/A'}</div>
+                </div>
+            `;
+
+            if (analytics.platform_stats?.length > 0) {
+                analytics.platform_stats.forEach(stat => {
+                    html += `
+                        <div class="stat-card">
+                            <div class="stat-label">${stat.platform}</div>
+                            <div class="stat-value">${stat.clicks}</div>
+                            <div class="stat-detail">${stat.unique_clicks} visiteurs uniques</div>
+                        </div>
+                    `;
+                });
+            }
+
+            statsDisplay.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

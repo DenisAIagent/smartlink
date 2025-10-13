@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="ga-measurement-id" content="GA_MEASUREMENT_ID_PLACEHOLDER">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https: http: *.amazon.com *.media-amazon.com m.media-amazon.com *.tidal.com *.scdn.co *.ytimg.com *.deezer.com *.soundcloud.com *.mzstatic.com *.audius-creator-3.theblueprint.xyz *.yandex.net *.anghcdn.co *.boomplaymusic.com *.p-cdn.com *.rhapsody.com *.audiomack.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
+    <meta http-equiv="Cross-Origin-Embedder-Policy" content="unsafe-none">
+    <title>Créer SmartLink | MDMC Admin</title>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID_PLACEHOLDER"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'GA_MEASUREMENT_ID_PLACEHOLDER');
+    </script>
+    <link rel="stylesheet" href="/assets/css/admin.css">
+    <link rel="icon" href="/public/assets/favicon.png">
+    <style>
+        :root {
+            --primary: #E50914;
+            --secondary: #141414;
+            --white: #FFFFFF;
+            --gray-light: #F8F9FA;
+            --gray-medium: #999999;
+            --shadow-light: 0 2px 8px rgba(0,0,0,0.04);
+            --shadow-medium: 0 4px 16px rgba(0,0,0,0.08);
+            --shadow-heavy: 0 8px 32px rgba(0,0,0,0.12);
+            --border-radius: 12px;
+            --border-radius-lg: 20px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--gray-light);
+            color: var(--secondary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+            gap: 0;
+        }
+        .sidebar {
+            background: var(--white);
+            border-right: 1px solid rgba(0,0,0,0.06);
+            padding: 32px 24px;
+            position: relative;
+            box-shadow: var(--shadow-medium);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 48px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), #ff1a1a);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+        .nav-menu {
+            list-style: none;
+        }
+        .nav-item {
+            margin-bottom: 8px;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            text-decoration: none;
+            color: var(--gray-medium);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            font-weight: 500;
+            position: relative;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: rgba(229, 9, 20, 0.08);
+            color: var(--primary);
+            transform: translateX(4px);
+        }
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            opacity: 0.7;
+        }
+        .main-content {
+            padding: 32px;
+            background: var(--gray-light);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+        .header-left h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 4px;
+        }
+        .header-left p {
+            color: var(--gray-medium);
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            background: var(--white);
+            transition: var(--transition);
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.1);
+        }
+        .card {
+            background: var(--white);
+            padding: 32px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-light);
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+        .d-none {
+            display: none;
+        }
+        .is-invalid {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+        /* Styles pour les previews d'artwork */
+        #artworkPreview {
+            background: var(--gray-light);
+            padding: 16px;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(0,0,0,0.08);
+            margin-top: 10px;
+        }
+        #artworkCover, #trackPreviewCover {
+            display: block !important;
+            object-fit: cover;
+            transition: var(--transition);
+            box-shadow: var(--shadow-light);
+        }
+        #artworkCover:hover, #trackPreviewCover:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-medium);
+        }
+        .artwork-loading {
+            width: 80px;
+            height: 80px;
+            background: var(--gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            color: var(--gray-medium);
+            font-size: 12px;
+        }
+
+        /* Platform Selector Styles */
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .platform-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border: 2px solid rgba(0,0,0,0.08);
+            border-radius: var(--border-radius);
+            background: var(--white);
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .platform-option:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .platform-option.selected {
+            border-color: var(--primary);
+            background: rgba(229, 9, 20, 0.04);
+        }
+
+        .platform-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .platform-option img {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .platform-info {
+            flex: 1;
+        }
+
+        .platform-name {
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 14px;
+        }
+
+        .platform-desc {
+            font-size: 12px;
+            color: var(--gray-medium);
+            margin-top: 2px;
+        }
+        .is-valid {
+            border-color: #28a745 !important;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+        }
+        .invalid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875rem;
+            color: #dc3545;
+        }
+        .btn-outline-primary {
+            color: var(--primary);
+            border-color: var(--primary);
+            background-color: transparent;
+        }
+        .btn-outline-primary:hover {
+            color: white;
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        .loading {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 2px solid var(--primary);
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <!-- Navigation Hotfix -->
+    <link rel="stylesheet" href="/hotfix-nav.css">
+    <script src="/public/nav-hotfix.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">M</div>
+                <span class="logo-text">MDMC Admin</span>
+            </div>
+            
+            <nav class="nav-menu" role="navigation" aria-label="Navigation principale">
+                <a href="/pages/dashboard.html" class="nav-item">
+                    <span>Dashboard</span>
+                </a>
+                <a href="/pages/list-smartlinks.html" class="nav-item">
+                    <span>SmartLinks</span>
+                </a>
+                <a href="/pages/create-smartlink.html" class="nav-item active" aria-current="page">
+                    <span>Créer SmartLink</span>
+                </a>
+                <a href="/pages/settings.html" class="nav-item">
+                    <span>Settings</span>
+                </a>
+                <a href="#" class="nav-item" onclick="logout()">
+                    <span>Déconnexion</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <h1>Créer un Nouveau SmartLink</h1>
+                    <p>Générez un SmartLink en quelques étapes.</p>
+                </div>
+            </div>
+
+            <!-- Étape 1: URL -->
+            <div class="card" id="step1">
+                <h2>Étape 1: Lien du morceau</h2>
+                <p>Collez le lien Spotify de votre morceau.</p>
+                <form id="urlForm" class="form-group">
+                    <input type="url" id="sourceUrl" class="form-control" placeholder="https://open.spotify.com/track/..." required>
+                    <button type="submit" class="btn btn-primary">Récupérer les informations</button>
+                </form>
+            </div>
+
+            <!-- Étape 2: Personnalisation -->
+            <div class="card d-none" id="step2">
+                <h2>Étape 2: Personnalisation et Tracking</h2>
+                
+                <!-- Aperçu des données récupérées -->
+                <div id="trackPreview" class="alert alert-info mb-4" style="display: none;">
+                    <h5>📀 Données récupérées :</h5>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <img id="trackPreviewCover" src="" alt="Cover" style="width: 80px; height: 80px; border-radius: 8px; display: none;">
+                        <div>
+                            <strong id="previewTitle">-</strong><br>
+                            <span id="previewArtist" class="text-muted">-</span><br>
+                            <small id="previewPlatforms" class="text-success">-</small>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="customizationForm">
+                    <!-- Sélecteur de plateformes -->
+                    <div class="form-group">
+                        <label>Plateformes à inclure dans le SmartLink</label>
+                        <p class="text-muted" style="font-size: 14px;">Sélectionnez les plateformes que vous souhaitez afficher :</p>
+                        <div id="platformSelector" class="platform-grid">
+                            <!-- Les plateformes seront ajoutées dynamiquement -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="metaDescription">Meta description (150 caractères max)</label>
+                        <textarea id="metaDescription" class="form-control" rows="3" maxlength="150"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Artwork / Pochette</label>
+                        <div id="artworkPreview" style="display: none; margin-top: 10px;">
+                            <img id="artworkCover" src="" alt="Cover" style="width: 80px; height: 80px; border-radius: 8px; border: 1px solid #ddd;">
+                            <p style="font-size: 12px; color: #666; margin-top: 5px;">Artwork récupéré automatiquement via Odesli</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="audioPreview">Extrait audio (optionnel)</label>
+                        <input type="file" id="audioPreview" class="form-control" accept="audio/*">
+                    </div>
+                    <h3>Pixels de tracking</h3>
+                    <div class="form-group">
+                        <label for="ga4">Google Analytics 4 (G-XXXXXXXXXX)</label>
+                        <input type="text" id="ga4" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="gtm">Google Tag Manager (GTM-XXXXXXX)</label>
+                        <input type="text" id="gtm" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="metaPixel">Meta Pixel</label>
+                        <input type="text" id="metaPixel" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="tiktokPixel">TikTok Pixel</label>
+                        <input type="text" id="tiktokPixel" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Générer le SmartLink</button>
+                </form>
+            </div>
+
+            <!-- Étape 3: Résultat -->
+            <div class="card d-none" id="step3">
+                <h2>SmartLink généré !</h2>
+                <div id="result-content"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/config.js"></script>
+    <script src="/assets/js/admin.js?v=1.0.2"></script>
+    <script>
+        let trackData = {};
+
+        document.getElementById('urlForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const url = document.getElementById('sourceUrl').value;
+            mdmcAdmin.showNotification('Récupération des données...', 'info');
+
+            try {
+                const response = await mdmcAdmin.apiCall('/api/odesli', {
+                    method: 'POST',
+                    body: JSON.stringify({ url })
+                });
+                
+                console.log('🔍 Odesli API Response:', response);
+
+                if (response.success && response.data) {
+                    const data = response.data;
+                    console.log('🔍 Extracted data:', data);
+                    console.log('🔍 Cover URL from data:', data.coverUrl);
+                    trackData = {
+                        title: data.title,
+                        artistName: data.artist,
+                        album: data.album || '',
+                        thumbnailUrl: data.coverUrl,
+                        isrc: data.isrc || '',
+                        type: data.type || 'song',
+                        links: data.platforms ? data.platforms.reduce((acc, platform) => {
+                            acc[platform.name.toLowerCase().replace(/\s+/g, '')] = platform.url;
+                            return acc;
+                        }, {}) : {},
+                        platforms: data.platforms || []
+                    };
+                    
+                    // Afficher un aperçu des données récupérées
+                    displayTrackPreview(data);
+                    
+                    document.getElementById('step1').classList.add('d-none');
+                    document.getElementById('step2').classList.remove('d-none');
+                    mdmcAdmin.showNotification('Données récupérées !', 'success');
+                } else {
+                    mdmcAdmin.showNotification(response.error || 'Erreur lors de la récupération des données', 'danger');
+                }
+            } catch (error) {
+                mdmcAdmin.showNotification('Impossible de contacter le serveur de metadonnées.', 'danger');
+            }
+        });
+
+        document.getElementById('customizationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Debug: Afficher les données reçues d'Odesli
+            mdmcAdmin.debugData('Track Data from Odesli', trackData);
+            
+            const audioPreviewFile = document.getElementById('audioPreview').files[0];
+            let audioPreviewUrl = null;
+
+            if (audioPreviewFile) {
+                mdmcAdmin.showNotification('Upload de l\'extrait audio...', 'info');
+                try {
+                    const uploadResponse = await mdmcAdmin.uploadFile(audioPreviewFile, '/api/upload/audio');
+                    if (uploadResponse.success) {
+                        audioPreviewUrl = uploadResponse.data.url;
+                        mdmcAdmin.showNotification('Extrait audio uploadé !', 'success');
+                    } else {
+                        mdmcAdmin.showNotification('Erreur lors de l\'upload de l\'extrait audio.', 'danger');
+                        return;
+                    }
+                } catch (error) {
+                    mdmcAdmin.showNotification('Erreur lors de l\'upload de l\'extrait audio.', 'danger');
+                    return;
+                }
+            }
+
+            // Validation côté frontend avant envoi
+            if (!trackData || !trackData.title || !trackData.artistName) {
+                mdmcAdmin.showNotification('Données de base manquantes (titre ou artiste)', 'danger');
+                return;
+            }
+
+            if (!trackData.links || Object.keys(trackData.links).length === 0) {
+                mdmcAdmin.showNotification('Aucun lien de plateforme trouvé', 'danger');
+                return;
+            }
+
+            // Obtenir seulement les plateformes sélectionnées
+            const selectedPlatforms = getSelectedPlatforms();
+
+            if (selectedPlatforms.length === 0) {
+                mdmcAdmin.showNotification('Veuillez sélectionner au moins une plateforme', 'danger');
+                return;
+            }
+
+            // Adapter les données au format de notre API PostgreSQL
+            const smartlinkData = {
+                title: trackData.title,
+                artist: trackData.artistName,
+                description: document.getElementById('metaDescription').value,
+                coverUrl: trackData.thumbnailUrl,
+                previewAudioUrl: audioPreviewUrl,
+                platforms: selectedPlatforms, // Utiliser seulement les plateformes sélectionnées
+                odesliUrl: document.getElementById('sourceUrl').value, // URL originale pour Odesli
+                customization: {
+                    primaryColor: '#1976d2',
+                    backgroundColor: '#ffffff',
+                    textColor: '#333333'
+                },
+                trackingPixels: {
+                    google_analytics: 'G-098G18MJ7M',
+                    google_tag_manager: 'GTM-572GXWPP',
+                    meta_pixel: null,
+                    tiktok_pixel: null,
+                    custom_scripts: []
+                }
+            };
+
+            // Debug: Afficher les données avant envoi
+            mdmcAdmin.debugData('SmartLink Data to Send', smartlinkData);
+
+            mdmcAdmin.showNotification('Création du SmartLink en cours...', 'info');
+            try {
+                const createResponse = await mdmcAdmin.apiCall('/api/smartlinks', {
+                    method: 'POST',
+                    body: JSON.stringify(smartlinkData)
+                });
+
+                if (createResponse.success) {
+                    // Notre API PostgreSQL retourne le SmartLink et l'URL directement
+                    const smartlink = createResponse.smartlink;
+                    const generatedLink = createResponse.url;
+                    console.log('🔍 DEBUG - SmartLink créé:', smartlink);
+                    console.log('🔗 DEBUG - URL générée:', generatedLink);
+                    
+                    document.getElementById('step2').classList.add('d-none');
+                    document.getElementById('step3').classList.remove('d-none');
+                    document.getElementById('result-content').innerHTML = `
+                        <p>Votre SmartLink est prêt:</p>
+                        <div class="form-group">
+                            <input type="text" class="form-control" value="${generatedLink}" readonly onclick="this.select()">
+                        </div>
+                        <div style="display: flex; gap: 12px; margin-top: 16px;">
+                            <a href="${generatedLink}" target="_blank" class="btn btn-primary">Voir le SmartLink</a>
+                            <button onclick="mdmcAdmin.copyToClipboard('${generatedLink}')" class="btn btn-outline-primary">Copier le lien</button>
+                        </div>
+                    `;
+                    mdmcAdmin.showNotification('SmartLink créé avec succès !', 'success');
+                } else {
+                    mdmcAdmin.showNotification(createResponse.message || 'Erreur lors de la création du SmartLink', 'danger');
+                }
+            } catch (error) {
+                console.error('Création SmartLink - Erreur complète:', error);
+                mdmcAdmin.showNotification(`Impossible de créer le SmartLink: ${error.message}`, 'danger');
+            }
+        });
+
+        // Fonction pour afficher l'aperçu des données récupérées
+        function displayTrackPreview(data) {
+            const preview = document.getElementById('trackPreview');
+            const coverImg = document.getElementById('trackPreviewCover');
+            const titleSpan = document.getElementById('previewTitle');
+            const artistSpan = document.getElementById('previewArtist');
+            const platformsSpan = document.getElementById('previewPlatforms');
+
+            // Afficher les données
+            titleSpan.textContent = data.title || 'Titre non disponible';
+            artistSpan.textContent = data.artist || 'Artiste non disponible';
+            
+            if (data.coverUrl) {
+                // Utiliser le proxy d'image pour éviter les problèmes CORS
+                const proxyUrl = `/api/proxy/image?url=${encodeURIComponent(data.coverUrl)}`;
+                console.log('🔍 Using proxy URL for track preview:', proxyUrl);
+
+                // Gestion robuste du chargement de l'image preview
+                const testImg = new Image();
+                testImg.onload = function() {
+                    coverImg.src = proxyUrl;
+                    coverImg.style.display = 'block';
+                    console.log('🔍 Track preview cover loaded successfully via proxy');
+                };
+                testImg.onerror = function() {
+                    console.error('🔍 Failed to load track preview cover via proxy:', proxyUrl);
+                    // Fallback: essayer l'URL directe
+                    console.log('🔍 Trying direct URL as fallback:', data.coverUrl);
+                    const fallbackImg = new Image();
+                    fallbackImg.onload = function() {
+                        coverImg.src = data.coverUrl;
+                        coverImg.style.display = 'block';
+                        console.log('🔍 Track preview cover loaded with direct URL fallback');
+                    };
+                    fallbackImg.onerror = function() {
+                        console.error('🔍 Both proxy and direct URL failed for track preview');
+                        coverImg.style.display = 'none';
+                    };
+                    fallbackImg.src = data.coverUrl;
+                };
+                testImg.src = proxyUrl;
+
+                // Afficher aussi l'artwork dans la section création
+                showArtworkPreview(data.coverUrl);
+            } else {
+                coverImg.style.display = 'none';
+                // Notifier qu'aucun artwork n'est disponible
+                showArtworkPreview(null);
+            }
+
+            if (data.platforms && data.platforms.length > 0) {
+                const platformCount = data.platforms.length;
+                platformsSpan.textContent = `✅ ${platformCount} plateforme${platformCount > 1 ? 's' : ''} trouvée${platformCount > 1 ? 's' : ''} (${data.platforms.slice(0, 3).map(p => p.name).join(', ')}${platformCount > 3 ? ', ...' : ''})`;
+
+                // Peupler le sélecteur de plateformes
+                populatePlatformSelector(data.platforms);
+            } else {
+                platformsSpan.textContent = '❌ Aucune plateforme trouvée';
+            }
+
+            preview.style.display = 'block';
+        }
+
+        // Affichage de l'artwork d'Odesli avec gestion d'erreur robuste
+        function showArtworkPreview(coverUrl) {
+            console.log('🎨 showArtworkPreview called with:', coverUrl);
+
+            const container = document.getElementById('artworkPreview');
+
+            console.log('🎨 Container element found:', !!container);
+            console.log('🎨 Container current display:', container ? window.getComputedStyle(container).display : 'N/A');
+
+            if (!container) {
+                console.error('🎨 Could not find artwork container element');
+                return;
+            }
+
+            if (coverUrl) {
+                // Utiliser le proxy d'image pour éviter les problèmes CORS
+                const proxyUrl = `/api/proxy/image?url=${encodeURIComponent(coverUrl)}`;
+                console.log('🎨 Using proxy URL for artwork:', proxyUrl);
+
+                // Créer un état de chargement
+                container.innerHTML = `
+                    <div class="artwork-loading">
+                        <div class="loading"></div>
+                    </div>
+                    <p style="font-size: 12px; color: #666; margin-top: 5px;">Chargement de l'artwork via proxy...</p>
+                `;
+                container.style.display = 'block';
+
+                // Créer une nouvelle image pour tester le chargement
+                const testImg = new Image();
+
+                testImg.onload = function() {
+                    console.log('🎨 Image loaded successfully via proxy:', proxyUrl);
+                    // Restaurer le contenu original avec l'image chargée
+                    container.innerHTML = `
+                        <img id="artworkCover" src="${proxyUrl}" alt="Cover"
+                             style="width: 80px; height: 80px; border-radius: 8px; border: 1px solid #ddd; object-fit: cover;">
+                        <p style="font-size: 12px; color: #666; margin-top: 5px;">Artwork récupéré automatiquement via Odesli (proxy)</p>
+                    `;
+
+                    console.log('🎨 Artwork preview loaded successfully');
+                };
+
+                testImg.onerror = function() {
+                    console.error('🎨 Failed to load image via proxy:', proxyUrl);
+                    console.log('🎨 Trying direct URL as fallback:', coverUrl);
+
+                    // Fallback: essayer l'URL directe
+                    const fallbackImg = new Image();
+                    fallbackImg.onload = function() {
+                        console.log('🎨 Image loaded with direct URL fallback:', coverUrl);
+                        container.innerHTML = `
+                            <img id="artworkCover" src="${coverUrl}" alt="Cover"
+                                 style="width: 80px; height: 80px; border-radius: 8px; border: 1px solid #ddd; object-fit: cover;">
+                            <p style="font-size: 12px; color: #666; margin-top: 5px;">Artwork récupéré automatiquement via Odesli (direct)</p>
+                        `;
+
+                        console.log('🎨 Artwork preview loaded with fallback');
+                    };
+                    fallbackImg.onerror = function() {
+                        console.error('🎨 Both proxy and direct URL failed for artwork');
+                        container.innerHTML = `
+                            <div class="artwork-loading" style="background: #ffebee; color: #c62828;">
+                                ❌ Erreur
+                            </div>
+                            <p style="font-size: 12px; color: #c62828; margin-top: 5px;">Impossible de charger l'artwork</p>
+                        `;
+                    };
+                    fallbackImg.src = coverUrl;
+                };
+
+                // Déclencher le chargement
+                testImg.src = proxyUrl;
+
+            } else {
+                console.log('🎨 No coverUrl provided');
+                container.innerHTML = `
+                    <div class="artwork-loading" style="background: #fff3e0; color: #ef6c00;">
+                        📷 Pas d'image
+                    </div>
+                    <p style="font-size: 12px; color: #ef6c00; margin-top: 5px;">Aucun artwork trouvé</p>
+                `;
+                container.style.display = 'block';
+            }
+        }
+
+        // Fonction de diagnostic pour déboguer les problèmes d'image
+        function diagnosticArtwork() {
+            console.group('🔍 DIAGNOSTIC ARTWORK');
+
+            const elements = {
+                trackPreview: document.getElementById('trackPreview'),
+                trackPreviewCover: document.getElementById('trackPreviewCover'),
+                artworkPreview: document.getElementById('artworkPreview'),
+                artworkCover: document.getElementById('artworkCover')
+            };
+
+            Object.entries(elements).forEach(([name, el]) => {
+                if (el) {
+                    const styles = window.getComputedStyle(el);
+                    console.log(`✅ ${name}:`, {
+                        exists: true,
+                        display: styles.display,
+                        visibility: styles.visibility,
+                        opacity: styles.opacity,
+                        width: styles.width,
+                        height: styles.height,
+                        src: el.src || 'N/A'
+                    });
+                } else {
+                    console.log(`❌ ${name}: Element not found`);
+                }
+            });
+
+            // Test de chargement d'une image Amazon (similaire à Odesli)
+            const testUrl = 'https://m.media-amazon.com/images/I/51eZ43XHM4L._AA500.jpg';
+            const testProxyUrl = `/api/proxy/image?url=${encodeURIComponent(testUrl)}`;
+
+            console.log('🧪 Testing direct Amazon image loading:', testUrl);
+            const testImg = new Image();
+            testImg.onload = () => console.log('✅ Test direct image loaded successfully');
+            testImg.onerror = (e) => console.error('❌ Test direct image failed to load:', e);
+            testImg.src = testUrl;
+
+            console.log('🧪 Testing proxy image loading:', testProxyUrl);
+            const testProxyImg = new Image();
+            testProxyImg.onload = () => console.log('✅ Test proxy image loaded successfully');
+            testProxyImg.onerror = (e) => console.error('❌ Test proxy image failed to load:', e);
+            testProxyImg.src = testProxyUrl;
+
+            console.groupEnd();
+        }
+
+        // Exposer la fonction de diagnostic globalement pour debug
+        window.diagnosticArtwork = diagnosticArtwork;
+
+        // Fonction de test pour forcer l'affichage d'artwork
+        window.testArtworkDisplay = function(testUrl) {
+            const url = testUrl || 'https://resources.tidal.com/images/16a89c62/a6cf/4114/a517/e897b145dce3/640x640.jpg';
+            console.log('🧪 Testing artwork display with URL:', url);
+
+            // Forcer l'affichage du conteneur
+            const container = document.getElementById('artworkPreview');
+            if (container) {
+                container.style.display = 'block';
+                console.log('🧪 Container display set to block');
+            }
+
+            // Tester la fonction showArtworkPreview
+            showArtworkPreview(url);
+        };
+
+        // Fonction pour appliquer uniquement le background
+        window.testBackgroundOnly = function(testUrl) {
+            const url = testUrl || 'https://resources.tidal.com/images/16a89c62/a6cf/4114/a517/e897b145dce3/640x640.jpg';
+            const proxyUrl = `/api/proxy/image?url=${encodeURIComponent(url)}`;
+            console.log('🧪 Testing background with proxy URL:', proxyUrl);
+
+            console.log('🧪 Background test function called');
+        };
+
+        // Fonction pour tester directement le proxy
+        window.testProxy = function(testUrl) {
+            const url = testUrl || 'https://resources.tidal.com/images/16a89c62/a6cf/4114/a517/e897b145dce3/640x640.jpg';
+            const proxyUrl = `/api/proxy/image?url=${encodeURIComponent(url)}`;
+            console.log('🧪 Testing proxy URL:', proxyUrl);
+
+            const img = new Image();
+            img.onload = () => console.log('✅ Proxy test successful');
+            img.onerror = (e) => console.error('❌ Proxy test failed:', e);
+            img.src = proxyUrl;
+        };
+
+        // Configuration des icônes des plateformes
+        const platformIcons = {
+            'spotify': '/assets/images/platforms/picto_spotify.png',
+            'apple': '/assets/images/platforms/picto_apple.png',
+            'applemusic': '/assets/images/platforms/picto_apple.png',
+            'youtube': '/assets/images/platforms/picto_youtube.png',
+            'youtubemusic': '/assets/images/platforms/picto_youtubemusic.png',
+            'deezer': '/assets/images/platforms/picto_deezer.png',
+            'soundcloud': '/assets/images/platforms/picto_soundcloud.png',
+            'tidal': '/assets/images/platforms/picto_tidal.png',
+            'amazon': '/assets/images/platforms/picto_amazon.png',
+            'amazonmusic': '/assets/images/platforms/picto_amazon.png'
+        };
+
+        const platformDescriptions = {
+            'spotify': 'Music for everyone',
+            'apple': 'Music everywhere',
+            'applemusic': 'Music everywhere',
+            'youtube': 'Watch on YouTube',
+            'youtubemusic': 'Music videos & more',
+            'deezer': 'Flow your music',
+            'soundcloud': 'Hear the future',
+            'tidal': 'High fidelity',
+            'amazon': 'Music unlimited',
+            'amazonmusic': 'Music unlimited'
+        };
+
+        // Fonction pour peupler le sélecteur de plateformes
+        function populatePlatformSelector(platforms) {
+            const selector = document.getElementById('platformSelector');
+            if (!selector) return;
+
+            console.log('🎯 Populating platform selector with platforms:', platforms);
+
+            selector.innerHTML = '';
+
+            platforms.forEach((platform, index) => {
+                // Mapping spécifique pour bien distinguer YouTube et YouTube Music
+                let platformKey = platform.name.toLowerCase().replace(/\s+/g, '');
+
+                // Cas spéciaux pour éviter la confusion
+                if (platformKey === 'youtubemusic') {
+                    platformKey = 'youtubemusic';
+                } else if (platformKey === 'youtube') {
+                    platformKey = 'youtube';
+                } else if (platformKey === 'applemusic') {
+                    platformKey = 'applemusic';
+                } else if (platformKey === 'amazonmusic') {
+                    platformKey = 'amazonmusic';
+                } else {
+                    // Pour les autres, on peut enlever "music" si nécessaire
+                    platformKey = platformKey.replace('music', '');
+                }
+
+                const iconPath = platformIcons[platformKey] || '/assets/images/platforms/default.png';
+                const description = platformDescriptions[platformKey] || 'Listen now';
+
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'platform-option';
+                optionDiv.innerHTML = `
+                    <input type="checkbox"
+                           id="platform_${index}"
+                           name="selectedPlatforms"
+                           value="${index}"
+                           ${index < 5 ? 'checked' : ''}>
+                    <img src="${iconPath}" alt="${platform.name}" onerror="this.style.display='none'">
+                    <div class="platform-info">
+                        <div class="platform-name">${platform.name}</div>
+                        <div class="platform-desc">${description}</div>
+                    </div>
+                `;
+
+                // Ajouter l'événement de clic pour la sélection
+                const checkbox = optionDiv.querySelector('input[type="checkbox"]');
+                optionDiv.addEventListener('click', (e) => {
+                    if (e.target.type !== 'checkbox') {
+                        checkbox.checked = !checkbox.checked;
+                    }
+                    optionDiv.classList.toggle('selected', checkbox.checked);
+                });
+
+                // Mettre à jour la classe lors du chargement initial
+                if (checkbox.checked) {
+                    optionDiv.classList.add('selected');
+                }
+
+                selector.appendChild(optionDiv);
+            });
+
+            console.log('✅ Platform selector populated successfully');
+        }
+
+        // Fonction pour obtenir les plateformes sélectionnées
+        function getSelectedPlatforms() {
+            const checkboxes = document.querySelectorAll('#platformSelector input[type="checkbox"]:checked');
+            const selectedPlatforms = [];
+
+            checkboxes.forEach(checkbox => {
+                const platformIndex = parseInt(checkbox.value);
+                if (trackData.platforms && trackData.platforms[platformIndex]) {
+                    selectedPlatforms.push(trackData.platforms[platformIndex]);
+                }
+            });
+
+            console.log('🎯 Selected platforms:', selectedPlatforms);
+            return selectedPlatforms;
+        }
+
+        // Logout function
+        async function logout() {
+            try {
+                // Call server logout endpoint to clear cookie
+                await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            } finally {
+                // Always clear local storage and redirect
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('user');
+                window.location.href = '/pages/login.html';
+            }
+        }
+    </script>
+</body>
+</html>

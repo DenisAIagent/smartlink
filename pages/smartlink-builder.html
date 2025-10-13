@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartLink Builder Pro | MDMC</title>
+    <link rel="icon" href="/public/assets/favicon.png">
+    <style>
+        :root {
+            --primary: #E50914;
+            --secondary: #141414;
+            --white: #FFFFFF;
+            --gray-light: #F8F9FA;
+            --gray-medium: #999999;
+            --shadow-light: 0 2px 8px rgba(0,0,0,0.04);
+            --shadow-medium: 0 4px 16px rgba(0,0,0,0.08);
+            --shadow-heavy: 0 8px 32px rgba(0,0,0,0.12);
+            --border-radius: 12px;
+            --border-radius-lg: 20px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--gray-light);
+            color: var(--secondary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .builder-container {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            min-height: 100vh;
+            gap: 0;
+        }
+
+        /* Left Sidebar - Identique au dashboard MDMC */
+        .sidebar {
+            background: var(--white);
+            border-right: 1px solid rgba(0,0,0,0.06);
+            padding: 32px 24px;
+            position: relative;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 48px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), #ff1a1a);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            text-decoration: none;
+            color: var(--gray-medium);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(229, 9, 20, 0.08);
+            color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            opacity: 0.7;
+            font-size: 16px;
+        }
+
+        .components-section {
+            margin-top: 32px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--gray-medium);
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        .draggable-component {
+            background: var(--white);
+            border: 2px solid #E5E7EB;
+            border-radius: var(--border-radius);
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: move;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .draggable-component:hover {
+            border-color: var(--primary);
+            transform: translateX(4px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .draggable-component.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .component-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), #ff1a1a);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        /* Center - Canvas Area */
+        .main-content {
+            padding: 32px;
+            background: var(--gray-light);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .header-left h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 4px;
+        }
+
+        .header-left p {
+            color: var(--gray-medium);
+            font-size: 14px;
+        }
+
+        .device-selector {
+            display: flex;
+            gap: 8px;
+            background: var(--white);
+            padding: 4px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+        }
+
+        .device-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-medium);
+            transition: var(--transition);
+        }
+
+        .device-btn.active {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .canvas-wrapper {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-medium);
+            padding: 24px;
+            min-height: 600px;
+            position: relative;
+        }
+
+        .smartlink-preview {
+            max-width: 100%;
+            margin: 0 auto;
+            transition: var(--transition);
+        }
+
+        .smartlink-preview.mobile {
+            max-width: 375px;
+        }
+
+        .smartlink-preview.tablet {
+            max-width: 768px;
+        }
+
+        .preview-content {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            min-height: 500px;
+            border: 2px dashed #E5E7EB;
+            position: relative;
+        }
+
+        .drop-zone {
+            min-height: 100px;
+            border: 2px dashed transparent;
+            border-radius: var(--border-radius);
+            padding: 16px;
+            margin: 12px 0;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .drop-zone.drag-over {
+            border-color: var(--primary);
+            background: rgba(229, 9, 20, 0.05);
+        }
+
+        .drop-zone-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-medium);
+            font-size: 14px;
+            padding: 32px;
+        }
+
+        .preview-element {
+            margin: 12px 0;
+            padding: 16px;
+            background: var(--gray-light);
+            border-radius: var(--border-radius);
+            position: relative;
+            cursor: move;
+            transition: var(--transition);
+        }
+
+        .preview-element:hover {
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-2px);
+        }
+
+        .preview-element.selected {
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 0 4px rgba(229, 9, 20, 0.1);
+        }
+
+        .element-controls {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .preview-element:hover .element-controls {
+            opacity: 1;
+        }
+
+        .control-btn {
+            width: 28px;
+            height: 28px;
+            background: var(--white);
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: var(--secondary);
+            transition: var(--transition);
+        }
+
+        .control-btn:hover {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        /* Right Panel - Properties */
+        .properties-panel {
+            background: var(--white);
+            border-left: 1px solid rgba(0,0,0,0.06);
+            padding: 32px 24px;
+            overflow-y: auto;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .property-group {
+            margin-bottom: 24px;
+        }
+
+        .property-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--gray-medium);
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .property-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #E5E7EB;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            background: var(--white);
+            transition: var(--transition);
+        }
+
+        .property-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.1);
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .color-preview {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            border: 2px solid #E5E7EB;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .color-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* Action Buttons */
+        .action-bar {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--white);
+            padding: 16px 24px;
+            border-radius: 100px;
+            box-shadow: var(--shadow-heavy);
+            display: flex;
+            gap: 16px;
+            z-index: 1000;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(229, 9, 20, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--secondary);
+        }
+
+        .btn-secondary:hover {
+            background: #E5E7EB;
+        }
+
+        /* Platform Components */
+        .platform-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: var(--white);
+            border: 2px solid #E5E7EB;
+            border-radius: var(--border-radius);
+            margin-bottom: 12px;
+            cursor: move;
+            transition: var(--transition);
+        }
+
+        .platform-item:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .platform-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .platform-icon img {
+            width: 28px;
+            height: 28px;
+        }
+
+        .platform-info {
+            flex: 1;
+        }
+
+        .platform-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .platform-url {
+            font-size: 12px;
+            color: var(--gray-medium);
+        }
+
+        /* Templates */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .template-card {
+            border: 2px solid #E5E7EB;
+            border-radius: var(--border-radius);
+            padding: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .template-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .template-card.selected {
+            border-color: var(--primary);
+            background: rgba(229, 9, 20, 0.05);
+        }
+
+        .template-preview {
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(135deg, #E5E7EB 0%, #F3F4F6 100%);
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .builder-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .sidebar,
+            .properties-panel {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="builder-container">
+        <!-- Left Sidebar - Style MDMC -->
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">M</div>
+                <div class="logo-text">MDMC</div>
+            </div>
+
+            <nav class="nav-menu" role="navigation" aria-label="Navigation principale">
+                <a href="/pages/dashboard.html" class="nav-item">
+                    <span>Dashboard</span>
+                </a>
+                <a href="/pages/list-smartlinks.html" class="nav-item">
+                    <span>SmartLinks</span>
+                </a>
+                <a href="/pages/create-smartlink.html" class="nav-item">
+                    <span>Créer SmartLink</span>
+                </a>
+                <a href="/pages/settings.html" class="nav-item">
+                    <span>Settings</span>
+                </a>
+                <a href="#" class="nav-item" onclick="logout()">
+                    <span>Déconnexion</span>
+                </a>
+            </nav>
+
+            <div class="components-section">
+                <div class="section-title">Composants</div>
+                
+                <div class="draggable-component" draggable="true" data-component="cover">
+                    <div class="component-icon">🎵</div>
+                    <div>
+                        <div style="font-weight: 600;">Cover & Titre</div>
+                        <div style="font-size: 12px; color: var(--gray-medium);">Image + infos du track</div>
+                    </div>
+                </div>
+
+                <div class="draggable-component" draggable="true" data-component="platforms">
+                    <div class="component-icon">🔗</div>
+                    <div>
+                        <div style="font-weight: 600;">Plateformes</div>
+                        <div style="font-size: 12px; color: var(--gray-medium);">Liens streaming</div>
+                    </div>
+                </div>
+
+                <div class="draggable-component" draggable="true" data-component="presave">
+                    <div class="component-icon">⏰</div>
+                    <div>
+                        <div style="font-weight: 600;">Pre-Save</div>
+                        <div style="font-size: 12px; color: var(--gray-medium);">Widget pré-enregistrement</div>
+                    </div>
+                </div>
+
+                <div class="draggable-component" draggable="true" data-component="social">
+                    <div class="component-icon">💬</div>
+                    <div>
+                        <div style="font-weight: 600;">Réseaux sociaux</div>
+                        <div style="font-size: 12px; color: var(--gray-medium);">Follow buttons</div>
+                    </div>
+                </div>
+
+                <div class="draggable-component" draggable="true" data-component="email">
+                    <div class="component-icon">✉️</div>
+                    <div>
+                        <div style="font-weight: 600;">Capture email</div>
+                        <div style="font-size: 12px; color: var(--gray-medium);">Newsletter signup</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="components-section">
+                <div class="section-title">Templates</div>
+                
+                <div class="template-grid">
+                    <div class="template-card" onclick="loadTemplate('odesli')">
+                        <div class="template-preview" style="background: linear-gradient(135deg, #1DB954 0%, #FA243C 100%);"></div>
+                        <div style="font-size: 12px; font-weight: 600;">Auto Odesli</div>
+                    </div>
+                    <div class="template-card" onclick="loadTemplate('minimal')">
+                        <div class="template-preview" style="background: linear-gradient(135deg, var(--primary) 0%, #ff1a1a 100%);"></div>
+                        <div style="font-size: 12px; font-weight: 600;">Minimal</div>
+                    </div>
+                    <div class="template-card" onclick="loadTemplate('pro')">
+                        <div class="template-preview" style="background: linear-gradient(135deg, #4FACFE 0%, #00F2FE 100%);"></div>
+                        <div style="font-size: 12px; font-weight: 600;">Pro</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center - Canvas -->
+        <div class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <h1>SmartLink Builder Pro</h1>
+                    <p>Créez des SmartLinks avec le glisser-déposer</p>
+                </div>
+                <div class="device-selector">
+                    <button class="device-btn active" onclick="setDevice('desktop')">💻 Desktop</button>
+                    <button class="device-btn" onclick="setDevice('tablet')">📱 Tablet</button>
+                    <button class="device-btn" onclick="setDevice('mobile')">📱 Mobile</button>
+                </div>
+            </div>
+
+            <div class="canvas-wrapper">
+                <div class="smartlink-preview desktop" id="preview">
+                    <div class="preview-content" id="dropZone">
+                        <div class="drop-zone-empty">
+                            Glissez des composants ici pour commencer votre SmartLink
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Properties -->
+        <div class="properties-panel">
+            <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 24px;">
+                ⚙️ Propriétés
+            </h2>
+
+            <div class="property-group">
+                <div class="property-label">🎵 Récupération automatique Odesli</div>
+                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                    <input type="text" class="property-input" id="odesliUrl" placeholder="Collez un lien Spotify, Apple Music, YouTube..." style="flex: 1;">
+                    <button class="btn btn-primary" onclick="fetchFromOdesli()" style="padding: 12px 16px; min-width: auto;">
+                        🔄
+                    </button>
+                </div>
+                <button onclick="loadExampleOdesli()" style="font-size: 11px; color: var(--primary); background: none; border: none; cursor: pointer; margin-bottom: 8px;">
+                    💡 Tester avec un exemple
+                </button>
+                <div id="odesliStatus" style="font-size: 12px; color: var(--gray-medium); margin-bottom: 16px;"></div>
+            </div>
+
+            <div class="property-group">
+                <div class="property-label">Informations de base</div>
+                <input type="text" class="property-input" id="trackTitle" placeholder="Titre du morceau (auto-rempli par Odesli)">
+                <input type="text" class="property-input" id="artistName" placeholder="Nom de l'artiste (auto-rempli par Odesli)" style="margin-top: 12px;">
+                <input type="text" class="property-input" id="coverUrl" placeholder="URL de la cover (auto-remplie par Odesli)" style="margin-top: 12px;">
+            </div>
+
+            <div class="property-group">
+                <div class="property-label">Couleurs du thème</div>
+                <div class="color-picker-wrapper">
+                    <div class="color-preview" style="background: #E50914;">
+                        <input type="color" class="color-input" id="primaryColor" value="#E50914">
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; font-size: 14px;">Couleur principale</div>
+                        <div style="font-size: 12px; color: var(--gray-medium);">Boutons et accents</div>
+                    </div>
+                </div>
+                <div class="color-picker-wrapper" style="margin-top: 16px;">
+                    <div class="color-preview" style="background: #FFFFFF;">
+                        <input type="color" class="color-input" id="bgColor" value="#FFFFFF">
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; font-size: 14px;">Arrière-plan</div>
+                        <div style="font-size: 12px; color: var(--gray-medium);">Couleur de fond</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="property-group">
+                <div class="property-label">Tracking & Analytics</div>
+                <input type="text" class="property-input" placeholder="Facebook Pixel ID">
+                <input type="text" class="property-input" placeholder="Google Analytics ID" style="margin-top: 12px;">
+                <label style="display: flex; align-items: center; gap: 8px; margin-top: 16px; cursor: pointer;">
+                    <input type="checkbox" id="enableRetargeting">
+                    <span style="font-size: 14px;">Activer le retargeting</span>
+                </label>
+            </div>
+
+            <div class="property-group">
+                <div class="property-label">Options avancées</div>
+                <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; cursor: pointer;">
+                    <input type="checkbox" id="enablePresave">
+                    <span style="font-size: 14px;">Widget Pre-Save</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; cursor: pointer;">
+                    <input type="checkbox" id="enableEmailCapture">
+                    <span style="font-size: 14px;">Capture d'email</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="enableSocialGate">
+                    <span style="font-size: 14px;">Social Gate</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+        <button class="btn btn-secondary" onclick="resetBuilder()">
+            <span>↺</span> Réinitialiser
+        </button>
+        <button class="btn btn-secondary" onclick="previewLink()">
+            <span>👁️</span> Aperçu
+        </button>
+        <button class="btn btn-primary" onclick="saveSmartLink()">
+            <span>💾</span> Sauvegarder
+        </button>
+    </div>
+
+    <script>
+        // SmartLink Builder Pro - Conforme MDMC
+        class SmartLinkBuilder {
+            constructor() {
+                this.components = [];
+                this.selectedElement = null;
+                this.currentDevice = 'desktop';
+                this.init();
+            }
+
+            init() {
+                this.setupDragAndDrop();
+                this.setupPropertyListeners();
+                this.loadSavedState();
+            }
+
+            setupDragAndDrop() {
+                // Draggable components
+                document.querySelectorAll('.draggable-component').forEach(component => {
+                    component.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.effectAllowed = 'copy';
+                        e.dataTransfer.setData('component-type', component.dataset.component);
+                        component.classList.add('dragging');
+                    });
+
+                    component.addEventListener('dragend', (e) => {
+                        component.classList.remove('dragging');
+                    });
+                });
+
+                // Drop zone
+                const dropZone = document.getElementById('dropZone');
+                
+                dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'copy';
+                    dropZone.classList.add('drag-over');
+                });
+
+                dropZone.addEventListener('dragleave', (e) => {
+                    if (e.target === dropZone) {
+                        dropZone.classList.remove('drag-over');
+                    }
+                });
+
+                dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('drag-over');
+                    
+                    const componentType = e.dataTransfer.getData('component-type');
+                    if (componentType) {
+                        this.addComponent(componentType);
+                    }
+                });
+            }
+
+            addComponent(type) {
+                const dropZone = document.getElementById('dropZone');
+                
+                // Remove empty message if it exists
+                const emptyMsg = dropZone.querySelector('.drop-zone-empty');
+                if (emptyMsg) {
+                    emptyMsg.remove();
+                }
+
+                const element = this.createComponentElement(type);
+                dropZone.appendChild(element);
+                this.components.push({ type, element });
+                
+                // Make it interactive
+                this.makeElementInteractive(element);
+                
+                // Auto-save
+                this.saveState();
+            }
+
+            createComponentElement(type) {
+                const div = document.createElement('div');
+                div.className = 'preview-element';
+                div.dataset.componentType = type;
+                
+                const components = {
+                    cover: `
+                        <div style="text-align: center;">
+                            <img src="https://via.placeholder.com/200" style="width: 200px; height: 200px; border-radius: 12px; margin-bottom: 16px;">
+                            <h2 style="font-size: 24px; margin-bottom: 8px;">Titre du morceau</h2>
+                            <p style="color: var(--gray-medium);">Nom de l'artiste</p>
+                        </div>
+                    `,
+                    platforms: `
+                        <div class="platforms-container">
+                            <div class="platform-item">
+                                <div class="platform-icon" style="background: #1DB954;">
+                                    <span style="color: white;">♪</span>
+                                </div>
+                                <div class="platform-info">
+                                    <div class="platform-name">Spotify</div>
+                                    <div class="platform-url">Écouter maintenant</div>
+                                </div>
+                            </div>
+                            <div class="platform-item">
+                                <div class="platform-icon" style="background: #FA243C;">
+                                    <span style="color: white;">♪</span>
+                                </div>
+                                <div class="platform-info">
+                                    <div class="platform-name">Apple Music</div>
+                                    <div class="platform-url">Écouter maintenant</div>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    presave: `
+                        <div style="background: linear-gradient(135deg, var(--primary) 0%, #ff1a1a 100%); color: white; padding: 24px; border-radius: 12px; text-align: center;">
+                            <h3 style="margin-bottom: 12px;">🎵 Pre-Save maintenant!</h3>
+                            <p style="margin-bottom: 16px; opacity: 0.9;">Soyez le premier à écouter dès la sortie</p>
+                            <button style="background: white; color: var(--primary); border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                Pre-Save sur Spotify
+                            </button>
+                        </div>
+                    `,
+                    social: `
+                        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                            <button style="padding: 10px 20px; background: #1877F2; color: white; border: none; border-radius: 8px; cursor: pointer;">Facebook</button>
+                            <button style="padding: 10px 20px; background: #E4405F; color: white; border: none; border-radius: 8px; cursor: pointer;">Instagram</button>
+                            <button style="padding: 10px 20px; background: #1DA1F2; color: white; border: none; border-radius: 8px; cursor: pointer;">Twitter</button>
+                        </div>
+                    `,
+                    email: `
+                        <div style="background: var(--gray-light); padding: 24px; border-radius: 12px; text-align: center;">
+                            <h3 style="margin-bottom: 12px;">📬 Restez informé</h3>
+                            <p style="margin-bottom: 16px; color: var(--gray-medium);">Recevez les dernières nouvelles et sorties</p>
+                            <div style="display: flex; gap: 8px; max-width: 400px; margin: 0 auto;">
+                                <input type="email" placeholder="Votre email" style="flex: 1; padding: 12px; border: 1px solid #E5E7EB; border-radius: 8px;">
+                                <button style="background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                    S'inscrire
+                                </button>
+                            </div>
+                        </div>
+                    `
+                };
+
+                div.innerHTML = `
+                    ${components[type] || '<div>Component</div>'}
+                    <div class="element-controls">
+                        <button class="control-btn" onclick="builder.moveUp(this)">↑</button>
+                        <button class="control-btn" onclick="builder.moveDown(this)">↓</button>
+                        <button class="control-btn" onclick="builder.removeElement(this)">✕</button>
+                    </div>
+                `;
+
+                return div;
+            }
+
+            makeElementInteractive(element) {
+                element.addEventListener('click', (e) => {
+                    if (!e.target.closest('.control-btn')) {
+                        this.selectElement(element);
+                    }
+                });
+            }
+
+            selectElement(element) {
+                document.querySelectorAll('.preview-element').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                
+                element.classList.add('selected');
+                this.selectedElement = element;
+            }
+
+            setupPropertyListeners() {
+                document.getElementById('trackTitle').addEventListener('input', (e) => {
+                    const coverElements = document.querySelectorAll('[data-component-type="cover"] h2');
+                    coverElements.forEach(el => el.textContent = e.target.value || 'Titre du morceau');
+                    this.saveState();
+                });
+
+                document.getElementById('artistName').addEventListener('input', (e) => {
+                    const artistElements = document.querySelectorAll('[data-component-type="cover"] p');
+                    artistElements.forEach(el => el.textContent = e.target.value || 'Nom de l\'artiste');
+                    this.saveState();
+                });
+            }
+
+            moveUp(btn) {
+                const element = btn.closest('.preview-element');
+                const prev = element.previousElementSibling;
+                if (prev && !prev.classList.contains('drop-zone-empty')) {
+                    element.parentNode.insertBefore(element, prev);
+                    this.saveState();
+                }
+            }
+
+            moveDown(btn) {
+                const element = btn.closest('.preview-element');
+                const next = element.nextElementSibling;
+                if (next) {
+                    element.parentNode.insertBefore(next, element);
+                    this.saveState();
+                }
+            }
+
+            removeElement(btn) {
+                const element = btn.closest('.preview-element');
+                element.remove();
+                
+                const dropZone = document.getElementById('dropZone');
+                if (!dropZone.querySelector('.preview-element')) {
+                    dropZone.innerHTML = '<div class="drop-zone-empty">Glissez des composants ici pour commencer votre SmartLink</div>';
+                }
+                
+                this.saveState();
+            }
+
+            saveState() {
+                const state = {
+                    components: this.components.map(c => c.type),
+                    properties: {
+                        title: document.getElementById('trackTitle').value,
+                        artist: document.getElementById('artistName').value
+                    }
+                };
+                localStorage.setItem('smartlink-builder-state', JSON.stringify(state));
+            }
+
+            loadSavedState() {
+                const saved = localStorage.getItem('smartlink-builder-state');
+                if (saved) {
+                    const state = JSON.parse(saved);
+                    if (state.properties) {
+                        document.getElementById('trackTitle').value = state.properties.title || '';
+                        document.getElementById('artistName').value = state.properties.artist || '';
+                    }
+                }
+            }
+        }
+
+        // Initialize builder
+        const builder = new SmartLinkBuilder();
+
+        // Odesli Integration Functions
+        async function fetchFromOdesli() {
+            const url = document.getElementById('odesliUrl').value.trim();
+            const statusDiv = document.getElementById('odesliStatus');
+            const btn = event.target;
+            
+            if (!url) {
+                statusDiv.innerHTML = '⚠️ Veuillez coller un lien de plateforme musicale';
+                statusDiv.style.color = '#F59E0B';
+                return;
+            }
+
+            // Update UI
+            btn.innerHTML = '⏳';
+            btn.disabled = true;
+            statusDiv.innerHTML = '🔄 Récupération des données Odesli...';
+            statusDiv.style.color = 'var(--gray-medium)';
+
+            try {
+                // Call MDMC Odesli API
+                const response = await fetch('/api/odesli', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    body: JSON.stringify({ url })
+                });
+
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    await populateFromOdesliData(result.data);
+                    statusDiv.innerHTML = `✅ Données récupérées depuis ${result.data.platforms?.length || 0} plateformes`;
+                    statusDiv.style.color = '#10B981';
+                } else {
+                    throw new Error(result.error || 'Erreur lors de la récupération');
+                }
+            } catch (error) {
+                console.error('Odesli fetch error:', error);
+                statusDiv.innerHTML = `❌ ${error.message}`;
+                statusDiv.style.color = 'var(--primary)';
+            } finally {
+                btn.innerHTML = '🔄';
+                btn.disabled = false;
+            }
+        }
+
+        async function populateFromOdesliData(odesliData) {
+            // Fill basic info
+            if (odesliData.title) {
+                document.getElementById('trackTitle').value = odesliData.title;
+                // Update existing cover elements
+                const coverElements = document.querySelectorAll('[data-component-type="cover"] h2');
+                coverElements.forEach(el => el.textContent = odesliData.title);
+            }
+            
+            if (odesliData.artist) {
+                document.getElementById('artistName').value = odesliData.artist;
+                const artistElements = document.querySelectorAll('[data-component-type="cover"] p');
+                artistElements.forEach(el => el.textContent = odesliData.artist);
+            }
+            
+            if (odesliData.coverUrl) {
+                document.getElementById('coverUrl').value = odesliData.coverUrl;
+                // Update existing cover images
+                const coverImages = document.querySelectorAll('[data-component-type="cover"] img');
+                coverImages.forEach(img => img.src = odesliData.coverUrl);
+            }
+
+            // Auto-add platforms component if not present
+            const existingPlatforms = document.querySelector('[data-component-type="platforms"]');
+            if (!existingPlatforms && odesliData.platforms?.length > 0) {
+                builder.addComponent('platforms');
+            }
+
+            // Update platforms with real Odesli data
+            updatePlatformsWithOdesliData(odesliData.platforms || []);
+            
+            // Save state
+            builder.saveState();
+        }
+
+        function updatePlatformsWithOdesliData(platforms) {
+            const platformsContainer = document.querySelector('[data-component-type="platforms"] .platforms-container');
+            if (!platformsContainer) return;
+
+            // Clear existing platforms
+            platformsContainer.innerHTML = '';
+
+            // Platform icons mapping
+            const platformIcons = {
+                spotify: { icon: '🎵', color: '#1DB954', name: 'Spotify' },
+                appleMusic: { icon: '🍎', color: '#FA243C', name: 'Apple Music' },
+                youtubeMusic: { icon: '▶️', color: '#FF0000', name: 'YouTube Music' },
+                youtube: { icon: '📺', color: '#FF0000', name: 'YouTube' },
+                deezer: { icon: '🎶', color: '#FF6600', name: 'Deezer' },
+                soundcloud: { icon: '☁️', color: '#FF5500', name: 'SoundCloud' },
+                tidal: { icon: '🌊', color: '#000000', name: 'Tidal' },
+                amazonMusic: { icon: '📦', color: '#FF9900', name: 'Amazon Music' },
+                bandcamp: { icon: '🎪', color: '#629AA0', name: 'Bandcamp' }
+            };
+
+            // Add each platform
+            platforms.forEach(platform => {
+                const platformInfo = platformIcons[platform.platform] || { 
+                    icon: '🎵', 
+                    color: 'var(--primary)', 
+                    name: platform.platform 
+                };
+
+                const platformElement = document.createElement('div');
+                platformElement.className = 'platform-item';
+                platformElement.innerHTML = `
+                    <div class="platform-icon" style="background: ${platformInfo.color};">
+                        <span style="color: white; font-size: 20px;">${platformInfo.icon}</span>
+                    </div>
+                    <div class="platform-info">
+                        <div class="platform-name">${platformInfo.name}</div>
+                        <div class="platform-url">Écouter maintenant</div>
+                    </div>
+                `;
+                
+                // Add click handler for real link
+                platformElement.addEventListener('click', () => {
+                    window.open(platform.url, '_blank');
+                    
+                    // Track click
+                    if (window.trackingManager) {
+                        window.trackingManager.trackSmartLinkClick(
+                            platform.platform,
+                            'builder-preview',
+                            document.getElementById('artistName').value
+                        );
+                    }
+                });
+                
+                platformsContainer.appendChild(platformElement);
+            });
+        }
+
+        // Load example Odesli URL for testing
+        function loadExampleOdesli() {
+            const exampleUrls = [
+                'https://open.spotify.com/track/4iV5W9uYEdYUVa79Axb7Rh', // Never Gonna Give You Up
+                'https://music.apple.com/us/album/never-gonna-give-you-up/1558535547?i=1558535548',
+                'https://open.spotify.com/track/7ouMYWpwJ422jRcDASZB7P', // Bohemian Rhapsody
+                'https://open.spotify.com/track/0VjIjW4GlUK4UhLKV4c7hR' // Blinding Lights
+            ];
+            
+            const randomUrl = exampleUrls[Math.floor(Math.random() * exampleUrls.length)];
+            document.getElementById('odesliUrl').value = randomUrl;
+            
+            const statusDiv = document.getElementById('odesliStatus');
+            statusDiv.innerHTML = '✨ Exemple chargé ! Cliquez sur le bouton 🔄 pour tester Odesli';
+            statusDiv.style.color = 'var(--primary)';
+        }
+
+        // Helper functions
+        function setDevice(device) {
+            document.querySelectorAll('.device-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const preview = document.getElementById('preview');
+            preview.className = `smartlink-preview ${device}`;
+        }
+
+        function loadTemplate(templateName) {
+            document.getElementById('dropZone').innerHTML = '';
+            
+            const templates = {
+                odesli: ['cover', 'platforms'], // Template optimisé pour Odesli
+                minimal: ['cover', 'platforms'],
+                pro: ['cover', 'presave', 'platforms', 'email', 'social']
+            };
+
+            if (templates[templateName]) {
+                templates[templateName].forEach(component => {
+                    builder.addComponent(component);
+                });
+            }
+
+            // Si template Odesli, encourager à utiliser l'URL
+            if (templateName === 'odesli') {
+                const statusDiv = document.getElementById('odesliStatus');
+                statusDiv.innerHTML = '💡 Collez maintenant un lien Spotify, Apple Music ou YouTube pour récupérer automatiquement toutes les plateformes !';
+                statusDiv.style.color = 'var(--primary)';
+                document.getElementById('odesliUrl').focus();
+            }
+        }
+
+        function resetBuilder() {
+            if (confirm('Voulez-vous vraiment réinitialiser le builder?')) {
+                document.getElementById('dropZone').innerHTML = '<div class="drop-zone-empty">Glissez des composants ici pour commencer votre SmartLink</div>';
+                builder.components = [];
+                builder.saveState();
+            }
+        }
+
+        function previewLink() {
+            const previewWindow = window.open('', '_blank');
+            const html = document.getElementById('dropZone').innerHTML;
+            previewWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>SmartLink Preview</title>
+                    <style>
+                        body { font-family: Inter, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; }
+                        .element-controls { display: none !important; }
+                    </style>
+                </head>
+                <body>${html}</body>
+                </html>
+            `);
+        }
+
+        async function saveSmartLink() {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.innerHTML = '<span style="width: 16px; height: 16px; border: 2px solid transparent; border-top: 2px solid currentColor; border-radius: 50%; animation: spin 1s linear infinite; display: inline-block;"></span> Sauvegarde...';
+
+            // Collect platforms data from current state
+            const platforms = [];
+            const platformElements = document.querySelectorAll('[data-component-type="platforms"] .platform-item');
+            platformElements.forEach(el => {
+                const name = el.querySelector('.platform-name').textContent;
+                const icon = el.querySelector('.platform-icon span').textContent;
+                const color = el.querySelector('.platform-icon').style.backgroundColor;
+                platforms.push({
+                    name,
+                    icon,
+                    color,
+                    url: '#' // Will be filled server-side from Odesli data
+                });
+            });
+
+            const data = {
+                title: document.getElementById('trackTitle').value || 'Untitled',
+                artist: document.getElementById('artistName').value || 'Unknown Artist',
+                description: `SmartLink créé avec le Builder Pro pour ${document.getElementById('artistName').value || 'Unknown Artist'}`,
+                coverUrl: document.getElementById('coverUrl').value || null,
+                odesliUrl: document.getElementById('odesliUrl').value || null,
+                platforms: platforms,
+                components: builder.components.map(c => c.type),
+                customization: {
+                    primaryColor: document.getElementById('primaryColor').value,
+                    backgroundColor: document.getElementById('bgColor').value,
+                    template: 'builder-pro',
+                    builderHtml: document.getElementById('dropZone').innerHTML
+                },
+                // Advanced options
+                enableRetargeting: document.getElementById('enableRetargeting').checked,
+                enablePresave: document.getElementById('enablePresave').checked,
+                enableEmailCapture: document.getElementById('enableEmailCapture').checked,
+                enableSocialGate: document.getElementById('enableSocialGate').checked
+            };
+
+            try {
+                const response = await fetch('/api/smartlinks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`SmartLink créé avec succès!\nURL: ${result.url}`);
+                    window.location.href = '/smartlinks';
+                } else {
+                    alert('Erreur: ' + result.error);
+                }
+            } catch (error) {
+                alert('Erreur de connexion: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>💾</span> Sauvegarder';
+            }
+        }
+    </script>
+    
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</body>
+</html>

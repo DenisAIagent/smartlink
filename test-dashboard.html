@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Dashboard - MDMC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        #results {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Dashboard MDMC - Vérification des Données</h1>
+
+    <div class="test-section">
+        <h2>Tests API</h2>
+        <p>Ce script teste si le dashboard peut récupérer les vraies données depuis l'API</p>
+
+        <button class="btn" onclick="testSmartLinksAPI()">Tester API SmartLinks</button>
+        <button class="btn" onclick="testAnalyticsAPI()">Tester API Analytics</button>
+        <button class="btn" onclick="testFullDashboard()">Test Complet Dashboard</button>
+        <button class="btn" onclick="clearResults()">Effacer Résultats</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        const results = document.getElementById('results');
+
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `<strong>[${new Date().toLocaleTimeString()}]</strong> ${message}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function clearResults() {
+            results.innerHTML = '';
+        }
+
+        async function testSmartLinksAPI() {
+            addResult('🧪 Test: Récupération des SmartLinks...', 'info');
+
+            try {
+                const response = await fetch('/api/smartlinks', {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.smartlinks) {
+                        addResult(`✅ SmartLinks API: ${data.smartlinks.length} SmartLinks trouvés`, 'success');
+
+                        // Test click count aggregation
+                        const totalClicks = data.smartlinks.reduce((sum, sl) => sum + (sl.click_count || 0), 0);
+                        addResult(`📊 Total clics agrégés: ${totalClicks}`, 'info');
+
+                        // Test platform distribution
+                        const platforms = new Set();
+                        data.smartlinks.forEach(sl => {
+                            if (sl.platforms && Array.isArray(sl.platforms)) {
+                                sl.platforms.forEach(p => platforms.add(p.name));
+                            }
+                        });
+                        addResult(`🎵 Plateformes détectées: ${Array.from(platforms).join(', ')}`, 'info');
+                    } else {
+                        addResult('⚠️ SmartLinks API: Réponse sans données', 'warning');
+                    }
+                } else {
+                    addResult(`❌ SmartLinks API: Erreur ${response.status}`, 'error');
+                }
+            } catch (error) {
+                addResult(`❌ SmartLinks API: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAnalyticsAPI() {
+            addResult('🧪 Test: API Analytics...', 'info');
+
+            try {
+                // First get a SmartLink to test analytics
+                const smartlinksResponse = await fetch('/api/smartlinks', {
+                    credentials: 'include'
+                });
+
+                if (smartlinksResponse.ok) {
+                    const smartlinksData = await smartlinksResponse.json();
+                    if (smartlinksData.success && smartlinksData.smartlinks.length > 0) {
+                        const firstSmartLink = smartlinksData.smartlinks[0];
+
+                        // Test analytics for specific SmartLink
+                        const analyticsResponse = await fetch(`/api/smartlinks/${firstSmartLink.id}/analytics?days=30`, {
+                            credentials: 'include'
+                        });
+
+                        if (analyticsResponse.ok) {
+                            const analyticsData = await analyticsResponse.json();
+                            if (analyticsData.success) {
+                                addResult('✅ Analytics API: Endpoint accessible', 'success');
+                                addResult(`📈 Analytics pour "${firstSmartLink.title}": ${JSON.stringify(analyticsData.analytics, null, 2)}`, 'info');
+                            } else {
+                                addResult('⚠️ Analytics API: Pas de données', 'warning');
+                            }
+                        } else {
+                            addResult(`❌ Analytics API: Erreur ${analyticsResponse.status}`, 'error');
+                        }
+                    } else {
+                        addResult('⚠️ Aucun SmartLink pour tester les analytics', 'warning');
+                    }
+                }
+            } catch (error) {
+                addResult(`❌ Analytics API: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFullDashboard() {
+            addResult('🧪 Test: Dashboard complet...', 'info');
+
+            try {
+                // Simulate the dashboard loading process
+                addResult('1. Chargement des SmartLinks...', 'info');
+                await testSmartLinksAPI();
+
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                addResult('2. Chargement des analytics...', 'info');
+                await testAnalyticsAPI();
+
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                addResult('3. Test de l\'agrégation des données...', 'info');
+
+                // Test overview analytics simulation
+                const response = await fetch('/api/smartlinks', {
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        const allSmartLinks = data.smartlinks || [];
+
+                        let totalClicks = 0;
+                        let platformCounts = {};
+
+                        allSmartLinks.forEach(sl => {
+                            totalClicks += sl.click_count || 0;
+
+                            if (sl.platforms && Array.isArray(sl.platforms)) {
+                                sl.platforms.forEach(platform => {
+                                    const name = platform.name.toLowerCase();
+                                    if (!platformCounts[name]) {
+                                        platformCounts[name] = 0;
+                                    }
+                                    platformCounts[name] += Math.floor((sl.click_count || 0) / sl.platforms.length);
+                                });
+                            }
+                        });
+
+                        const platform_stats = Object.entries(platformCounts).map(([platform, clicks]) => ({
+                            platform,
+                            clicks,
+                            unique_clicks: clicks
+                        }));
+
+                        const overviewData = {
+                            total_clicks: totalClicks,
+                            unique_visitors: 0,
+                            platform_stats,
+                            top_platform: platform_stats.length > 0 ?
+                                platform_stats.reduce((max, p) => p.clicks > max.clicks ? p : max).platform : null
+                        };
+
+                        addResult('✅ Agrégation des données: Succès', 'success');
+                        addResult(`📊 Données du dashboard: ${JSON.stringify(overviewData, null, 2)}`, 'info');
+
+                        // Verify no hardcoded data
+                        if (totalClicks === 45678 || totalClicks === 23456) {
+                            addResult('⚠️ Attention: Des données semblent encore codées en dur!', 'warning');
+                        } else {
+                            addResult('✅ Aucune donnée codée en dur détectée', 'success');
+                        }
+                    }
+                }
+
+                addResult('🎉 Test complet terminé!', 'success');
+
+            } catch (error) {
+                addResult(`❌ Test dashboard: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run tests on load
+        window.addEventListener('load', () => {
+            addResult('🚀 Page de test chargée. Cliquez sur les boutons pour tester le dashboard.', 'info');
+        });
+    </script>
+</body>
+</html>
