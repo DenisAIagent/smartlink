@@ -13,25 +13,116 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-            background: #ffffff;
-            color: #000;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 30%, #f1f5f9 70%, #e2e8f0 100%);
+            color: #1a202c;
+            padding: 0;
+            margin: 0;
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(ellipse at 25% 20%, rgba(255, 0, 0, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 75% 80%, rgba(255, 0, 0, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
+            padding: 0 20px;
         }
 
+        /* Header premium avec bouton retour */
         header {
-            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid rgba(255, 0, 0, 0.1);
+            padding: 24px 0;
+            margin-bottom: 40px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #ff0000, #e60000);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 16px rgba(255, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .back-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .back-btn:hover::before {
+            left: 100%;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(255, 0, 0, 0.3);
+            background: linear-gradient(135deg, #ff1a1a, #cc0000);
+        }
+
+        .back-btn:active {
+            transform: translateY(0);
         }
 
         h1 {
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 20px;
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0;
+            background: linear-gradient(135deg, #1a1a1a, #333);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
         }
 
         /* KPI HEADER - Dynamique selon nb plateformes */
@@ -43,32 +134,97 @@
         }
 
         .kpi-card {
-            background: #ffffff;
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            padding: 20px;
-            transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow:
+                0 4px 24px rgba(0, 0, 0, 0.06),
+                0 2px 8px rgba(0, 0, 0, 0.04);
             position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, #e2e8f0 50%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .kpi-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow:
+                0 12px 40px rgba(0, 0, 0, 0.12),
+                0 6px 16px rgba(0, 0, 0, 0.08);
+            border-color: rgba(255, 0, 0, 0.1);
+        }
+
+        .kpi-card:hover::before {
+            opacity: 1;
         }
 
         .kpi-card.total {
-            border: 2px solid #ff0000;
-            background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+            border: 2px solid rgba(255, 0, 0, 0.3);
+            background: linear-gradient(135deg,
+                rgba(255, 245, 245, 0.8) 0%,
+                rgba(255, 255, 255, 0.9) 50%,
+                rgba(255, 248, 248, 0.8) 100%);
+            backdrop-filter: blur(24px) saturate(200%);
+        }
+
+        .kpi-card.total::before {
+            background: linear-gradient(90deg, transparent 0%, #ff0000 20%, #ff3333 50%, #ff0000 80%, transparent 100%);
+            height: 3px;
         }
 
         .kpi-card.total .kpi-value {
             color: #ff0000;
+            text-shadow: 0 2px 4px rgba(255, 0, 0, 0.1);
         }
 
         .platform-icon {
             font-size: 32px;
             margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 48px;
+        }
+
+        .platform-icon img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .platform-icon img:hover {
+            transform: scale(1.1);
+        }
+
+        .platform-icon .fallback {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #e2e8f0, #f8fafc);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
         }
 
         .kpi-label {
@@ -231,10 +387,18 @@
     </style>
 </head>
 <body>
+    <header>
+        <div class="header-content">
+            <div class="header-left">
+                <a href="/pages/list-smartlinks.html" class="back-btn">
+                    ← Retour aux SmartLinks
+                </a>
+                <h1>📊 Dashboard Analytics</h1>
+            </div>
+        </div>
+    </header>
+
     <div class="container">
-        <header>
-            <h1>📊 Dashboard Smartlink</h1>
-        </header>
 
         <!-- Filtres -->
         <div class="filters">
@@ -277,59 +441,78 @@
     </div>
 
     <script>
-        // Configuration des plateformes
+        // Configuration des plateformes avec gestion d'erreurs d'images
         const platformConfig = {
             'spotify': {
                 name: 'Spotify',
                 color: '#1DB954',
-                icon: '<img src="/assets/images/platforms/picto_spotify.png" width="32" height="32" alt="Spotify">'
+                iconPath: '/assets/images/platforms/picto_spotify.png'
             },
             'applemusic': {
                 name: 'Apple Music',
                 color: '#FA243C',
-                icon: '<img src="/assets/images/platforms/picto_apple.png" width="32" height="32" alt="Apple Music">'
+                iconPath: '/assets/images/platforms/picto_apple.png'
             },
             'apple': {
                 name: 'Apple Music',
                 color: '#FA243C',
-                icon: '<img src="/assets/images/platforms/picto_apple.png" width="32" height="32" alt="Apple Music">'
+                iconPath: '/assets/images/platforms/picto_apple.png'
             },
             'deezer': {
                 name: 'Deezer',
                 color: '#FF6600',
-                icon: '<img src="/assets/images/platforms/picto_deezer.png" width="32" height="32" alt="Deezer">'
+                iconPath: '/assets/images/platforms/picto_deezer.png'
             },
             'youtube': {
                 name: 'YouTube',
                 color: '#FF0000',
-                icon: '<img src="/assets/images/platforms/picto_youtube.png" width="32" height="32" alt="YouTube">'
+                iconPath: '/assets/images/platforms/picto_youtube.png'
             },
             'youtubemusic': {
                 name: 'YouTube Music',
                 color: '#FF0000',
-                icon: '<img src="/assets/images/platforms/picto_youtubemusic.png" width="32" height="32" alt="YouTube Music">'
+                iconPath: '/assets/images/platforms/picto_youtubemusic.png'
             },
             'tidal': {
                 name: 'Tidal',
                 color: '#000000',
-                icon: '<img src="/assets/images/platforms/picto_tidal.png" width="32" height="32" alt="Tidal">'
+                iconPath: '/assets/images/platforms/picto_tidal.png'
             },
             'soundcloud': {
                 name: 'SoundCloud',
                 color: '#FF5500',
-                icon: '<img src="/assets/images/platforms/picto_soundcloud.png" width="32" height="32" alt="SoundCloud">'
+                iconPath: '/assets/images/platforms/picto_soundcloud.png'
             },
             'amazonmusic': {
                 name: 'Amazon Music',
                 color: '#FF9900',
-                icon: '<img src="/assets/images/platforms/picto_amazon.png" width="32" height="32" alt="Amazon Music">'
+                iconPath: '/assets/images/platforms/picto_amazon.png'
             },
             'amazon': {
                 name: 'Amazon Music',
                 color: '#FF9900',
-                icon: '<img src="/assets/images/platforms/picto_amazon.png" width="32" height="32" alt="Amazon Music">'
+                iconPath: '/assets/images/platforms/picto_amazon.png'
             }
         };
+
+        // Fonction pour créer un icône avec fallback
+        function createPlatformIcon(config, platformKey) {
+            const iconId = `icon-${platformKey}-${Date.now()}`;
+
+            const iconHtml = `
+                <img id="${iconId}"
+                     src="${config.iconPath}"
+                     alt="${config.name}"
+                     onload="this.style.opacity=1"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
+                     style="opacity: 0; transition: opacity 0.3s ease;">
+                <div class="fallback" style="display: none;">
+                    ${config.name.substring(0, 2)}
+                </div>
+            `;
+
+            return iconHtml;
+        }
 
         let chart = null;
 
@@ -406,16 +589,21 @@
 
             sortedPlatforms.forEach((platform, index) => {
                 const config = platformConfig[platform.platform] || {
-                    name: platform.platform,
+                    name: platform.platform.charAt(0).toUpperCase() + platform.platform.slice(1),
                     color: '#666',
-                    icon: '<div style="width:32px;height:32px;background:#666;border-radius:4px;"></div>'
+                    iconPath: null
                 };
 
                 const card = document.createElement('div');
                 card.className = 'kpi-card';
+
+                const platformIcon = config.iconPath ?
+                    createPlatformIcon(config, platform.platform) :
+                    `<div class="fallback">${config.name.substring(0, 2)}</div>`;
+
                 card.innerHTML = `
                     ${index === 0 ? '<span class="rank-badge">TOP 1</span>' : ''}
-                    <div class="platform-icon">${config.icon}</div>
+                    <div class="platform-icon">${platformIcon}</div>
                     <div class="kpi-label">${config.name}</div>
                     <div class="kpi-value">${formatNumber(platform.clicks)}</div>
                     <div class="kpi-secondary">${platform.percentage.toFixed(1)}% du total</div>
@@ -529,19 +717,25 @@
 
             sortedPlatforms.forEach((platform, index) => {
                 const config = platformConfig[platform.platform] || {
-                    name: platform.platform,
+                    name: platform.platform.charAt(0).toUpperCase() + platform.platform.slice(1),
                     color: '#666',
-                    icon: '<div style="width:32px;height:32px;background:#666;border-radius:4px;"></div>'
+                    iconPath: null
                 };
 
                 const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : 'rank-3';
+
+                const platformIcon = config.iconPath ?
+                    createPlatformIcon(config, platform.platform) :
+                    `<div class="fallback" style="width: 24px; height: 24px; font-size: 10px;">${config.name.substring(0, 2)}</div>`;
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td><span class="rank ${rankClass}">${index + 1}</span></td>
                     <td>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            ${config.icon}
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div class="platform-icon" style="height: 24px; margin-bottom: 0; font-size: 0;">
+                                ${platformIcon}
+                            </div>
                             <strong>${config.name}</strong>
                         </div>
                     </td>
