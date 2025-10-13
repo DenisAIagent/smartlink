@@ -1,0 +1,6 @@
+{
+  "title": "🐛 Fix: Activate platform-specific click tracking",
+  "head": "fix/activate-platform-tracking",
+  "base": "main",
+  "body": "## 🎯 Problème résolu\n\nLes statistiques de clics par plateforme (Spotify, Deezer, Apple Music, etc.) n'étaient pas enregistrées dans le backoffice car l'endpoint de tracking était désactivé.\n\n## 🔧 Solution implémentée\n\n✅ **Activation de l'endpoint** `/api/smartlinks/:slug/click`\n- Décommenter la route dans `server.js`\n- Permettre l'enregistrement des clics par plateforme\n\n## 📊 Résultat attendu\n\nAprès déploiement, le backoffice affichera :\n- **Spotify** : X clics\n- **Deezer** : Y clics  \n- **Apple Music** : Z clics\n- Etc.\n\n## 🧪 Tests effectués\n\n- ✅ Endpoint répond correctement en local\n- ✅ Tracking fonctionne avec les slugs de test\n- ✅ Interface backoffice prête à afficher les stats\n\n## 🚀 Déploiement\n\nUne fois mergée, cette PR activera automatiquement le tracking des plateformes en production via Railway.\n\n---\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>"
+}

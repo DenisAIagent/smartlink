@@ -88,7 +88,22 @@
       "Bash(open \"http://localhost:3003/pages/settings.html\")",
       "Bash(open \"http://localhost:3003/test-platform-tracking.html\")",
       "Bash(claude mcp:*)",
-      "Bash(gh repo view:*)"
+      "Bash(gh repo view:*)",
+      "Bash(git checkout:*)",
+      "Bash(gh auth:*)",
+      "Bash(unset GH_TOKEN)",
+      "Bash(env)",
+      "Bash(export GH_TOKEN=\"\")",
+      "Bash(./create-pr.sh:*)",
+      "Bash(open \"http://localhost:3003/pages/smartlink-analytics.html?id=27\")",
+      "Bash(DATABASE_URL=\"postgresql://postgres:mAeDxBiBAowyDrDDXGGVfMCkFnoRupne@switchyard.proxy.rlwy.net:42182/railway\" PORT=3003 node server.js)",
+      "Bash(open \"http://localhost:3003/demo-ios16.html\")",
+      "Bash(DATABASE_URL=\"postgresql://postgres:mAeDxBiBAowyDrDDXGGVfMCkFnoRupne@switchyard.proxy.rlwy.net:42182/railway\" node scripts/update-admin.js)",
+      "Bash(git restore:*)",
+      "Bash(open \"http://localhost:3003/pages/smartlink-dashboard.html?id=1\")",
+      "Bash(DATABASE_URL:*)",
+      "Bash(open \"http://localhost:3003/pages/smartlink-dashboard.html?id=27\")",
+      "Bash(open:*)"
     ],
     "deny": [],
     "ask": []

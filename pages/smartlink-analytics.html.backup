@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics SmartLink | MDMC Admin</title>
+    <link rel="stylesheet" href="/assets/css/admin.css">
+    <link rel="icon" href="/public/assets/favicon.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #E50914;
+            --secondary: #141414;
+            --white: #FFFFFF;
+            --gray-light: #F8F9FA;
+            --gray-medium: #999999;
+            --shadow-light: 0 2px 8px rgba(0,0,0,0.04);
+            --shadow-medium: 0 4px 16px rgba(0,0,0,0.08);
+            --shadow-heavy: 0 8px 32px rgba(0,0,0,0.12);
+            --border-radius: 12px;
+            --border-radius-lg: 20px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--gray-light);
+            color: var(--secondary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+            gap: 0;
+        }
+        .sidebar {
+            background: var(--white);
+            border-right: 1px solid rgba(0,0,0,0.06);
+            padding: 32px 24px;
+            position: relative;
+            box-shadow: var(--shadow-medium);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 48px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        .logo img {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+        }
+        .logo span {
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--secondary);
+        }
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .nav-item {
+            margin-bottom: 8px;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            color: var(--gray-medium);
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+        .nav-link:hover,
+        .nav-link.active {
+            background: linear-gradient(135deg, var(--primary) 0%, #FF1744 100%);
+            color: var(--white);
+            transform: translateX(4px);
+            box-shadow: var(--shadow-medium);
+        }
+        .nav-icon {
+            font-size: 18px;
+        }
+        .main-content {
+            padding: 32px;
+            overflow-y: auto;
+        }
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--secondary);
+            margin: 0;
+        }
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--gray-medium);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .breadcrumb a {
+            color: var(--gray-medium);
+            text-decoration: none;
+        }
+        .breadcrumb a:hover {
+            color: var(--primary);
+        }
+        .smartlink-header {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-light);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .smartlink-cover {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--border-radius);
+            object-fit: cover;
+        }
+        .smartlink-info h2 {
+            margin: 0 0 8px 0;
+            font-size: 24px;
+            color: var(--secondary);
+        }
+        .smartlink-info .artist {
+            color: var(--gray-medium);
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .smartlink-url {
+            color: var(--primary);
+            font-size: 14px;
+            text-decoration: none;
+        }
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .metric-card {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-light);
+            transition: var(--transition);
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+        .metric-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 8px;
+        }
+        .metric-label {
+            color: var(--gray-medium);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .metric-trend {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .trend-up {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+        }
+        .trend-down {
+            background: rgba(244, 67, 54, 0.1);
+            color: #F44336;
+        }
+        .chart-container {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-light);
+            margin-bottom: 24px;
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 20px;
+        }
+        .period-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        .period-btn {
+            padding: 8px 16px;
+            border: 1px solid rgba(0,0,0,0.1);
+            background: var(--white);
+            border-radius: 8px;
+            color: var(--gray-medium);
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .period-btn:hover,
+        .period-btn.active {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+        .platform-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .platform-item {
+            background: var(--gray-light);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .platform-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .platform-stats {
+            flex: 1;
+        }
+        .platform-name {
+            font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 4px;
+        }
+        .platform-clicks {
+            color: var(--gray-medium);
+            font-size: 14px;
+        }
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: var(--gray-medium);
+        }
+        .error-message {
+            background: rgba(244, 67, 54, 0.1);
+            color: #F44336;
+            padding: 16px;
+            border-radius: var(--border-radius);
+            margin-bottom: 24px;
+        }
+        .back-btn {
+            background: var(--white);
+            border: 1px solid rgba(0,0,0,0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+            color: var(--gray-medium);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+        .back-btn:hover {
+            background: var(--gray-light);
+            color: var(--secondary);
+        }
+    </style>
+    <!-- Navigation Hotfix -->
+    <link rel="stylesheet" href="/hotfix-nav.css">
+    <script src="/public/nav-hotfix.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <img src="/assets/images/logo.png" alt="MDMC">
+                <span>MDMC Admin</span>
+            </div>
+
+            <nav class="nav-menu" role="navigation" aria-label="Navigation principale">
+                <a href="/pages/dashboard.html" class="nav-item">
+                    <span>Dashboard</span>
+                </a>
+                <a href="/pages/list-smartlinks.html" class="nav-item active" aria-current="page">
+                    <span>SmartLinks</span>
+                </a>
+                <a href="/pages/create-smartlink.html" class="nav-item">
+                    <span>Créer SmartLink</span>
+                </a>
+                <a href="/pages/settings.html" class="nav-item">
+                    <span>Settings</span>
+                </a>
+                <a href="#" class="nav-item" onclick="logout()">
+                    <span>Déconnexion</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <div>
+                    <div class="breadcrumb">
+                        <a href="/pages/dashboard.html">Dashboard</a>
+                        <span>›</span>
+                        <a href="/pages/list-smartlinks.html">SmartLinks</a>
+                        <span>›</span>
+                        <span>Analytics</span>
+                    </div>
+                    <h1 class="page-title">Analytics SmartLink</h1>
+                </div>
+                <a href="/pages/list-smartlinks.html" class="back-btn">
+                    ← Retour à la liste
+                </a>
+            </div>
+
+            <!-- SmartLink Header -->
+            <div id="smartlink-header" class="smartlink-header" style="display: none;">
+                <!-- Will be populated by JavaScript -->
+            </div>
+
+            <!-- Period Selector -->
+            <div class="period-selector">
+                <a href="#" class="period-btn active" data-days="7">7 jours</a>
+                <a href="#" class="period-btn" data-days="30">30 jours</a>
+                <a href="#" class="period-btn" data-days="90">90 jours</a>
+                <a href="#" class="period-btn" data-days="365">1 an</a>
+            </div>
+
+            <!-- Error Message -->
+            <div id="error-message" class="error-message" style="display: none;">
+                <!-- Error will be displayed here -->
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="loading">
+                <div class="loading-spinner"></div>
+                <span>Chargement des analytics...</span>
+            </div>
+
+            <!-- Analytics Content -->
+            <div id="analytics-content" style="display: none;">
+                <!-- Metrics Grid -->
+                <div class="analytics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon" style="background: rgba(76, 175, 80, 0.1); color: #4CAF50;">
+                            👁️
+                        </div>
+                        <div class="metric-value" id="total-clicks">0</div>
+                        <div class="metric-label">Clics totaux</div>
+                        <div class="metric-trend trend-up" id="clicks-trend" style="display: none;">
+                            ↗ +12% cette semaine
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon" style="background: rgba(33, 150, 243, 0.1); color: #2196F3;">
+                            👥
+                        </div>
+                        <div class="metric-value" id="unique-visitors">0</div>
+                        <div class="metric-label">Visiteurs uniques</div>
+                        <div class="metric-trend trend-up" id="visitors-trend" style="display: none;">
+                            ↗ +8% cette semaine
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon" style="background: rgba(255, 152, 0, 0.1); color: #FF9800;">
+                            📅
+                        </div>
+                        <div class="metric-value" id="active-days">0</div>
+                        <div class="metric-label">Jours actifs</div>
+                        <div class="metric-trend" id="days-trend" style="display: none;">
+                            Sur la période
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon" style="background: rgba(156, 39, 176, 0.1); color: #9C27B0;">
+                            🎵
+                        </div>
+                        <div class="metric-value" id="top-platform">-</div>
+                        <div class="metric-label">Plateforme top</div>
+                        <div class="metric-trend" id="platform-trend" style="display: none;">
+                            Cette période
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="chart-container">
+                    <h3 class="chart-title">Évolution des clics</h3>
+                    <canvas id="clicksChart" width="400" height="200"></canvas>
+                </div>
+
+                <!-- Platform Statistics -->
+                <div class="chart-container">
+                    <h3 class="chart-title">Statistiques par plateforme</h3>
+                    <div id="platform-stats" class="platform-list">
+                        <!-- Platform stats will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/config.js"></script>
+    <script src="/assets/js/admin.js?v=1.0.2"></script>
+    <script>
+        // Global variables
+        let smartlinkId = null;
+        let currentPeriod = 7;
+        let clicksChart = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkSmartLinkId();
+            setupPeriodSelector();
+        });
+
+        function checkSmartLinkId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            smartlinkId = urlParams.get('id');
+
+            if (!smartlinkId) {
+                showError('ID du SmartLink manquant');
+                return;
+            }
+
+            loadSmartLinkData();
+            loadAnalytics();
+        }
+
+        async function loadSmartLinkData() {
+            try {
+                console.log('🔍 Loading SmartLink data for ID:', smartlinkId);
+                const response = await mdmcAdmin.apiCall(`/api/smartlinks/${smartlinkId}`);
+
+                if (response.success && response.smartlink) {
+                    displaySmartLinkHeader(response.smartlink);
+                } else {
+                    showError('SmartLink non trouvé');
+                }
+            } catch (error) {
+                console.error('Error loading SmartLink:', error);
+                showError('Erreur lors du chargement du SmartLink');
+            }
+        }
+
+        function displaySmartLinkHeader(smartlink) {
+            const header = document.getElementById('smartlink-header');
+            const coverUrl = smartlink.cover_url
+                ? `/api/proxy/image?url=${encodeURIComponent(smartlink.cover_url)}`
+                : '/assets/images/default-cover.jpg';
+
+            header.innerHTML = `
+                <img src="${coverUrl}" alt="${smartlink.title}" class="smartlink-cover">
+                <div class="smartlink-info">
+                    <h2>${smartlink.title}</h2>
+                    ${smartlink.artist ? `<div class="artist">${smartlink.artist}</div>` : ''}
+                    <a href="${window.config.API_BASE_URL}/s/${smartlink.slug}" target="_blank" class="smartlink-url">
+                        ${window.config.API_BASE_URL}/s/${smartlink.slug}
+                    </a>
+                </div>
+            `;
+            header.style.display = 'flex';
+        }
+
+        async function loadAnalytics() {
+            try {
+                console.log('📊 Loading analytics for SmartLink ID:', smartlinkId, 'Period:', currentPeriod);
+                const response = await mdmcAdmin.apiCall(`/api/smartlinks/${smartlinkId}/analytics?days=${currentPeriod}`);
+
+                console.log('📥 Analytics response:', response);
+
+                if (response.success) {
+                    displayAnalytics(response.analytics);
+                } else {
+                    showError(response.error || 'Erreur lors du chargement des analytics');
+                }
+            } catch (error) {
+                console.error('❌ Error loading analytics:', error);
+                showError('Impossible de charger les analytics');
+            }
+        }
+
+        function displayAnalytics(analytics) {
+            console.log('🎯 Displaying analytics:', analytics);
+
+            // Hide loading, show content
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('analytics-content').style.display = 'block';
+
+            // Update metrics
+            document.getElementById('total-clicks').textContent = mdmcAdmin.formatNumber(analytics.total_clicks || 0);
+            document.getElementById('unique-visitors').textContent = mdmcAdmin.formatNumber(analytics.unique_visitors || 0);
+            document.getElementById('active-days').textContent = analytics.active_days || 0;
+            document.getElementById('top-platform').textContent = analytics.top_platform || 'Aucune';
+
+            // Update chart
+            updateClicksChart(analytics.daily_clicks || []);
+
+            // Update platform stats
+            updatePlatformStats(analytics.platform_stats || []);
+        }
+
+        function updateClicksChart(dailyClicks) {
+            const ctx = document.getElementById('clicksChart').getContext('2d');
+
+            // Destroy existing chart
+            if (clicksChart) {
+                clicksChart.destroy();
+            }
+
+            const labels = dailyClicks.map(item => {
+                const date = new Date(item.date);
+                return date.toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' });
+            });
+
+            const data = dailyClicks.map(item => parseInt(item.clicks));
+
+            clicksChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Clics',
+                        data: data,
+                        borderColor: '#E50914',
+                        backgroundColor: 'rgba(229, 9, 20, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#E50914',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updatePlatformStats(platformStats) {
+            const container = document.getElementById('platform-stats');
+
+            if (!platformStats.length) {
+                container.innerHTML = '<p style="text-align: center; color: var(--gray-medium); padding: 40px;">Aucune donnée de plateforme disponible</p>';
+                return;
+            }
+
+            container.innerHTML = platformStats.map(platform => `
+                <div class="platform-item">
+                    <div class="platform-icon" style="background: #ddd;">
+                        🎵
+                    </div>
+                    <div class="platform-stats">
+                        <div class="platform-name">${platform.platform || 'Inconnu'}</div>
+                        <div class="platform-clicks">${mdmcAdmin.formatNumber(platform.clicks)} clics (${mdmcAdmin.formatNumber(platform.unique_clicks)} uniques)</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function setupPeriodSelector() {
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+
+                    // Update active state
+                    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    // Update period and reload
+                    currentPeriod = parseInt(btn.dataset.days);
+
+                    // Show loading
+                    document.getElementById('analytics-content').style.display = 'none';
+                    document.getElementById('loading').style.display = 'flex';
+
+                    loadAnalytics();
+                });
+            });
+        }
+
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error-message').textContent = message;
+            document.getElementById('error-message').style.display = 'block';
+        }
+
+        // Logout function
+        async function logout() {
+            try {
+                // Call server logout endpoint to clear cookie
+                await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            } finally {
+                // Always clear local storage and redirect
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('user');
+                window.location.href = '/pages/login.html';
+            }
+        }
+    </script>
+</body>
+</html>

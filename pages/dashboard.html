@@ -454,46 +454,92 @@
         /* Platform Grid */
         .platform-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
         }
 
         .platform-card {
             background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             text-align: center;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
         }
 
         .platform-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .platform-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .platform-card:hover::before {
+            opacity: 1;
         }
 
         .platform-icon {
-            width: 40px;
-            height: 40px;
-            margin: 0 auto 12px;
-            background: var(--bg-main);
-            border-radius: 8px;
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 16px;
+            background: linear-gradient(135deg, var(--bg-main), #f0f0f0);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 24px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
+        .platform-card.spotify .platform-icon { background: linear-gradient(135deg, #1DB954, #1ed760); }
+        .platform-card.apple .platform-icon,
+        .platform-card.applemusic .platform-icon { background: linear-gradient(135deg, #FA243C, #ff1744); }
+        .platform-card.youtube .platform-icon,
+        .platform-card.youtubemusic .platform-icon { background: linear-gradient(135deg, #FF0000, #ff1744); }
+        .platform-card.deezer .platform-icon { background: linear-gradient(135deg, #FF6600, #ff8c00); }
+        .platform-card.soundcloud .platform-icon { background: linear-gradient(135deg, #FF5500, #ff6600); }
+        .platform-card.tidal .platform-icon { background: linear-gradient(135deg, #000000, #333333); }
+        .platform-card.amazon .platform-icon,
+        .platform-card.amazonmusic .platform-icon { background: linear-gradient(135deg, #FF9900, #ffb000); }
+
         .platform-name {
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
         }
 
         .platform-clicks {
-            font-size: 20px;
+            font-size: 28px;
             font-weight: 700;
             color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .platform-percentage {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .platform-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
         }
 
         /* Loading Skeletons */
@@ -2060,13 +2106,11 @@
                 };
 
                 return `
-                    <div class="platform-card">
+                    <div class="platform-card ${platform.toLowerCase()}" data-platform="${platform}">
                         <div class="platform-icon">${config.icon}</div>
                         <div class="platform-name">${config.name}</div>
                         <div class="platform-clicks">${formatNumber(clicks)}</div>
-                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
-                            ${percentage}% du total
-                        </div>
+                        <div class="platform-percentage">${percentage}% du total</div>
                     </div>
                 `;
             }).join('');
