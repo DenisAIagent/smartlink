@@ -362,24 +362,23 @@ const smartlinks = {
    */
   async recordClick(smartlinkId, clickData) {
     try {
+      // Convert country to 2-character code (default to 'XX' for unknown)
+      let countryCode = 'XX'; // Default for unknown
+      if (clickData.country && clickData.country.length >= 2) {
+        countryCode = clickData.country.substring(0, 2).toUpperCase();
+      }
+
       await query(
         `INSERT INTO analytics (
-          smartlink_id, ip_address, user_agent, country, city, region,
-          platform, referrer, device_type, browser, os, session_id
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+          smartlink_id, platform, user_agent, ip_address, country, clicks
+        ) VALUES ($1, $2, $3, $4, $5, $6)`,
         [
           smartlinkId,
-          clickData.ip_address,
-          clickData.user_agent,
-          clickData.country,
-          clickData.city,
-          clickData.region,
           clickData.platform,
-          clickData.referrer,
-          clickData.device_type,
-          clickData.browser,
-          clickData.os,
-          clickData.session_id
+          clickData.user_agent,
+          clickData.ip_address,
+          countryCode,
+          1 // Default clicks value
         ]
       );
 

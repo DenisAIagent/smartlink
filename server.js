@@ -573,6 +573,34 @@ app.get('/s/:slug', smartlinksController.getPublicSmartLink);
 // Tracking endpoint for platform-specific clicks
 app.post('/api/smartlinks/:slug/click', smartlinksController.trackPlatformClick);
 
+// Endpoint pour récupérer les stats en mode mémoire (debug)
+app.get('/api/debug/stats/:slug?', (req, res) => {
+  const { slug } = req.params;
+
+  if (!global.clickStats) {
+    return res.json({
+      success: true,
+      message: 'Aucune statistique en mémoire',
+      stats: {}
+    });
+  }
+
+  if (slug) {
+    return res.json({
+      success: true,
+      slug: slug,
+      stats: global.clickStats[slug] || {},
+      total_clicks: Object.values(global.clickStats[slug] || {}).reduce((a, b) => a + b, 0)
+    });
+  }
+
+  res.json({
+    success: true,
+    all_stats: global.clickStats,
+    total_smartlinks: Object.keys(global.clickStats).length
+  });
+});
+
 // API Routes - GDPR Consent Management
 app.use('/api/consent', consentController);
 

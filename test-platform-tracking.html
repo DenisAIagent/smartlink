@@ -470,11 +470,26 @@
         }
 
         function setTestSlug() {
-            currentSlug = document.getElementById('slugInput').value.trim();
-            if (!currentSlug) {
+            let input = document.getElementById('slugInput').value.trim();
+            if (!input) {
                 log('Veuillez entrer un slug valide', 'error');
                 return;
             }
+
+            // Extract slug from full URL if needed
+            if (input.includes('smartlink.mdmcmusicads.com/s/') || input.includes('/s/')) {
+                const match = input.match(/\/s\/([^\/\?#]+)/);
+                if (match) {
+                    currentSlug = match[1];
+                } else {
+                    log('Impossible d\'extraire le slug de l\'URL', 'error');
+                    return;
+                }
+            } else {
+                // Direct slug input
+                currentSlug = input;
+            }
+
             localStorage.setItem('testSlug', currentSlug);
             document.getElementById('slugDisplay').textContent = currentSlug;
             log(`SmartLink de test défini: "${currentSlug}"`, 'success');

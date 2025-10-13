@@ -395,6 +395,8 @@ async function trackPlatformClick(req, res) {
     const { slug } = req.params;
     const { platform, timestamp, userAgent } = req.body;
 
+    console.log(`🎯 TRACKING: Clic ${platform} pour ${slug}`);
+
     // Test mode: simulate success for test slugs
     if (slug === 'test-demo' || slug === 'test-tracking') {
       console.log(`🧪 TEST MODE: Clic simulé ${platform} pour ${slug}`);
@@ -402,6 +404,25 @@ async function trackPlatformClick(req, res) {
         success: true,
         message: `Click ${platform} enregistré (mode test)`,
         test_mode: true
+      });
+    }
+
+    // Si pas de DATABASE_URL, utiliser le stockage en mémoire pour les tests
+    if (!process.env.DATABASE_URL) {
+      console.log(`💾 MEMORY MODE: Sauvegarde en mémoire - ${platform} pour ${slug}`);
+
+      // Simuler un enregistrement réussi
+      global.clickStats = global.clickStats || {};
+      global.clickStats[slug] = global.clickStats[slug] || {};
+      global.clickStats[slug][platform] = (global.clickStats[slug][platform] || 0) + 1;
+
+      console.log(`📊 Stats actuelles:`, global.clickStats[slug]);
+
+      return res.json({
+        success: true,
+        message: `Click ${platform} enregistré (mode mémoire)`,
+        memory_mode: true,
+        current_stats: global.clickStats[slug]
       });
     }
 
