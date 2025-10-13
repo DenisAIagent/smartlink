@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="ga-measurement-id" content="GA_MEASUREMENT_ID_PLACEHOLDER">
+    <title>SmartLink Dashboard</title>
+
+    <!-- Preload SF Pro Display for better typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID_PLACEHOLDER"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'GA_MEASUREMENT_ID_PLACEHOLDER');
+    </script>
+
+    <style>
+        /* iOS 16 Inspired CSS Variables */
+        :root {
+            /* Primary Colors - Netflix Brand Red */
+            --primary: #E50914;
+            --primary-hover: #d40812;
+            --primary-light: rgba(229, 9, 20, 0.1);
+            --primary-medium: rgba(229, 9, 20, 0.2);
+            --primary-strong: rgba(229, 9, 20, 0.9);
+
+            /* iOS 16 System Colors */
+            --blue: #007AFF;
+            --green: #10b981;
+            --orange: #FF9500;
+            --purple: #AF52DE;
+            --indigo: #5856D6;
+            --mint: #00C7BE;
+
+            /* Glassmorphism Backgrounds */
+            --glass-primary: rgba(255, 255, 255, 0.9);
+            --glass-secondary: rgba(255, 255, 255, 0.7);
+            --glass-tertiary: rgba(255, 255, 255, 0.5);
+            --glass-dark: rgba(0, 0, 0, 0.05);
+
+            /* Backdrop Filters */
+            --blur-subtle: blur(10px) saturate(120%);
+            --blur-medium: blur(20px) saturate(150%);
+            --blur-strong: blur(40px) saturate(180%);
+
+            /* Modern Shadows */
+            --shadow-floating: 0 8px 32px rgba(0, 0, 0, 0.12);
+            --shadow-elevated: 0 16px 64px rgba(0, 0, 0, 0.16);
+            --shadow-island: 0 4px 16px rgba(0, 0, 0, 0.08);
+            --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+            /* Dynamic Spacing */
+            --spacing-xs: clamp(4px, 1vw, 8px);
+            --spacing-sm: clamp(8px, 2vw, 16px);
+            --spacing-md: clamp(16px, 3vw, 24px);
+            --spacing-lg: clamp(24px, 4vw, 40px);
+            --spacing-xl: clamp(32px, 6vw, 64px);
+
+            /* Fluid Typography */
+            --font-title: clamp(28px, 5vw, 40px);
+            --font-subtitle: clamp(20px, 3.5vw, 28px);
+            --font-body: clamp(16px, 2.5vw, 18px);
+            --font-caption: clamp(14px, 2vw, 16px);
+            --font-small: clamp(12px, 1.5vw, 14px);
+
+            /* Spring Animations */
+            --spring-gentle: cubic-bezier(0.16, 1, 0.3, 1);
+            --spring-bouncy: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            --spring-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+            /* Background System */
+            --bg-primary: rgba(242, 242, 247, 0.8);
+            --bg-secondary: rgba(255, 255, 255, 0.9);
+            --bg-tertiary: rgba(249, 249, 249, 0.7);
+
+            /* Text Colors */
+            --text-primary: #1D1D1F;
+            --text-secondary: #86868B;
+            --text-tertiary: #C7C7CC;
+        }
+
+        /* iOS 16 Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            font-weight: 400;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Main App Container */
+        .app-container {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-template-areas: "sidebar main";
+            min-height: 100vh;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+        }
+
+        /* Dynamic Island Inspired Sidebar */
+        .sidebar {
+            grid-area: sidebar;
+            width: clamp(260px, 20vw, 320px);
+            background: var(--glass-primary);
+            backdrop-filter: var(--blur-medium);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 24px;
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-floating);
+            position: sticky;
+            top: var(--spacing-md);
+            height: calc(100vh - 32px);
+            overflow: hidden;
+            transition: all 400ms var(--spring-gentle);
+        }
+
+        .sidebar:hover {
+            box-shadow: var(--shadow-elevated);
+        }
+
+        /* Logo Section */
+        .sidebar-header {
+            margin-bottom: var(--spacing-xl);
+            text-align: center;
+        }
+
+        .logo {
+            font-size: var(--font-subtitle);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--spacing-sm);
+            letter-spacing: -0.02em;
+        }
+
+        .logo-subtitle {
+            font-size: var(--font-small);
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Navigation Pills */
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: var(--font-caption);
+            transition: all 300ms var(--spring-gentle);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--glass-secondary);
+            border-radius: inherit;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 200ms var(--spring-bouncy);
+        }
+
+        .nav-link:hover::before {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .nav-link.active {
+            color: white;
+            font-weight: 600;
+            transform: scale(1.02);
+        }
+
+        .nav-link.active::before {
+            background: linear-gradient(135deg, var(--primary), var(--orange));
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            grid-area: main;
+            background: var(--glass-secondary);
+            backdrop-filter: var(--blur-medium);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-floating);
+            overflow-y: auto;
+        }
+
+        /* Header Section */
+        .header {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .header-title {
+            font-size: var(--font-title);
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+            letter-spacing: -0.02em;
+        }
+
+        .header-subtitle {
+            font-size: var(--font-caption);
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-lg);
+        }
+
+        /* iOS 16 Style Buttons */
+        .btn {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border: none;
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: var(--font-caption);
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 200ms var(--spring-gentle);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .btn:hover {
+            transform: scale(1.02);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--blue), var(--indigo));
+            color: white;
+            box-shadow: 0 8px 32px rgba(0, 122, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--glass-primary);
+            backdrop-filter: var(--blur-subtle);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: var(--shadow-subtle);
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        /* Metric Cards */
+        .metric-card {
+            background: var(--glass-primary);
+            backdrop-filter: var(--blur-medium);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: var(--spacing-lg);
+            box-shadow:
+                var(--shadow-floating),
+                0 1px 0 rgba(255, 255, 255, 0.5) inset;
+            position: relative;
+            overflow: hidden;
+            transition: all 400ms var(--spring-gentle);
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--blue), var(--purple), var(--mint));
+            opacity: 0;
+            transition: opacity 300ms ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-elevated);
+        }
+
+        .metric-card:hover::before {
+            opacity: 1;
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .metric-title {
+            font-size: var(--font-caption);
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-icon {
+            width: 24px;
+            height: 24px;
+            padding: 8px;
+            background: var(--glass-dark);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .metric-value {
+            font-size: var(--font-title);
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.02em;
+        }
+
+        .metric-change {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: var(--font-small);
+            font-weight: 500;
+        }
+
+        .metric-change.positive {
+            color: var(--green);
+        }
+
+        .metric-change.negative {
+            color: var(--primary);
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: var(--glass-primary);
+            backdrop-filter: var(--blur-medium);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--shadow-floating);
+        }
+
+        .section-title {
+            font-size: var(--font-subtitle);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-lg);
+            letter-spacing: -0.01em;
+        }
+
+        /* Loading States */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--glass-dark);
+            border-top: 2px solid var(--blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                grid-template-areas: "main";
+                gap: var(--spacing-sm);
+                padding: var(--spacing-sm);
+            }
+
+            .sidebar {
+                position: fixed;
+                bottom: var(--spacing-md);
+                left: var(--spacing-md);
+                right: var(--spacing-md);
+                width: auto;
+                height: auto;
+                border-radius: 28px;
+                padding: var(--spacing-md);
+                z-index: 100;
+            }
+
+            .nav-menu {
+                flex-direction: row;
+                justify-content: space-around;
+            }
+
+            .nav-text {
+                display: none;
+            }
+
+            .sidebar-header {
+                display: none;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-md);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--glass-dark);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-tertiary);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 600ms var(--spring-gentle) forwards;
+        }
+
+        /* Accessibility - Animations réduites */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                transform: none !important;
+            }
+        }
+
+        /* Version calme par défaut */
+        .calm-mode * {
+            animation: none !important;
+            transition: opacity 200ms ease, box-shadow 200ms ease !important;
+            transform: none !important;
+        }
+
+        .calm-mode .btn:hover {
+            opacity: 0.8;
+        }
+
+        .calm-mode .metric-card:hover {
+            box-shadow: var(--shadow-elevated);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary: rgba(28, 28, 30, 0.9);
+                --bg-secondary: rgba(44, 44, 46, 0.8);
+                --glass-primary: rgba(44, 44, 46, 0.9);
+                --glass-secondary: rgba(58, 58, 60, 0.7);
+                --text-primary: #F2F2F7;
+                --text-secondary: #98989D;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Dynamic Island Inspired Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">SmartLink</div>
+                <div class="logo-subtitle">Analytics Dashboard</div>
+            </div>
+
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="/pages/dashboard.html" class="nav-link active">
+                            <div class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><rect x="7" y="8" width="3" height="8"/><rect x="14" y="12" width="3" height="4"/></svg></div>
+                            <span class="nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/pages/list-smartlinks.html" class="nav-link">
+                            <div class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+                            <span class="nav-text">SmartLinks</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/pages/create-smartlink.html" class="nav-link">
+                            <div class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
+                            <span class="nav-text">Créer</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/test-platform-tracking.html" class="nav-link">
+                            <div class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2v17.5A2.5 2.5 0 0 0 11.5 22v0A2.5 2.5 0 0 0 14 19.5V2"/><path d="M9 9h5"/></svg></div>
+                            <span class="nav-text">Test Tracking</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/pages/settings.html" class="nav-link">
+                            <div class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+                            <span class="nav-text">Paramètres</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header fade-in">
+                <h1 class="header-title">Dashboard</h1>
+                <p class="header-subtitle">Aperçu de vos performances SmartLink</p>
+
+                <div class="header-actions">
+                    <a href="/pages/create-smartlink.html" class="btn btn-primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                        Créer un SmartLink
+                    </a>
+                    <button class="btn btn-secondary" onclick="refreshDashboard()">
+                        <span>🔄</span>
+                        Actualiser
+                    </button>
+                    <button class="btn btn-secondary" onclick="toggleCalmMode()" id="calmToggle">
+                        <span>😵‍💫</span>
+                        Mode Calme
+                    </button>
+                </div>
+            </header>
+
+            <!-- Metrics Grid -->
+            <div class="metrics-grid fade-in">
+                <div class="metric-card" style="animation-delay: 0.1s;">
+                    <div class="metric-header">
+                        <div class="metric-title">Total SmartLinks</div>
+                        <div class="metric-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+                    </div>
+                    <div class="metric-value" id="totalSmartlinks">-</div>
+                    <div class="metric-change positive">
+                        <span>↗</span>
+                        <span>+12% ce mois</span>
+                    </div>
+                </div>
+
+                <div class="metric-card" style="animation-delay: 0.2s;">
+                    <div class="metric-header">
+                        <div class="metric-title">Clics Total</div>
+                        <div class="metric-icon">👆</div>
+                    </div>
+                    <div class="metric-value" id="totalClicks">-</div>
+                    <div class="metric-change positive">
+                        <span>↗</span>
+                        <span>+28% ce mois</span>
+                    </div>
+                </div>
+
+                <div class="metric-card" style="animation-delay: 0.3s;">
+                    <div class="metric-header">
+                        <div class="metric-title">Taux de Conversion</div>
+                        <div class="metric-icon">📈</div>
+                    </div>
+                    <div class="metric-value" id="conversionRate">-</div>
+                    <div class="metric-change positive">
+                        <span>↗</span>
+                        <span>+5.2% ce mois</span>
+                    </div>
+                </div>
+
+                <div class="metric-card" style="animation-delay: 0.4s;">
+                    <div class="metric-header">
+                        <div class="metric-title">Top Plateforme</div>
+                        <div class="metric-icon">🎵</div>
+                    </div>
+                    <div class="metric-value" id="topPlatform">Spotify</div>
+                    <div class="metric-change positive">
+                        <span>🎧</span>
+                        <span>42% du trafic</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity Section -->
+            <section class="content-section fade-in" style="animation-delay: 0.5s;">
+                <h2 class="section-title">Activité Récente</h2>
+                <div id="recentActivity">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Chargement des données...
+                    </div>
+                </div>
+            </section>
+
+            <!-- Platform Performance Section -->
+            <section class="content-section fade-in" style="animation-delay: 0.6s;">
+                <h2 class="section-title">Performance par Plateforme</h2>
+                <div id="platformStats">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Analyse des plateformes...
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Enhanced JavaScript with iOS-style interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎨 iOS 16 Dashboard initialized');
+
+            // Initialize dashboard data
+            loadDashboardData();
+
+            // Add touch-friendly interactions for mobile
+            addTouchInteractions();
+
+            // Initialize real-time updates
+            startRealtimeUpdates();
+        });
+
+        async function loadDashboardData() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/pages/login.html';
+                    return;
+                }
+
+                // Load SmartLinks summary
+                const smartlinksResponse = await fetch('/api/smartlinks', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (smartlinksResponse.ok) {
+                    const data = await smartlinksResponse.json();
+                    updateMetrics(data);
+                }
+
+                // Simulate loading delay for smooth animations
+                setTimeout(() => {
+                    document.querySelectorAll('.loading').forEach(el => {
+                        el.style.display = 'none';
+                    });
+                }, 1500);
+
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        function updateMetrics(data) {
+            // Update with real data
+            document.getElementById('totalSmartlinks').textContent = data.total || '0';
+
+            // Calculate total clicks from all smartlinks
+            const totalClicks = data.smartlinks?.reduce((sum, link) => sum + (link.click_count || 0), 0) || 0;
+            document.getElementById('totalClicks').textContent = totalClicks.toLocaleString();
+
+            // Calculate conversion rate (example)
+            const conversionRate = totalClicks > 0 ? ((totalClicks / (data.total || 1)) * 100).toFixed(1) + '%' : '0%';
+            document.getElementById('conversionRate').textContent = conversionRate;
+        }
+
+        function addTouchInteractions() {
+            // Add haptic-style feedback for buttons
+            document.querySelectorAll('.btn, .nav-link, .metric-card').forEach(element => {
+                element.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.95)';
+                });
+
+                element.addEventListener('touchend', function() {
+                    this.style.transform = '';
+                });
+            });
+        }
+
+        function startRealtimeUpdates() {
+            // Update metrics every 30 seconds
+            setInterval(loadDashboardData, 30000);
+        }
+
+        function refreshDashboard() {
+            // Add visual feedback
+            const refreshBtn = event.target;
+            refreshBtn.style.transform = 'rotate(360deg)';
+
+            setTimeout(() => {
+                refreshBtn.style.transform = '';
+            }, 500);
+
+            loadDashboardData();
+        }
+
+        function toggleCalmMode() {
+            const body = document.body;
+            const button = document.getElementById('calmToggle');
+            const isCalm = body.classList.contains('calm-mode');
+
+            if (isCalm) {
+                body.classList.remove('calm-mode');
+                button.innerHTML = '<span>😵‍💫</span> Mode Calme';
+                localStorage.setItem('calmMode', 'false');
+            } else {
+                body.classList.add('calm-mode');
+                button.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4a2 2 0 0 1 2 0l5.5 3.18a2 2 0 0 1 1 1.73v6.18a2 2 0 0 1-1 1.73L12.5 20a2 2 0 0 1-2 0l-5.5-3.18a2 2 0 0 1-1-1.73V8.91a2 2 0 0 1 1-1.73L11 4z"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg> Mode Normal';
+                localStorage.setItem('calmMode', 'true');
+            }
+        }
+
+        // Initialiser le mode calme selon les préférences
+        document.addEventListener('DOMContentLoaded', function() {
+            const calmMode = localStorage.getItem('calmMode');
+            if (calmMode === 'true' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.body.classList.add('calm-mode');
+                document.getElementById('calmToggle').innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4a2 2 0 0 1 2 0l5.5 3.18a2 2 0 0 1 1 1.73v6.18a2 2 0 0 1-1 1.73L12.5 20a2 2 0 0 1-2 0l-5.5-3.18a2 2 0 0 1-1-1.73V8.91a2 2 0 0 1 1-1.73L11 4z"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg> Mode Normal';
+            }
+        });
+
+        // Smooth scroll behavior for internal navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

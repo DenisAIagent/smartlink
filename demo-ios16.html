@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartLink Dashboard iOS 16 - Demo</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        /* iOS 16 Design System */
+        :root {
+            --primary: #FF3B30;
+            --primary-light: rgba(255, 59, 48, 0.1);
+            --blue: #007AFF;
+            --green: #34C759;
+            --orange: #FF9500;
+            --purple: #AF52DE;
+            --indigo: #5856D6;
+            --mint: #00C7BE;
+
+            /* Glassmorphism */
+            --glass-primary: rgba(255, 255, 255, 0.9);
+            --glass-secondary: rgba(255, 255, 255, 0.7);
+            --glass-tertiary: rgba(255, 255, 255, 0.5);
+            --glass-dark: rgba(0, 0, 0, 0.05);
+
+            /* Effects */
+            --blur-subtle: blur(10px) saturate(120%);
+            --blur-medium: blur(20px) saturate(150%);
+            --blur-strong: blur(40px) saturate(180%);
+            --shadow-floating: 0 8px 32px rgba(0, 0, 0, 0.12);
+            --shadow-elevated: 0 16px 64px rgba(0, 0, 0, 0.16);
+            --shadow-island: 0 4px 16px rgba(0, 0, 0, 0.08);
+
+            /* Spacing */
+            --spacing-xs: clamp(4px, 1vw, 8px);
+            --spacing-sm: clamp(8px, 2vw, 16px);
+            --spacing-md: clamp(16px, 3vw, 24px);
+            --spacing-lg: clamp(24px, 4vw, 40px);
+            --spacing-xl: clamp(32px, 6vw, 64px);
+
+            /* Typography */
+            --font-title: clamp(28px, 5vw, 40px);
+            --font-subtitle: clamp(20px, 3.5vw, 28px);
+            --font-body: clamp(16px, 2.5vw, 18px);
+            --font-caption: clamp(14px, 2vw, 16px);
+            --font-small: clamp(12px, 1.5vw, 14px);
+
+            /* Animations */
+            --spring-gentle: cubic-bezier(0.16, 1, 0.3, 1);
+            --spring-bouncy: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+            /* Colors */
+            --bg-primary: rgba(242, 242, 247, 0.8);
+            --text-primary: #1D1D1F;
+            --text-secondary: #86868B;
+            --text-tertiary: #C7C7CC;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            font-weight: 400;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: var(--spacing-xl) var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .hero-title {
+            font-size: clamp(32px, 6vw, 48px);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--orange), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--spacing-md);
+            letter-spacing: -0.02em;
+        }
+
+        .hero-subtitle {
+            font-size: var(--font-body);
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        /* Demo Container */
+        .demo-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-md);
+        }
+
+        /* App Preview */
+        .app-container {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-template-areas: "sidebar main";
+            min-height: 80vh;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+            transform: perspective(1000px) rotateX(5deg);
+            box-shadow: var(--shadow-elevated);
+            border-radius: 24px;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            grid-area: sidebar;
+            width: clamp(260px, 20vw, 320px);
+            background: var(--glass-primary);
+            backdrop-filter: var(--blur-medium);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: var(--spacing-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            margin-bottom: var(--spacing-xl);
+            text-align: center;
+        }
+
+        .logo {
+            font-size: var(--font-subtitle);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--spacing-sm);
+            letter-spacing: -0.02em;
+        }
+
+        .logo-subtitle {
+            font-size: var(--font-small);
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: var(--font-caption);
+            transition: all 300ms var(--spring-gentle);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link.active {
+            color: white;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--primary), var(--orange));
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            grid-area: main;
+            background: var(--glass-secondary);
+            backdrop-filter: var(--blur-medium);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: var(--spacing-xl);
+            overflow-y: auto;
+        }
+
+        .header-title {
+            font-size: var(--font-title);
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+            letter-spacing: -0.02em;
+        }
+
+        .header-subtitle {
+            font-size: var(--font-caption);
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .metric-card {
+            background: var(--glass-primary);
+            backdrop-filter: var(--blur-medium);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-floating);
+            position: relative;
+            overflow: hidden;
+            transition: all 400ms var(--spring-gentle);
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--blue), var(--purple), var(--mint));
+            opacity: 0;
+            transition: opacity 300ms ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-elevated);
+        }
+
+        .metric-card:hover::before {
+            opacity: 1;
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .metric-title {
+            font-size: var(--font-caption);
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-icon {
+            width: 24px;
+            height: 24px;
+            padding: 8px;
+            background: var(--glass-dark);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .metric-value {
+            font-size: var(--font-title);
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.02em;
+        }
+
+        .metric-change {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: var(--font-small);
+            font-weight: 500;
+            color: var(--green);
+        }
+
+        /* Features Section */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .feature-card {
+            background: var(--glass-primary);
+            backdrop-filter: var(--blur-medium);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-floating);
+            text-align: center;
+            transition: all 400ms var(--spring-gentle);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-elevated);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .feature-title {
+            font-size: var(--font-subtitle);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-md);
+            letter-spacing: -0.01em;
+        }
+
+        .feature-description {
+            font-size: var(--font-caption);
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* CTA Section */
+        .cta {
+            text-align: center;
+            padding: var(--spacing-xl);
+        }
+
+        .btn {
+            padding: var(--spacing-md) var(--spacing-xl);
+            border: none;
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: var(--font-body);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 200ms var(--spring-gentle);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin: var(--spacing-sm);
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--blue), var(--indigo));
+            color: white;
+            box-shadow: 0 8px 32px rgba(0, 122, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--glass-primary);
+            backdrop-filter: var(--blur-medium);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: var(--shadow-island);
+        }
+
+        /* Animations - Version Sobre */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 600ms ease-out forwards;
+        }
+
+        /* Suppression des animations flottantes */
+        .float {
+            /* Plus d'animation flottante */
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                grid-template-areas: "main";
+                transform: none;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .metrics-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Hero Section -->
+    <section class="hero fade-in">
+        <h1 class="hero-title">SmartLink Dashboard iOS 16</h1>
+        <p class="hero-subtitle">Interface moderne inspirée d'iOS 16 avec glassmorphisme et animations fluides</p>
+    </section>
+
+    <!-- Demo Container -->
+    <div class="demo-container">
+        <!-- App Preview -->
+        <div class="app-container fade-in float" style="animation-delay: 0.2s;">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <div class="logo">SmartLink</div>
+                    <div class="logo-subtitle">Analytics Dashboard</div>
+                </div>
+
+                <nav>
+                    <ul class="nav-menu">
+                        <li><a href="#" class="nav-link active">
+                            <div class="nav-icon">📊</div>
+                            <span>Dashboard</span>
+                        </a></li>
+                        <li><a href="#" class="nav-link">
+                            <div class="nav-icon">🔗</div>
+                            <span>SmartLinks</span>
+                        </a></li>
+                        <li><a href="#" class="nav-link">
+                            <div class="nav-icon">➕</div>
+                            <span>Créer</span>
+                        </a></li>
+                        <li><a href="#" class="nav-link">
+                            <div class="nav-icon">🧪</div>
+                            <span>Test Tracking</span>
+                        </a></li>
+                        <li><a href="#" class="nav-link">
+                            <div class="nav-icon">⚙️</div>
+                            <span>Paramètres</span>
+                        </a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <header>
+                    <h1 class="header-title">Dashboard</h1>
+                    <p class="header-subtitle">Aperçu de vos performances SmartLink</p>
+                </header>
+
+                <!-- Metrics Grid -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-title">Total SmartLinks</div>
+                            <div class="metric-icon">🔗</div>
+                        </div>
+                        <div class="metric-value">47</div>
+                        <div class="metric-change">
+                            <span>↗</span>
+                            <span>+12% ce mois</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-title">Clics Total</div>
+                            <div class="metric-icon">👆</div>
+                        </div>
+                        <div class="metric-value">12,847</div>
+                        <div class="metric-change">
+                            <span>↗</span>
+                            <span>+28% ce mois</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-title">Taux de Conversion</div>
+                            <div class="metric-icon">📈</div>
+                        </div>
+                        <div class="metric-value">8.4%</div>
+                        <div class="metric-change">
+                            <span>↗</span>
+                            <span>+5.2% ce mois</span>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <div class="metric-title">Top Plateforme</div>
+                            <div class="metric-icon">🎵</div>
+                        </div>
+                        <div class="metric-value">Spotify</div>
+                        <div class="metric-change">
+                            <span>🎧</span>
+                            <span>42% du trafic</span>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Features -->
+        <div class="features fade-in" style="animation-delay: 0.4s;">
+            <div class="feature-card">
+                <div class="feature-icon">✨</div>
+                <h3 class="feature-title">Glassmorphisme</h3>
+                <p class="feature-description">Interface moderne avec effets de verre et transparence dynamique inspirés d'iOS 16</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3 class="feature-title">Dynamic Island</h3>
+                <p class="feature-description">Composants flottants avec interactions fluides et micro-animations</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3 class="feature-title">Responsive</h3>
+                <p class="feature-description">Optimisé pour tous les écrans avec navigation adaptative mobile</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3 class="feature-title">Performant</h3>
+                <p class="feature-description">Animations hardware-accelerated avec transitions spring naturelles</p>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="cta fade-in" style="animation-delay: 0.6s;">
+            <a href="/pages/login.html" class="btn btn-primary">
+                🚀 Accéder au Dashboard
+            </a>
+            <a href="/pages/dashboard-ios16.html" class="btn btn-secondary">
+                👀 Voir la Version Complète
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Add touch interactions
+        document.querySelectorAll('.btn, .metric-card, .feature-card').forEach(element => {
+            element.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.95)';
+            });
+
+            element.addEventListener('touchend', function() {
+                this.style.transform = '';
+            });
+        });
+
+        // Version sobre - plus de parallax nauséabond
+
+        // Demo data animation
+        function animateNumbers() {
+            const numbers = document.querySelectorAll('.metric-value');
+            numbers.forEach(number => {
+                const target = parseInt(number.textContent.replace(/,/g, ''));
+                let current = 0;
+                const increment = target / 50;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    number.textContent = Math.floor(current).toLocaleString();
+                }, 30);
+            });
+        }
+
+        // Start animation when page loads
+        setTimeout(animateNumbers, 1000);
+    </script>
+</body>
+</html>
