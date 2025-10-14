@@ -373,6 +373,15 @@ app.get('/test-social-preview', (req, res) => {
   res.sendFile(path.join(__dirname, 'pages', 'test-social-preview.html'));
 });
 
+// User management interface route
+app.get('/users', (req, res) => {
+  res.sendFile(path.join(__dirname, 'pages', 'user-management.html'));
+});
+
+app.get('/user-management', (req, res) => {
+  res.sendFile(path.join(__dirname, 'pages', 'user-management.html'));
+});
+
 // Mock data for testing when DB is not available
 const mockSmartLinks = [
   { id: 1, title: 'Test Song 1', artist: 'Artist 1', user_id: 1, slug: 'test-song-1', created_at: new Date() },
@@ -415,9 +424,7 @@ app.post('/api/auth/logout', authController.logout);
 app.get('/api/auth/me', authController.getCurrentUser);
 app.put('/api/auth/profile', authController.updateProfile);
 
-// API Routes - Admin (user management)
-app.get('/api/admin/users', authController.listUsers);
-app.post('/api/admin/users', authController.createUser);
+// API Routes - Authentication
 
 
 // API Routes - Odesli Integration
@@ -596,13 +603,17 @@ if (!process.env.DATABASE_URL) {
   });
 
 } else {
-  // User management routes (admin only)
+  // User management routes (when DB is available)
   const usersController = require('./src/api/users');
   app.get('/api/users', authMiddleware, usersController.getAllUsers);
   app.get('/api/users/:id', authMiddleware, usersController.getUser);
   app.post('/api/users', authMiddleware, usersController.createUser);
   app.put('/api/users/:id', authMiddleware, usersController.updateUser);
   app.delete('/api/users/:id', authMiddleware, usersController.deleteUser);
+
+  // Legacy admin routes compatibility
+  app.get('/api/admin/users', authMiddleware, usersController.getAllUsers);
+  app.post('/api/admin/users', authMiddleware, usersController.createUser);
 
   // Real API Routes - SmartLinks (when DB is available)
   app.post('/api/smartlinks', authMiddleware, smartlinksController.createSmartLink);
