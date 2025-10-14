@@ -118,16 +118,28 @@ function debugAuthMiddleware(authMiddleware) {
         console.log('Error message:', jwtError.message);
         console.log('Error stack:', jwtError.stack);
 
-        // En mode debug, simuler un utilisateur admin au lieu de refuser l'accès
-        console.log(`${colors.yellow}⚠️  JWT Error in debug mode - simulating admin user${colors.reset}`);
-        req.user = {
-          id: 1,
-          email: 'admin@debug.com',
-          plan: 'pro',
-          is_admin: true
-        };
-        console.log(`${colors.green}✅ DEBUG MODE: Simulated admin user${colors.reset}`);
-        next();
+        // ❌ NE JAMAIS simuler un user en production
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`${colors.yellow}⚠️  DEV MODE: Simulating admin user${colors.reset}`);
+          req.user = {
+            id: 1,
+            email: 'admin@debug.com',
+            plan: 'pro',
+            is_admin: true
+          };
+          return next();
+        }
+
+        // En production, refuser proprement
+        console.log(`${colors.red}❌ JWT Error in production - access denied${colors.reset}`);
+        return res.status(403).json({
+          success: false,
+          error: 'Token invalide',
+          debug: {
+            errorType: jwtError.name,
+            timestamp: new Date().toISOString()
+          }
+        });
       }
 
     } catch (error) {

@@ -499,12 +499,16 @@ app.get('/api/proxy/fetch-metadata', (req, res) => {
 });
 
 // API Routes - SmartLinks (protected with JWT)
-// DEBUG: Utiliser le middleware de debug en production
+// DEBUG: Utiliser le middleware de debug SEULEMENT en développement
 let authMiddleware = authController.authMiddleware;
-if (process.env.NODE_ENV === 'production' || process.env.DEBUG_AUTH === 'true') {
+if (process.env.NODE_ENV === 'development' && process.env.DEBUG_AUTH === 'true') {
   const { debugAuthMiddleware } = require('./src/middleware/debug-production');
   authMiddleware = debugAuthMiddleware(authController.authMiddleware);
-  console.log('🔍 DEBUG AUTH MIDDLEWARE ACTIVATED');
+  console.log('⚠️  Debug auth middleware ACTIVE (development only)');
+} else {
+  // En production, utiliser le vrai middleware
+  authMiddleware = authController.authMiddleware;
+  console.log('🔒 Production auth middleware active');
 }
 
 // Mock endpoints when DATABASE_URL is not available

@@ -282,27 +282,67 @@ async function updateSmartLink(req, res) {
  * DELETE /api/smartlinks/:id - Delete SmartLink
  */
 async function deleteSmartLink(req, res) {
-  console.log('🗑️ DELETE request received for SmartLink ID:', req.params.id, 'by user:', req.user.id);
+  console.log('🗑️ DELETE request:', {
+    smartlinkId: req.params.id,
+    userId: req.user.id,
+    userEmail: req.user.email,
+    isAdmin: req.user.is_admin,
+    debugMode: process.env.DEBUG_AUTH === 'true',
+    environment: process.env.NODE_ENV
+  });
+
   try {
     const userId = req.user.id;
     const { id } = req.params;
-    
+
+    // Vérifier existence avant suppression
+    const existing = await smartlinks.getById(id, userId);
+    if (!existing) {
+      console.log('❌ SmartLink not found or access denied:', {
+        smartlinkId: id,
+        userId: userId
+      });
+      return res.status(404).json({
+        success: false,
+        error: 'SmartLink non trouvé ou accès refusé'
+      });
+    }
+
+    console.log('📋 SmartLink found, proceeding with deletion:', {
+      smartlinkId: id,
+      title: existing.title,
+      ownerId: existing.user_id
+    });
+
     const deleted = await smartlinks.delete(id, userId);
-    
+
     if (!deleted) {
+      console.log('❌ Delete operation returned null/false');
       return res.status(404).json({
         success: false,
         error: 'SmartLink non trouvé'
       });
     }
-    
+
+    console.log('✅ SmartLink deleted successfully:', {
+      smartlinkId: id,
+      title: deleted.title
+    });
+
     res.json({
       success: true,
       message: 'SmartLink supprimé avec succès'
     });
-    
+
   } catch (error) {
-    console.error('❌ Delete SmartLink error:', error);
+    console.error('❌ Delete SmartLink error:', {
+      error: error.message,
+      code: error.code,
+      detail: error.detail,
+      smartlinkId: req.params.id,
+      userId: req.user.id,
+      stack: error.stack
+    });
     res.status(500).json({
       success: false,
       error: 'Erreur lors de la suppression du SmartLink'
