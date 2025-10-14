@@ -383,6 +383,25 @@ const smartlinks = {
    */
   async recordClick(smartlinkId, clickData) {
     try {
+      console.log('📊 Recording click for SmartLink:', smartlinkId, 'Data:', clickData);
+
+      // Ensure all required fields have default values
+      const safeClickData = {
+        ip_address: clickData.ip_address || null,
+        user_agent: clickData.user_agent || null,
+        country: clickData.country || null,
+        city: clickData.city || null,
+        region: clickData.region || null,
+        platform: clickData.platform || null,
+        referrer: clickData.referrer || null,
+        device_type: clickData.device_type || null,
+        browser: clickData.browser || null,
+        os: clickData.os || null,
+        session_id: clickData.session_id || null
+      };
+
+      console.log('📊 Safe click data:', safeClickData);
+
       await query(
         `INSERT INTO analytics (
           smartlink_id, ip_address, user_agent, country, city, region,
@@ -390,19 +409,21 @@ const smartlinks = {
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
         [
           smartlinkId,
-          clickData.ip_address,
-          clickData.user_agent,
-          clickData.country,
-          clickData.city,
-          clickData.region,
-          clickData.platform,
-          clickData.referrer,
-          clickData.device_type,
-          clickData.browser,
-          clickData.os,
-          clickData.session_id
+          safeClickData.ip_address,
+          safeClickData.user_agent,
+          safeClickData.country,
+          safeClickData.city,
+          safeClickData.region,
+          safeClickData.platform,
+          safeClickData.referrer,
+          safeClickData.device_type,
+          safeClickData.browser,
+          safeClickData.os,
+          safeClickData.session_id
         ]
       );
+
+      console.log('✅ Analytics record inserted successfully');
 
       // Update click count
       await query(
@@ -410,8 +431,16 @@ const smartlinks = {
         [smartlinkId]
       );
 
+      console.log('✅ Click count updated for SmartLink:', smartlinkId);
+
     } catch (error) {
-      console.error('❌ Click recording error:', error);
+      console.error('❌ Click recording error:', {
+        smartlinkId,
+        error: error.message,
+        code: error.code,
+        detail: error.detail,
+        clickData
+      });
       // Ne pas faire échouer la requête principale si analytics fail
     }
   },
