@@ -365,12 +365,29 @@ async function getPublicSmartLink(req, res) {
     }
     
     // Record analytics (extract from user agent, IP, etc.)
+    const userAgent = req.get('User-Agent') || '';
     const clickData = {
       ip_address: req.ip,
-      user_agent: req.get('User-Agent'),
+      user_agent: userAgent,
       referrer: req.get('Referrer'),
-      // Add more analytics data as needed
+      country: null,
+      city: null,
+      region: null,
+      // Parse basic device info from user agent
+      device_type: userAgent.includes('Mobile') ? 'mobile' : 'desktop',
+      browser: userAgent.includes('Chrome') ? 'chrome' :
+               userAgent.includes('Firefox') ? 'firefox' :
+               userAgent.includes('Safari') ? 'safari' : 'other',
+      os: userAgent.includes('Windows') ? 'windows' :
+          userAgent.includes('Mac') ? 'macos' :
+          userAgent.includes('Linux') ? 'linux' :
+          userAgent.includes('Android') ? 'android' :
+          userAgent.includes('iPhone') ? 'ios' : 'other',
+      session_id: req.sessionID || null,
+      platform: null // Will be set by client-side tracking
     };
+
+    console.log('📊 Recording page view for SmartLink:', smartlink.slug, clickData);
     
     // Record click asynchronously (don't wait)
     smartlinks.recordClick(smartlink.id, clickData).catch(console.error);
@@ -405,13 +422,29 @@ async function trackPlatformClick(req, res) {
     }
     
     // Record platform-specific analytics
+    const userAgentString = userAgent || req.get('User-Agent') || '';
     const clickData = {
       ip_address: req.ip,
-      user_agent: userAgent || req.get('User-Agent'),
+      user_agent: userAgentString,
       referrer: req.get('Referrer'),
       platform,
+      device_type: userAgentString.includes('Mobile') ? 'mobile' : 'desktop',
+      browser: userAgentString.includes('Chrome') ? 'chrome' :
+               userAgentString.includes('Firefox') ? 'firefox' :
+               userAgentString.includes('Safari') ? 'safari' : 'other',
+      os: userAgentString.includes('Windows') ? 'windows' :
+          userAgentString.includes('Mac') ? 'macos' :
+          userAgentString.includes('Linux') ? 'linux' :
+          userAgentString.includes('Android') ? 'android' :
+          userAgentString.includes('iPhone') ? 'ios' : 'other',
+      session_id: req.sessionID || null,
+      country: null,
+      city: null,
+      region: null,
       timestamp: timestamp || new Date().toISOString()
     };
+
+    console.log('📊 Recording platform click for SmartLink:', slug, 'Platform:', platform, clickData);
     
     await smartlinks.recordClick(smartlink.id, clickData);
     
