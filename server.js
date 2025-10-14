@@ -573,6 +573,73 @@ app.post('/api/upload/image', authMiddleware, upload.single('image'), async (req
   }
 });
 
+// Audio upload endpoint for SmartLink audio previews
+const audioUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 25 * 1024 * 1024, // 25MB max for audio files
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = [
+      'audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg',
+      'audio/mp4', 'audio/aac', 'audio/m4a', 'audio/webm'
+    ];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Format audio non supporté. Utilisez MP3, WAV, OGG, M4A ou AAC.'), false);
+    }
+  }
+});
+
+app.post('/api/upload/audio', authMiddleware, audioUpload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: 'Aucun fichier audio fourni'
+      });
+    }
+
+    console.log('🎵 Upload audio request:', {
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size
+    });
+
+    // Validation
+    uploadService.validateAudioFile(req.file);
+
+    // Upload vers Cloudinary (support audio)
+    const result = await uploadService.uploadAudio(req.file.buffer, {
+      public_id: `audio-preview-${Date.now()}`,
+      folder: 'mdmc-smartlinks/audio',
+      resource_type: 'video' // Cloudinary traite l'audio comme 'video'
+    });
+
+    console.log('✅ Audio uploaded successfully:', result.url);
+
+    res.json({
+      success: true,
+      url: result.url,
+      data: {
+        url: result.url,
+        public_id: result.public_id,
+        format: result.format,
+        duration: result.duration,
+        size: result.bytes
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Audio upload error:', error);
+    res.status(400).json({
+      success: false,
+      error: error.message || 'Erreur lors de l\'upload audio'
+    });
+  }
+});
+
 // Public SmartLink pages (no auth required)
 app.get('/s/:slug', smartlinksController.getPublicSmartLink);
 // Tracking endpoint for platform-specific clicks

@@ -100,6 +100,49 @@ const uploadService = {
   },
 
   /**
+   * Upload audio vers Cloudinary
+   */
+  async uploadAudio(buffer, options = {}) {
+    try {
+      if (!process.env.CLOUDINARY_URL) {
+        throw new Error('Cloudinary non configuré');
+      }
+
+      const uploadOptions = {
+        folder: 'mdmc-smartlinks/audio',
+        resource_type: 'video', // Cloudinary traite l'audio comme 'video'
+        quality: 'auto',
+        ...options
+      };
+
+      return new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          uploadOptions,
+          (error, result) => {
+            if (error) {
+              console.error('❌ Cloudinary audio upload error:', error);
+              reject(error);
+            } else {
+              console.log('✅ Audio uploaded:', result.secure_url);
+              resolve({
+                url: result.secure_url,
+                public_id: result.public_id,
+                format: result.format,
+                duration: result.duration,
+                bytes: result.bytes
+              });
+            }
+          }
+        ).end(buffer);
+      });
+
+    } catch (error) {
+      console.error('❌ Audio upload service error:', error);
+      throw error;
+    }
+  },
+
+  /**
    * Valider fichier image
    */
   validateImageFile(file) {
@@ -112,6 +155,27 @@ const uploadService = {
 
     if (file.size > maxSize) {
       throw new Error('Fichier trop volumineux. Maximum 10MB.');
+    }
+
+    return true;
+  },
+
+  /**
+   * Valider fichier audio
+   */
+  validateAudioFile(file) {
+    const allowedTypes = [
+      'audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg',
+      'audio/mp4', 'audio/aac', 'audio/m4a', 'audio/webm'
+    ];
+    const maxSize = 25 * 1024 * 1024; // 25MB
+
+    if (!allowedTypes.includes(file.mimetype)) {
+      throw new Error('Format audio non supporté. Utilisez MP3, WAV, OGG, M4A ou AAC.');
+    }
+
+    if (file.size > maxSize) {
+      throw new Error('Fichier audio trop volumineux. Maximum 25MB.');
     }
 
     return true;
