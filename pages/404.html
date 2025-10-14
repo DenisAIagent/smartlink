@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page non trouvée | MDMC Admin</title>
+    <link rel="stylesheet" href="/assets/css/admin.css">
+    <link rel="icon" href="/public/assets/favicon.png">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <header class="admin-header">
+            <nav class="navbar">
+                <a href="/" class="admin-logo">MDMC Admin</a>
+                <ul class="admin-nav">
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/smartlinks">SmartLinks</a></li>
+                    <li><a href="/smartlinks/create">Créer</a></li>
+                    <li><a href="/smartlinks/list">Liste</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- Contenu principal -->
+        <main class="admin-main">
+            <div class="error-container">
+                <div class="error-content">
+                    <div class="error-icon">404</div>
+                    <h1>Page non trouvée</h1>
+                    <p>La page que vous recherchez n'existe pas ou a été déplacée.</p>
+                    
+                    <div class="error-actions">
+                        <a href="/" class="btn btn-primary">
+                            🏠 Retour au dashboard
+                        </a>
+                        <a href="/smartlinks/create" class="btn btn-outline">
+                            ➕ Créer un SmartLink
+                        </a>
+                    </div>
+                    
+                    <div class="quick-links">
+                        <h3>Liens rapides :</h3>
+                        <ul>
+                            <li><a href="/dashboard">Tableau de bord</a></li>
+                            <li><a href="/smartlinks/list">Liste des SmartLinks</a></li>
+                            <li><a href="/smartlinks/create">Créer un nouveau SmartLink</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/config.js"></script>
+    <script src="/assets/js/admin.js"></script>
+
+    <style>
+        .error-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+        }
+
+        .error-content {
+            text-align: center;
+            max-width: 500px;
+            padding: 2rem;
+        }
+
+        .error-icon {
+            font-size: 6rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .error-content h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .error-content p {
+            font-size: 1.1rem;
+            color: var(--secondary);
+            margin-bottom: 2rem;
+        }
+
+        .error-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .quick-links {
+            text-align: left;
+            background: var(--light);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-top: 2rem;
+        }
+
+        .quick-links h3 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .quick-links ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .quick-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .quick-links a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .error-actions {
+                flex-direction: column;
+            }
+            
+            .error-content {
+                padding: 1rem;
+            }
+            
+            .error-icon {
+                font-size: 4rem;
+            }
+        }
+    </style>
+</body>
+</html>

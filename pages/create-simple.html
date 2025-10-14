@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Créer un SmartLink | MDMC</title>
+    <link rel="icon" href="/public/assets/favicon.png">
+    <style>
+        :root {
+            --primary: #E50914;
+            --secondary: #141414;
+            --white: #FFFFFF;
+            --gray-light: #F8F9FA;
+            --gray-medium: #999999;
+            --success: #10B981;
+            --shadow-medium: 0 4px 16px rgba(0,0,0,0.08);
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--white);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), #ff1a1a);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 24px;
+            margin: 0 auto 32px;
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 16px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: var(--gray-medium);
+            margin-bottom: 48px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 20px 24px;
+            border: 2px solid #E5E7EB;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+            background: var(--white);
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(229, 9, 20, 0.1);
+        }
+
+        .url-input:valid {
+            border-color: var(--success);
+        }
+
+        .create-btn {
+            width: 100%;
+            padding: 20px 32px;
+            background: linear-gradient(135deg, var(--primary) 0%, #ff1a1a 100%);
+            color: var(--white);
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 24px;
+        }
+
+        .create-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(229, 9, 20, 0.3);
+        }
+
+        .create-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status {
+            font-size: 14px;
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            display: none;
+        }
+
+        .status.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .status.loading {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3B82F6;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .result-section {
+            display: none;
+            margin-top: 32px;
+            padding: 24px;
+            background: var(--gray-light);
+            border-radius: var(--border-radius);
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        .smartlink-url {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .result-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--white);
+        }
+
+        .copy-btn {
+            padding: 12px 20px;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .copy-btn:hover {
+            background: #c50711;
+        }
+
+        .preview-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 24px;
+            padding: 16px;
+            background: var(--white);
+            border-radius: var(--border-radius);
+        }
+
+        .preview-cover {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .preview-text h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .preview-text p {
+            font-size: 14px;
+            color: var(--gray-medium);
+        }
+
+        .platforms-count {
+            margin-top: 16px;
+            font-size: 14px;
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .example-links {
+            margin-top: 32px;
+            text-align: left;
+        }
+
+        .example-links h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--secondary);
+        }
+
+        .example-link {
+            display: block;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            background: rgba(59, 130, 246, 0.05);
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            border-radius: 8px;
+            font-size: 12px;
+            color: #3B82F6;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .example-link:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: 10px 16px;
+            background: var(--gray-light);
+            color: var(--secondary);
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .action-btn:hover {
+            background: #E5E7EB;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 32px 24px;
+            }
+            
+            .title {
+                font-size: 28px;
+            }
+            
+            .subtitle {
+                font-size: 16px;
+            }
+            
+            .quick-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">M</div>
+        
+        <h1 class="title">SmartLink Generator</h1>
+        <p class="subtitle">
+            Collez un lien Spotify, Apple Music ou YouTube.<br>
+            Obtenez un lien universel en 10 secondes.
+        </p>
+
+        <form id="smartlinkForm">
+            <div class="form-group">
+                <input 
+                    type="url" 
+                    id="musicUrl" 
+                    class="url-input"
+                    placeholder="https://open.spotify.com/track/..."
+                    required
+                >
+            </div>
+            
+            <button type="submit" class="create-btn" id="createBtn">
+                Créer SmartLink
+            </button>
+            
+            <div id="status" class="status"></div>
+        </form>
+
+        <!-- Résultat -->
+        <div id="resultSection" class="result-section">
+            <h3>🎉 SmartLink créé avec succès !</h3>
+            
+            <div class="smartlink-url">
+                <input type="text" id="resultUrl" class="result-input" readonly>
+                <button onclick="copyToClipboard()" class="copy-btn">Copier</button>
+            </div>
+
+            <div id="previewInfo" class="preview-info" style="display: none;">
+                <img id="previewCover" class="preview-cover" alt="Cover">
+                <div class="preview-text">
+                    <h4 id="previewTitle">Titre</h4>
+                    <p id="previewArtist">Artiste</p>
+                </div>
+            </div>
+
+            <div id="platformsCount" class="platforms-count"></div>
+
+            <div class="quick-actions">
+                <button onclick="createAnother()" class="action-btn">Créer un autre</button>
+                <a href="/dashboard" class="action-btn">Voir mes liens</a>
+                <button onclick="shareSmartLink()" class="action-btn">Partager</button>
+            </div>
+        </div>
+
+        <!-- Exemples -->
+        <div class="example-links">
+            <h3>💡 Exemples de liens supportés :</h3>
+            <div onclick="loadExample('https://open.spotify.com/track/4iV5W9uYEdYUVa79Axb7Rh')" class="example-link">
+                🎵 Spotify : https://open.spotify.com/track/...
+            </div>
+            <div onclick="loadExample('https://music.apple.com/us/album/never-gonna-give-you-up/1558535547')" class="example-link">
+                🍎 Apple Music : https://music.apple.com/us/album/...
+            </div>
+            <div onclick="loadExample('https://www.youtube.com/watch?v=dQw4w9WgXcQ')" class="example-link">
+                📺 YouTube : https://www.youtube.com/watch?v=...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let currentSmartLink = null;
+
+        // Form submission
+        document.getElementById('smartlinkForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await createSmartLink();
+        });
+
+        // Fonction principale de création
+        async function createSmartLink() {
+            const urlInput = document.getElementById('musicUrl');
+            const createBtn = document.getElementById('createBtn');
+            const statusDiv = document.getElementById('status');
+            const resultSection = document.getElementById('resultSection');
+            
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                showStatus('Veuillez coller un lien musical', 'error');
+                return;
+            }
+
+            // Validation URL basique
+            if (!isValidMusicUrl(url)) {
+                showStatus('URL non reconnue. Utilisez Spotify, Apple Music, YouTube...', 'error');
+                return;
+            }
+
+            // UI Loading
+            createBtn.disabled = true;
+            createBtn.innerHTML = '<span class="spinner"></span>Création en cours...';
+            showStatus('🔄 Récupération des données depuis Odesli...', 'loading');
+            resultSection.classList.remove('show');
+
+            try {
+                // 1. Récupérer données Odesli
+                const odesliResponse = await fetch('/api/odesli', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    body: JSON.stringify({ url })
+                });
+
+                const odesliData = await odesliResponse.json();
+                
+                if (!odesliData.success) {
+                    throw new Error(odesliData.error || 'Erreur Odesli');
+                }
+
+                showStatus('✅ Données récupérées, création du SmartLink...', 'loading');
+
+                // 2. Créer SmartLink
+                const smartlinkResponse = await fetch('/api/smartlinks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    },
+                    body: JSON.stringify({
+                        title: odesliData.data.title,
+                        artist: odesliData.data.artist,
+                        coverUrl: odesliData.data.coverUrl,
+                        platforms: odesliData.data.platforms,
+                        odesliUrl: url,
+                        description: `SmartLink pour ${odesliData.data.title} de ${odesliData.data.artist}`
+                    })
+                });
+
+                const smartlinkResult = await smartlinkResponse.json();
+                
+                if (!smartlinkResult.success) {
+                    throw new Error(smartlinkResult.error || 'Erreur création SmartLink');
+                }
+
+                // 3. Afficher résultat
+                showResult(smartlinkResult, odesliData.data);
+                showStatus('🎉 SmartLink créé avec succès !', 'success');
+
+            } catch (error) {
+                console.error('Erreur création SmartLink:', error);
+                showStatus(`❌ ${error.message}`, 'error');
+            } finally {
+                createBtn.disabled = false;
+                createBtn.innerHTML = 'Créer SmartLink';
+            }
+        }
+
+        // Afficher le résultat
+        function showResult(smartlinkResult, odesliData) {
+            currentSmartLink = smartlinkResult;
+            
+            document.getElementById('resultUrl').value = smartlinkResult.url;
+            
+            // Preview info
+            if (odesliData.title && odesliData.artist) {
+                const previewInfo = document.getElementById('previewInfo');
+                document.getElementById('previewTitle').textContent = odesliData.title;
+                document.getElementById('previewArtist').textContent = odesliData.artist;
+                
+                if (odesliData.coverUrl) {
+                    const coverImg = document.getElementById('previewCover');
+                    coverImg.src = odesliData.coverUrl;
+                    previewInfo.style.display = 'flex';
+                }
+            }
+
+            // Platforms count
+            const platformsCount = odesliData.platforms?.length || 0;
+            document.getElementById('platformsCount').textContent = 
+                `📱 Disponible sur ${platformsCount} plateformes`;
+
+            document.getElementById('resultSection').classList.add('show');
+        }
+
+        // Helper functions
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+        }
+
+        function isValidMusicUrl(url) {
+            const patterns = [
+                /spotify\.com.*\/track\//,
+                /spotify\.com.*\/album\//,
+                /music\.apple\.com/,
+                /youtube\.com\/watch/,
+                /youtu\.be\//,
+                /music\.youtube\.com/,
+                /soundcloud\.com/,
+                /deezer\.com/,
+                /tidal\.com/
+            ];
+            return patterns.some(pattern => pattern.test(url));
+        }
+
+        function loadExample(url) {
+            document.getElementById('musicUrl').value = url;
+            document.getElementById('musicUrl').focus();
+        }
+
+        function copyToClipboard() {
+            const input = document.getElementById('resultUrl');
+            input.select();
+            document.execCommand('copy');
+            
+            // Feedback visuel
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'Copié !';
+            setTimeout(() => btn.textContent = originalText, 2000);
+        }
+
+        function createAnother() {
+            document.getElementById('musicUrl').value = '';
+            document.getElementById('resultSection').classList.remove('show');
+            document.getElementById('status').style.display = 'none';
+            document.getElementById('musicUrl').focus();
+        }
+
+        function shareSmartLink() {
+            if (!currentSmartLink) return;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'SmartLink - Écoutez sur toutes les plateformes',
+                    url: currentSmartLink.url
+                });
+            } else {
+                // Fallback
+                copyToClipboard();
+            }
+        }
+
+        // Auto-focus sur l'input au chargement
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('musicUrl').focus();
+        });
+
+        // Enter key pour soumettre
+        document.getElementById('musicUrl').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                createSmartLink();
+            }
+        });
+    </script>
+</body>
+</html>

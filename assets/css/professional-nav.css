@@ -1,0 +1,279 @@
+/* Professional Navigation - Modern Admin Panel */
+
+:root {
+  /* Navigation Colors */
+  --nav-bg: #ffffff;
+  --nav-border: #e5e7eb;
+  --nav-text: #374151;
+  --nav-text-hover: #111827;
+  --nav-text-active: #e50914;
+  --nav-bg-hover: #f9fafb;
+  --nav-bg-active: #fef2f2;
+  --nav-border-active: #e50914;
+  --nav-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+
+  /* Typography */
+  --nav-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --nav-font-size: 14px;
+  --nav-font-weight: 500;
+  --nav-font-weight-active: 600;
+  --nav-letter-spacing: -0.01em;
+
+  /* Spacing */
+  --nav-padding-x: 16px;
+  --nav-padding-y: 12px;
+  --nav-gap: 4px;
+  --nav-border-radius: 8px;
+
+  /* Transitions */
+  --nav-transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --nav-transition-colors: color 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+                          background-color 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+                          border-color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Base Navigation Container */
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nav-gap);
+  padding: 16px 12px;
+  font-family: var(--nav-font-family);
+  font-size: var(--nav-font-size);
+  font-weight: var(--nav-font-weight);
+  letter-spacing: var(--nav-letter-spacing);
+}
+
+/* Navigation Items */
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 44px; /* Accessibility touch target */
+  padding: var(--nav-padding-y) var(--nav-padding-x);
+  color: var(--nav-text);
+  text-decoration: none;
+  border-radius: var(--nav-border-radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: var(--nav-transition-colors);
+
+  /* Modern typography settings */
+  font-feature-settings: "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Navigation Item Text */
+.nav-item span {
+  font-weight: inherit;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Hover State */
+.nav-item:hover {
+  color: var(--nav-text-hover);
+  background-color: var(--nav-bg-hover);
+  border-color: transparent;
+  transform: translateY(-0.5px);
+}
+
+/* Focus State for Accessibility */
+.nav-item:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.2);
+  border-color: var(--nav-border-active);
+}
+
+/* Active State */
+.nav-item.active {
+  color: var(--nav-text-active);
+  background-color: var(--nav-bg-active);
+  border-color: transparent;
+  font-weight: var(--nav-font-weight-active);
+  position: relative;
+}
+
+/* Active State Indicator */
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 20px;
+  background-color: var(--nav-border-active);
+  border-radius: 0 2px 2px 0;
+}
+
+/* Active State on Hover */
+.nav-item.active:hover {
+  color: var(--nav-text-active);
+  background-color: var(--nav-bg-active);
+  transform: none;
+}
+
+/* Enhanced Interaction States */
+.nav-item:active {
+  transform: translateY(0);
+  transition-duration: 0.05s;
+}
+
+/* Subtle Animation for Better UX */
+@keyframes nav-item-glow {
+  0% { box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.4); }
+  70% { box-shadow: 0 0 0 4px rgba(229, 9, 20, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(229, 9, 20, 0); }
+}
+
+.nav-item.active {
+  animation: nav-item-glow 0.6s ease-out;
+}
+
+/* Modern Touch Interactions */
+@media (hover: hover) {
+  .nav-item:hover {
+    transition-duration: 0.1s;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .nav-item {
+    border: 1px solid var(--nav-border);
+  }
+
+  .nav-item.active {
+    border-color: var(--nav-border-active);
+    background-color: var(--nav-text-active);
+    color: white;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .nav-item {
+    transition: none;
+  }
+
+  .nav-item.active {
+    animation: none;
+  }
+
+  .nav-item:hover {
+    transform: none;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --nav-bg: #1f2937;
+    --nav-border: #374151;
+    --nav-text: #d1d5db;
+    --nav-text-hover: #f9fafb;
+    --nav-text-active: #f87171;
+    --nav-bg-hover: #374151;
+    --nav-bg-active: #7f1d1d;
+  }
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  .nav-menu {
+    padding: 12px 8px;
+    gap: 2px;
+  }
+
+  .nav-item {
+    min-height: 48px; /* Larger touch targets on mobile */
+    padding: 14px var(--nav-padding-x);
+    font-size: 15px; /* Slightly larger for mobile readability */
+  }
+}
+
+/* Professional Typography Enhancements */
+.nav-item {
+  /* Advanced font rendering */
+  text-rendering: optimizeLegibility;
+  -webkit-text-stroke: 0.01em transparent;
+}
+
+/* Micro-interactions for premium feel */
+.nav-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.nav-item:hover::after {
+  opacity: 1;
+}
+
+/* Sidebar Integration Styles */
+.sidebar {
+  background: var(--nav-bg);
+  border-right: 1px solid var(--nav-border);
+  box-shadow: var(--nav-shadow);
+}
+
+/* Logo Area Styling */
+.sidebar-header {
+  padding: 20px 16px;
+  border-bottom: 1px solid var(--nav-border);
+  background: var(--nav-bg);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--nav-text-active);
+  font-family: var(--nav-font-family);
+  letter-spacing: -0.02em;
+}
+
+/* Enhanced States for Better UX */
+.nav-item:focus-visible {
+  outline: 2px solid var(--nav-border-active);
+  outline-offset: 2px;
+}
+
+/* Smooth state transitions */
+.nav-item {
+  will-change: color, background-color, transform;
+}
+
+/* Professional spacing adjustments */
+.nav-item + .nav-item {
+  margin-top: 1px;
+}
+
+/* Last item special styling (usually logout) */
+.nav-item:last-child {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--nav-border);
+  color: #dc2626;
+}
+
+.nav-item:last-child:hover {
+  background-color: #fef2f2;
+  color: #b91c1c;
+}
+
+/* Professional focus ring */
+.nav-item:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--nav-bg),
+    0 0 0 4px var(--nav-border-active);
+}/* Force redeploy Dim 21 sep 2025 19:27:53 WEST */

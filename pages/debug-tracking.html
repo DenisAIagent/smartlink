@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debug Tracking - MDMC SmartLink</title>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-P11JTJ21NZ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-P11JTJ21NZ');
+  </script>
+
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-572GXWPP');</script>
+
+  <!-- Meta Pixel Code -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '123456789012345');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=123456789012345&ev=PageView&noscript=1"
+  /></noscript>
+
+  <!-- TikTok Pixel Code -->
+  <script>
+  !function (w, d, t) {
+    w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
+    ttq.load('ABCDEFGHIJKLMNOP');
+    ttq.page();
+  }(window, document, 'ttq');
+  </script>
+
+  <style>
+    :root {
+      --primary: #E50914;
+      --bg-main: #F8F9FA;
+      --bg-white: #ffffff;
+      --border: #e5e7eb;
+      --text-primary: #111827;
+      --text-secondary: #6b7280;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-main);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 30px;
+      background: var(--bg-white);
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .header h1 {
+      color: var(--primary);
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: var(--text-secondary);
+      font-size: 1.1em;
+    }
+
+    .tracking-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .tracking-card {
+      background: var(--bg-white);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid var(--warning);
+    }
+
+    .tracking-card.detected {
+      border-left-color: var(--success);
+    }
+
+    .tracking-card.error {
+      border-left-color: var(--danger);
+    }
+
+    .tracking-card h3 {
+      margin-bottom: 15px;
+      font-size: 1.2em;
+    }
+
+    .tracking-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .tracking-id {
+      font-family: 'Courier New', monospace;
+      background: var(--bg-main);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+
+    .status {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8em;
+      font-weight: 500;
+    }
+
+    .status.loading {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+
+    .status.success {
+      background: #D1FAE5;
+      color: #065F46;
+    }
+
+    .status.error {
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+
+    .test-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #d40812;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--bg-main);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: #e5e7eb;
+    }
+
+    .console {
+      background: #1a1a1a;
+      color: #00ff00;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 30px;
+    }
+
+    .console-line {
+      margin-bottom: 5px;
+    }
+
+    .timestamp {
+      color: #888;
+    }
+
+    .instructions {
+      background: var(--bg-white);
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 30px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .instructions h3 {
+      color: var(--primary);
+      margin-bottom: 15px;
+    }
+
+    .instructions ol {
+      padding-left: 20px;
+    }
+
+    .instructions li {
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px 15px;
+      }
+
+      .header h1 {
+        font-size: 2em;
+      }
+
+      .test-buttons {
+        flex-direction: column;
+      }
+
+      .btn {
+        text-align: center;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-572GXWPP"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+  <div class="container">
+    <div class="header">
+      <h1>🎯 Debug Tracking MDMC</h1>
+      <p>Test et validation des pixels de tracking SmartLink</p>
+    </div>
+
+    <div class="tracking-grid">
+      <div class="tracking-card" id="ga-card">
+        <h3>📊 Google Analytics</h3>
+        <div class="tracking-info">
+          <span>ID:</span>
+          <span class="tracking-id" id="ga-id">G-P11JTJ21NZ</span>
+        </div>
+        <div class="tracking-info">
+          <span>Status:</span>
+          <span class="status loading" id="ga-status">Vérification...</span>
+        </div>
+      </div>
+
+      <div class="tracking-card" id="gtm-card">
+        <h3>🏷️ Google Tag Manager</h3>
+        <div class="tracking-info">
+          <span>ID:</span>
+          <span class="tracking-id" id="gtm-id">GTM-572GXWPP</span>
+        </div>
+        <div class="tracking-info">
+          <span>Status:</span>
+          <span class="status loading" id="gtm-status">Vérification...</span>
+        </div>
+      </div>
+
+      <div class="tracking-card" id="meta-card">
+        <h3>👥 Meta Pixel</h3>
+        <div class="tracking-info">
+          <span>ID:</span>
+          <span class="tracking-id" id="meta-id">123456789012345</span>
+        </div>
+        <div class="tracking-info">
+          <span>Status:</span>
+          <span class="status loading" id="meta-status">Vérification...</span>
+        </div>
+      </div>
+
+      <div class="tracking-card" id="tiktok-card">
+        <h3>🎵 TikTok Pixel</h3>
+        <div class="tracking-info">
+          <span>ID:</span>
+          <span class="tracking-id" id="tiktok-id">ABCDEFGHIJKLMNOP</span>
+        </div>
+        <div class="tracking-info">
+          <span>Status:</span>
+          <span class="status loading" id="tiktok-status">Vérification...</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="test-buttons">
+      <button class="btn btn-primary" onclick="testAllPixels()">
+        🧪 Tester tous les pixels
+      </button>
+      <button class="btn btn-primary" onclick="sendTestEvent('spotify')">
+        🎵 Test Spotify Click
+      </button>
+      <button class="btn btn-primary" onclick="sendTestEvent('apple')">
+        🍎 Test Apple Music Click
+      </button>
+      <button class="btn btn-secondary" onclick="clearConsole()">
+        🗑️ Vider console
+      </button>
+    </div>
+
+    <div class="console" id="console">
+      <div class="console-line">
+        <span class="timestamp">[Loading]</span> Initialisation du debug tracking...
+      </div>
+    </div>
+
+    <div class="instructions">
+      <h3>📋 Instructions Tag Assistant</h3>
+      <ol>
+        <li>Installer l'extension <strong>Tag Assistant Companion</strong> sur Chrome/Edge</li>
+        <li>Actualiser cette page</li>
+        <li>Cliquer sur l'extension Tag Assistant</li>
+        <li>Vérifier que les pixels sont détectés</li>
+        <li>Tester les événements avec les boutons ci-dessus</li>
+      </ol>
+      <p><strong>Note:</strong> Cette page utilise les variables d'environnement configurées. Les IDs seront remplacés automatiquement par les vrais lors du déploiement.</p>
+    </div>
+  </div>
+
+  <script>
+    function log(message, type = 'info') {
+      const console = document.getElementById('console');
+      const timestamp = new Date().toLocaleTimeString();
+      const line = document.createElement('div');
+      line.className = 'console-line';
+
+      let color = '#00ff00';
+      if (type === 'error') color = '#ff4444';
+      if (type === 'warning') color = '#ffaa00';
+      if (type === 'success') color = '#44ff44';
+
+      line.innerHTML = `<span class="timestamp">[${timestamp}]</span> <span style="color: ${color}">${message}</span>`;
+      console.appendChild(line);
+      console.scrollTop = console.scrollHeight;
+    }
+
+    function updatePixelStatus(pixelName, status, detected = false, error = false) {
+      const statusEl = document.getElementById(`${pixelName}-status`);
+      const cardEl = document.getElementById(`${pixelName}-card`);
+
+      statusEl.textContent = status;
+      statusEl.className = `status ${detected ? 'success' : error ? 'error' : 'loading'}`;
+      cardEl.className = `tracking-card ${detected ? 'detected' : error ? 'error' : ''}`;
+    }
+
+    function checkPixels() {
+      log('🔍 Vérification des pixels de tracking...');
+
+      // Google Analytics
+      setTimeout(() => {
+        if (typeof gtag !== 'undefined' && window.dataLayer) {
+          updatePixelStatus('ga', '✅ Détecté', true);
+          log('✅ Google Analytics: OK', 'success');
+        } else {
+          updatePixelStatus('ga', '❌ Non détecté', false, true);
+          log('❌ Google Analytics: NON DÉTECTÉ', 'error');
+        }
+      }, 1000);
+
+      // Google Tag Manager
+      setTimeout(() => {
+        if (window.dataLayer && window.dataLayer.length > 0) {
+          updatePixelStatus('gtm', '✅ Détecté', true);
+          log('✅ Google Tag Manager: OK', 'success');
+        } else {
+          updatePixelStatus('gtm', '❌ Non détecté', false, true);
+          log('❌ Google Tag Manager: NON DÉTECTÉ', 'error');
+        }
+      }, 1500);
+
+      // Meta Pixel
+      setTimeout(() => {
+        if (typeof fbq !== 'undefined') {
+          updatePixelStatus('meta', '✅ Détecté', true);
+          log('✅ Meta Pixel: OK', 'success');
+        } else {
+          updatePixelStatus('meta', '❌ Non détecté', false, true);
+          log('❌ Meta Pixel: NON DÉTECTÉ', 'error');
+        }
+      }, 2000);
+
+      // TikTok Pixel
+      setTimeout(() => {
+        if (typeof ttq !== 'undefined') {
+          updatePixelStatus('tiktok', '✅ Détecté', true);
+          log('✅ TikTok Pixel: OK', 'success');
+        } else {
+          updatePixelStatus('tiktok', '❌ Non détecté', false, true);
+          log('❌ TikTok Pixel: NON DÉTECTÉ', 'error');
+        }
+      }, 2500);
+    }
+
+    function testAllPixels() {
+      log('🧪 Test de tous les pixels...', 'warning');
+
+      // GA Event
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'debug_test', {
+          event_category: 'debug',
+          event_label: 'all_pixels_test'
+        });
+        log('📊 GA: Événement debug_test envoyé', 'success');
+      }
+
+      // Meta Event
+      if (typeof fbq !== 'undefined') {
+        fbq('track', 'CompleteRegistration');
+        log('👥 Meta: Événement CompleteRegistration envoyé', 'success');
+      }
+
+      // TikTok Event
+      if (typeof ttq !== 'undefined') {
+        ttq.track('Contact');
+        log('🎵 TikTok: Événement Contact envoyé', 'success');
+      }
+
+      log('✅ Tests terminés!', 'success');
+    }
+
+    function sendTestEvent(platform) {
+      log(`🎵 Test d'événement pour ${platform}...`, 'warning');
+
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'platform_click', {
+          platform: platform,
+          smartlink_id: 'debug-tracking',
+          event_category: 'smartlink'
+        });
+        log(`📊 GA: Événement platform_click (${platform}) envoyé`, 'success');
+      }
+
+      if (typeof fbq !== 'undefined') {
+        fbq('track', 'Lead', {
+          content_category: platform,
+          content_name: 'Debug SmartLink'
+        });
+        log(`👥 Meta: Événement Lead (${platform}) envoyé`, 'success');
+      }
+
+      if (typeof ttq !== 'undefined') {
+        ttq.track('ClickButton', {
+          content_category: platform
+        });
+        log(`🎵 TikTok: Événement ClickButton (${platform}) envoyé`, 'success');
+      }
+    }
+
+    function clearConsole() {
+      document.getElementById('console').innerHTML = '<div class="console-line"><span class="timestamp">[Cleared]</span> Console vidée</div>';
+    }
+
+    // Auto-check pixels on load
+    window.addEventListener('load', () => {
+      log('🚀 Page chargée, début des vérifications...');
+      setTimeout(checkPixels, 500);
+    });
+
+    // Initial check for immediate feedback
+    log('⏱️ Chargement des scripts de tracking...');
+  </script>
+</body>
+</html>

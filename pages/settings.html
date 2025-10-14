@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paramètres | MDMC Admin</title>
+    <link rel="icon" href="/public/assets/favicon.png">
+    <style>
+        :root {
+            --primary: #E50914;
+            --primary-hover: #d40812;
+            --primary-light: #fee2e2;
+            --bg-main: #F8F9FA;
+            --bg-white: #ffffff;
+            --border: #e5e7eb;
+            --border-light: #f3f4f6;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-muted: #9ca3af;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --info: #3b82f6;
+            --info-light: #dbeafe;
+            --sidebar-width: 260px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Enhanced Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-white);
+            border-right: 1px solid var(--border);
+            flex-shrink: 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        .user-info {
+            padding: 16px 24px;
+            background: var(--bg-main);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .user-email {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .user-plan {
+            display: inline-block;
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .nav-menu {
+            padding: 16px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-main);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-left-color: var(--primary);
+            font-weight: 500;
+        }
+
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        /* Enhanced Header */
+        .header {
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border);
+            padding: 24px 32px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+
+        .header-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Content */
+        .content {
+            flex: 1;
+            padding: 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Enhanced Settings Grid */
+        .settings-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab-button.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-button:hover:not(.active) {
+            color: var(--text-primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .settings-grid {
+            display: grid;
+            gap: 24px;
+        }
+
+        /* Enhanced Cards */
+        .settings-section {
+            background: var(--bg-white);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            transition: all 0.2s ease;
+        }
+
+        .settings-section:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .section-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .section-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        /* Enhanced Forms */
+        .form-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: var(--danger);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            transition: all 0.2s ease;
+            background: var(--bg-white);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.1);
+            background: white;
+        }
+
+        .form-input:disabled {
+            background: var(--bg-main);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Enhanced Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: var(--bg-main);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #e5e7eb;
+            border-color: var(--text-secondary);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Enhanced Toggle */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 56px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--border);
+            transition: 0.3s;
+            border-radius: 28px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        input:checked + .slider {
+            background: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(28px);
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .setting-row:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info h4 {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+
+        .setting-info p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Enhanced Alerts */
+        .alert {
+            padding: 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            font-size: 14px;
+            border: 1px solid;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-success {
+            background: var(--success-light);
+            color: #065f46;
+            border-color: var(--success);
+        }
+
+        .alert-warning {
+            background: var(--warning-light);
+            color: #92400e;
+            border-color: var(--warning);
+        }
+
+        .alert-danger {
+            background: var(--danger-light);
+            color: #991b1b;
+            border-color: var(--danger);
+        }
+
+        .alert-info {
+            background: var(--info-light);
+            color: #1e40af;
+            border-color: var(--info);
+        }
+
+        /* User Management */
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .users-table th,
+        .users-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .users-table th {
+            background: var(--bg-main);
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .users-table tr:hover {
+            background: var(--bg-main);
+        }
+
+        .user-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .user-badge.admin {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .user-badge.pro {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .user-badge.free {
+            background: var(--border-light);
+            color: var(--text-secondary);
+        }
+
+        /* Loading States */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--bg-white);
+            padding: 32px;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 4px;
+            border-radius: var(--radius-sm);
+        }
+
+        .modal-close:hover {
+            background: var(--bg-main);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .header {
+                padding: 16px;
+            }
+
+            .content {
+                padding: 16px;
+            }
+
+            .settings-tabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .tab-button {
+                white-space: nowrap;
+            }
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+    <!-- Navigation Hotfix -->
+    <link rel="stylesheet" href="/hotfix-nav.css">
+    <script src="/public/nav-hotfix.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Enhanced Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">🎵</div>
+                    <span>MDMC Admin</span>
+                </div>
+            </div>
+
+            <!-- User Info -->
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div class="user-name" id="userName">Admin</div>
+                <div class="user-email" id="userEmail">admin@mdmcmusicads.com</div>
+                <div class="user-plan" id="userPlan">Pro</div>
+            </div>
+
+            <nav class="nav-menu" role="navigation" aria-label="Navigation principale">
+                <a href="/pages/dashboard.html" class="nav-item">
+                    <span>Dashboard</span>
+                </a>
+                <a href="/pages/list-smartlinks.html" class="nav-item">
+                    <span>SmartLinks</span>
+                </a>
+                <a href="/pages/create-smartlink.html" class="nav-item">
+                    <span>Créer SmartLink</span>
+                </a>
+                <a href="/pages/settings.html" class="nav-item active" aria-current="page">
+                    <span>Settings</span>
+                </a>
+                <a href="#" class="nav-item" onclick="logout()">
+                    <span>Déconnexion</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Enhanced Header -->
+            <header class="header">
+                <div class="header-content">
+                    <div>
+                        <h1 class="header-title">Paramètres</h1>
+                        <p class="header-subtitle">Gérez votre compte et configurez votre plateforme</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-outline" onclick="refreshUserData()">
+                            <span>🔄</span>
+                            Actualiser
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="content">
+                <!-- Enhanced Tabs -->
+                <div class="settings-tabs">
+                    <button class="tab-button active" data-tab="profile">
+                        <span>👤</span> Profil
+                    </button>
+                    <button class="tab-button" data-tab="security">
+                        <span>🔒</span> Sécurité
+                    </button>
+                    <button class="tab-button" data-tab="users" id="usersTab" style="display: none;">
+                        <span>👥</span> Utilisateurs
+                    </button>
+                    <button class="tab-button" data-tab="notifications">
+                        <span>🔔</span> Notifications
+                    </button>
+                    <button class="tab-button" data-tab="preferences">
+                        <span>🎛️</span> Préférences
+                    </button>
+                </div>
+
+                <!-- Profile Tab -->
+                <div id="profile" class="tab-content active">
+                    <div class="settings-grid">
+                        <div class="settings-section">
+                            <div class="section-header">
+                                <div class="section-icon">👤</div>
+                                <h2 class="section-title">Informations personnelles</h2>
+                            </div>
+                            <p class="section-description">
+                                Gérez vos informations de profil et vos préférences de compte.
+                            </p>
+
+                            <form id="profileForm" class="form-grid">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label required" for="displayName">Nom d'affichage</label>
+                                        <input type="text" id="displayName" class="form-input" placeholder="Votre nom d'affichage">
+                                        <div class="form-help">Ce nom sera affiché dans l'interface</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="email">Adresse email</label>
+                                        <input type="email" id="email" class="form-input" disabled>
+                                        <div class="form-help">L'email ne peut pas être modifié</div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" for="company">Entreprise / Label</label>
+                                    <input type="text" id="company" class="form-input" placeholder="Nom de votre entreprise ou label">
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label" for="plan">Plan actuel</label>
+                                        <input type="text" id="plan" class="form-input" disabled>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="memberSince">Membre depuis</label>
+                                        <input type="text" id="memberSince" class="form-input" disabled>
+                                    </div>
+                                </div>
+
+                                <div style="margin-top: 24px;">
+                                    <button type="submit" class="btn btn-primary">
+                                        <span>💾</span> Sauvegarder les modifications
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Tab -->
+                <div id="security" class="tab-content">
+                    <div class="settings-grid">
+                        <!-- Change Password -->
+                        <div class="settings-section">
+                            <div class="section-header">
+                                <div class="section-icon">🔐</div>
+                                <h2 class="section-title">Changer le mot de passe</h2>
+                            </div>
+                            <p class="section-description">
+                                Assurez-vous que votre compte utilise un mot de passe long et sécurisé.
+                            </p>
+
+                            <form id="passwordForm" class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label required" for="currentPassword">Mot de passe actuel</label>
+                                    <input type="password" id="currentPassword" class="form-input" placeholder="Votre mot de passe actuel">
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label required" for="newPassword">Nouveau mot de passe</label>
+                                        <input type="password" id="newPassword" class="form-input" placeholder="Nouveau mot de passe">
+                                        <div class="form-help">Minimum 8 caractères</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label required" for="confirmPassword">Confirmer le mot de passe</label>
+                                        <input type="password" id="confirmPassword" class="form-input" placeholder="Confirmez le nouveau mot de passe">
+                                    </div>
+                                </div>
+
+                                <div style="margin-top: 24px;">
+                                    <button type="submit" class="btn btn-primary">
+                                        <span>🔒</span> Changer le mot de passe
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Security Settings -->
+                        <div class="settings-section">
+                            <div class="section-header">
+                                <div class="section-icon">🛡️</div>
+                                <h2 class="section-title">Paramètres de sécurité</h2>
+                            </div>
+                            <p class="section-description">
+                                Configurez les options de sécurité avancées pour protéger votre compte.
+                            </p>
+
+                            <div class="alert alert-info">
+                                <span>ℹ️</span>
+                                L'authentification à deux facteurs sera bientôt disponible.
+                            </div>
+
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <h4>Sessions actives</h4>
+                                    <p>Gérez les appareils connectés à votre compte</p>
+                                </div>
+                                <button class="btn btn-secondary" onclick="showActiveSessions()">
+                                    Voir les sessions
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Tab (Admin only) -->
+                <div id="users" class="tab-content">
+                    <div class="settings-grid">
+                        <div class="settings-section">
+                            <div class="section-header">
+                                <div class="section-icon">👥</div>
+                                <h2 class="section-title">Gestion des utilisateurs</h2>
+                            </div>
+                            <p class="section-description">
+                                Créez et gérez les comptes utilisateurs de votre organisation.
+                            </p>
+
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                                <div>
+                                    <strong id="usersCount">0</strong> utilisateur(s) au total
+                                </div>
+                                <button class="btn btn-primary" onclick="showCreateUserModal()">
+                                    <span>➕</span> Nouvel utilisateur
+                                </button>
+                            </div>
+
+                            <div id="usersTableContainer">
+                                <table class="users-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Utilisateur</th>
+                                            <th>Plan</th>
+                                            <th>SmartLinks</th>
+                                            <th>Inscription</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="usersTableBody">
+                                        <!-- Users will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications Tab -->
+                <div id="notifications" class="tab-content">
+                    <div class="settings-grid">
+                        <div class="settings-section">
+                            <div class="section-header">
+                                <div class="section-icon">🔔</div>
+                                <h2 class="section-title">Préférences de notification</h2>
+                            </div>
+                            <p class="section-description">
+                                Choisissez comment et quand vous souhaitez recevoir des notifications.
+                            </p>
+
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <h4>Notifications par email</h4>
+                                    <p>Recevez des mises à jour importantes par email</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <h4>Rapports hebdomadaires</h4>
+                                    <p>Résumé des performances de vos SmartLinks chaque semaine</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <h4>Alertes de trafic élevé</h4>
+                                    <p>Notification quand vos SmartLinks reçoivent un pic de trafic</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preferences Tab -->
+                <div id="preferences" class="tab-content">
+                    <div class="settings-grid">
+                        <div class="settings-section">
+                            <div class="section-header">
+                                <div class="section-icon">🎛️</div>
+                                <h2 class="section-title">Préférences SmartLink</h2>
+                            </div>
+                            <p class="section-description">
+                                Configuration par défaut pour vos nouveaux SmartLinks.
+                            </p>
+
+                            <div class="form-group">
+                                <label class="form-label" for="defaultCountry">Pays par défaut</label>
+                                <select id="defaultCountry" class="form-input">
+                                    <option value="FR">France</option>
+                                    <option value="US">États-Unis</option>
+                                    <option value="UK">Royaume-Uni</option>
+                                    <option value="CA">Canada</option>
+                                    <option value="DE">Allemagne</option>
+                                </select>
+                            </div>
+
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <h4>Analytics avancés</h4>
+                                    <p>Collecte de données détaillées sur les clics et comportements</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <h4>URLs courtes automatiques</h4>
+                                    <p>Générer automatiquement des URLs courtes optimisées</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create User Modal -->
+    <div id="createUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Créer un nouvel utilisateur</h3>
+                <button class="modal-close" onclick="hideCreateUserModal()">×</button>
+            </div>
+
+            <form id="createUserForm" class="form-grid">
+                <div class="form-group">
+                    <label class="form-label required" for="newUserDisplayName">Nom d'affichage</label>
+                    <input type="text" id="newUserDisplayName" class="form-input" placeholder="Nom complet" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required" for="newUserEmail">Adresse email</label>
+                    <input type="email" id="newUserEmail" class="form-input" placeholder="email@exemple.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required" for="newUserPassword">Mot de passe temporaire</label>
+                    <input type="password" id="newUserPassword" class="form-input" placeholder="Mot de passe temporaire" required>
+                    <div class="form-help">L'utilisateur devra changer ce mot de passe à sa première connexion</div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="newUserPlan">Plan</label>
+                        <select id="newUserPlan" class="form-input">
+                            <option value="free">Gratuit</option>
+                            <option value="pro">Pro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="newUserIsAdmin">Rôle</label>
+                        <select id="newUserIsAdmin" class="form-input">
+                            <option value="false">Utilisateur</option>
+                            <option value="true">Administrateur</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="margin-top: 24px; display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="hideCreateUserModal()">
+                        Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <span>➕</span> Créer l'utilisateur
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Auth and state management
+        let currentUser = null;
+
+        // Auth functions
+        function getAuthToken() {
+            return localStorage.getItem('authToken');
+        }
+
+        function checkAuth() {
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = '/pages/login.html';
+                return false;
+            }
+            return true;
+        }
+
+        async function logout() {
+            try {
+                // Call server logout endpoint to clear cookie
+                await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            } finally {
+                // Always clear local storage and redirect
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('user');
+                window.location.href = '/pages/login.html';
+            }
+        }
+
+        // Tab management
+        function initTabs() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetTab = button.dataset.tab;
+
+                    // Update active states
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+
+                    button.classList.add('active');
+                    document.getElementById(targetTab).classList.add('active');
+                });
+            });
+        }
+
+        // Load current user data
+        async function loadCurrentUser() {
+            if (!checkAuth()) return;
+
+            try {
+                const token = getAuthToken();
+                const response = await fetch('/api/auth/me', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        currentUser = data.user;
+                        updateUserInterface();
+                    }
+                } else if (response.status === 401) {
+                    logout();
+                }
+            } catch (error) {
+                console.error('Error loading user:', error);
+            }
+        }
+
+        // Update UI with user data
+        function updateUserInterface() {
+            if (!currentUser) return;
+
+            // Update sidebar user info
+            document.getElementById('userAvatar').textContent = currentUser.display_name?.charAt(0).toUpperCase() || 'U';
+            document.getElementById('userName').textContent = currentUser.display_name || 'Utilisateur';
+            document.getElementById('userEmail').textContent = currentUser.email;
+            document.getElementById('userPlan').textContent = currentUser.plan?.toUpperCase() || 'FREE';
+
+            // Update profile form
+            document.getElementById('displayName').value = currentUser.display_name || '';
+            document.getElementById('email').value = currentUser.email || '';
+            document.getElementById('plan').value = currentUser.plan?.charAt(0).toUpperCase() + currentUser.plan?.slice(1) || 'Free';
+            document.getElementById('memberSince').value = new Date(currentUser.created_at).toLocaleDateString('fr-FR');
+
+            // Show admin features if user is admin
+            if (currentUser.is_admin) {
+                document.getElementById('usersTab').style.display = 'block';
+                loadUsers();
+            }
+        }
+
+        // Profile form submission
+        async function handleProfileUpdate(e) {
+            e.preventDefault();
+            if (!checkAuth()) return;
+
+            const formData = new FormData(e.target);
+            const displayName = formData.get('displayName') || document.getElementById('displayName').value;
+
+            try {
+                const token = getAuthToken();
+                const response = await fetch('/api/auth/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ display_name: displayName })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('success', 'Profil mis à jour avec succès !');
+                    loadCurrentUser(); // Refresh user data
+                } else {
+                    showAlert('danger', data.error || 'Erreur lors de la mise à jour');
+                }
+            } catch (error) {
+                console.error('Profile update error:', error);
+                showAlert('danger', 'Erreur lors de la mise à jour');
+            }
+        }
+
+        // Password change form submission
+        async function handlePasswordChange(e) {
+            e.preventDefault();
+            if (!checkAuth()) return;
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Validation
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                showAlert('warning', 'Veuillez remplir tous les champs');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                showAlert('warning', 'Les mots de passe ne correspondent pas');
+                return;
+            }
+
+            if (newPassword.length < 8) {
+                showAlert('warning', 'Le mot de passe doit contenir au moins 8 caractères');
+                return;
+            }
+
+            try {
+                const token = getAuthToken();
+                const response = await fetch('/api/auth/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        display_name: currentUser.display_name,
+                        password: newPassword
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('success', 'Mot de passe mis à jour avec succès !');
+                    // Clear form
+                    document.getElementById('passwordForm').reset();
+                } else {
+                    showAlert('danger', data.error || 'Erreur lors du changement de mot de passe');
+                }
+            } catch (error) {
+                console.error('Password change error:', error);
+                showAlert('danger', 'Erreur lors du changement de mot de passe');
+            }
+        }
+
+        // Load users (admin only)
+        async function loadUsers() {
+            if (!currentUser?.is_admin) return;
+
+            try {
+                const token = getAuthToken();
+                const response = await fetch('/api/admin/users', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.users) {
+                        updateUsersTable(data.users);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        // Update users table
+        function updateUsersTable(users) {
+            const tbody = document.getElementById('usersTableBody');
+            const usersCount = document.getElementById('usersCount');
+
+            usersCount.textContent = users.length;
+
+            tbody.innerHTML = users.map(user => `
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 32px; height: 32px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 12px;">
+                                ${user.display_name?.charAt(0).toUpperCase() || 'U'}
+                            </div>
+                            <div>
+                                <div style="font-weight: 500;">${user.display_name || 'Sans nom'}</div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">${user.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="user-badge ${user.is_admin ? 'admin' : user.plan}">
+                            ${user.is_admin ? 'Admin' : user.plan?.toUpperCase() || 'FREE'}
+                        </span>
+                    </td>
+                    <td>${user.smartlinks_count || 0}</td>
+                    <td style="font-size: 12px; color: var(--text-secondary);">
+                        ${new Date(user.created_at).toLocaleDateString('fr-FR')}
+                    </td>
+                    <td>
+                        <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editUser(${user.id})">
+                            Modifier
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Create user modal
+        function showCreateUserModal() {
+            document.getElementById('createUserModal').classList.add('active');
+        }
+
+        function hideCreateUserModal() {
+            document.getElementById('createUserModal').classList.remove('active');
+            document.getElementById('createUserForm').reset();
+        }
+
+        // Create user form submission
+        async function handleCreateUser(e) {
+            e.preventDefault();
+            if (!checkAuth() || !currentUser?.is_admin) return;
+
+            const formData = new FormData(e.target);
+            const userData = {
+                display_name: formData.get('display_name') || document.getElementById('newUserDisplayName').value,
+                email: formData.get('email') || document.getElementById('newUserEmail').value,
+                password: formData.get('password') || document.getElementById('newUserPassword').value,
+                plan: document.getElementById('newUserPlan').value,
+                is_admin: document.getElementById('newUserIsAdmin').value === 'true'
+            };
+
+            try {
+                const token = getAuthToken();
+                const response = await fetch('/api/admin/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(userData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('success', 'Utilisateur créé avec succès !');
+                    hideCreateUserModal();
+                    loadUsers(); // Refresh users list
+                } else {
+                    showAlert('danger', data.error || 'Erreur lors de la création de l\'utilisateur');
+                }
+            } catch (error) {
+                console.error('Create user error:', error);
+                showAlert('danger', 'Erreur lors de la création de l\'utilisateur');
+            }
+        }
+
+        // Alert system
+        function showAlert(type, message) {
+            // Remove existing alerts
+            const existingAlerts = document.querySelectorAll('.alert');
+            existingAlerts.forEach(alert => alert.remove());
+
+            // Create new alert
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <span>${getAlertIcon(type)}</span>
+                <span>${message}</span>
+            `;
+
+            // Insert at top of content
+            const content = document.querySelector('.content');
+            content.insertBefore(alert, content.firstChild);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        function getAlertIcon(type) {
+            const icons = {
+                success: '✅',
+                warning: '⚠️',
+                danger: '❌',
+                info: 'ℹ️'
+            };
+            return icons[type] || 'ℹ️';
+        }
+
+        // Utility functions
+        function refreshUserData() {
+            loadCurrentUser();
+            if (currentUser?.is_admin) {
+                loadUsers();
+            }
+            showAlert('info', 'Données actualisées');
+        }
+
+        function showActiveSessions() {
+            showAlert('info', 'Fonctionnalité bientôt disponible');
+        }
+
+        function editUser(userId) {
+            showAlert('info', 'Fonctionnalité d\'édition bientôt disponible');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!checkAuth()) return;
+
+            initTabs();
+            await loadCurrentUser();
+
+            // Setup form handlers
+            document.getElementById('profileForm').addEventListener('submit', handleProfileUpdate);
+            document.getElementById('passwordForm').addEventListener('submit', handlePasswordChange);
+            document.getElementById('createUserForm').addEventListener('submit', handleCreateUser);
+
+            // Close modal when clicking outside
+            document.getElementById('createUserModal').addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) {
+                    hideCreateUserModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
