@@ -348,6 +348,10 @@ const smartlinks = {
           return null;
         }
 
+        // First, delete all related analytics data (cascade delete)
+        await client.query('DELETE FROM analytics WHERE smartlink_id = $1', [id]);
+        console.log(`🗑️ Deleted analytics data for SmartLink ${id}`);
+
         // Delete the smartlink
         let deleteQuery, deleteParams;
 
