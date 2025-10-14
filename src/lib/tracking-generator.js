@@ -301,8 +301,14 @@ function generateTrackingEvents(trackingPixels, smartlinkData) {
       // SmartLink Tracking Events
       ${events.join('\n')}
 
-      // Track platform clicks
+      // Track platform clicks (for external analytics only - NOT our internal system)
       function trackPlatformClick(platform, url) {
+        // IMPORTANT: This function is for EXTERNAL pixels only (GA, Meta, TikTok)
+        // It does NOT send data to our internal /api/smartlinks/{{SLUG}}/click endpoint
+        // That's handled separately in openPlatform() function
+
+        console.log('🔍 External tracking pixels fired for platform:', platform);
+
         ${trackingPixels.google_analytics ? `
         if (typeof gtag !== 'undefined') {
           gtag('event', 'platform_click', {
@@ -327,6 +333,9 @@ function generateTrackingEvents(trackingPixels, smartlinkData) {
             content_category: platform
           });
         }` : ''}
+
+        // DO NOT send additional requests to our internal tracking API
+        // The main tracking is already handled by openPlatform() function
       }
     </script>`;
 }

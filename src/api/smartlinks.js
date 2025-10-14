@@ -516,11 +516,37 @@ async function getPublicSmartLink(req, res) {
   }
 }
 
+// Simple rate limiting to prevent duplicate tracking within seconds
+const recentTrackingEvents = new Map(); // IP+slug -> timestamp
+
 // Track platform-specific clicks
 async function trackPlatformClick(req, res) {
   try {
     const { slug } = req.params;
     const { platform, timestamp, userAgent } = req.body;
+
+    // Rate limiting: prevent duplicate clicks from same IP within 5 seconds
+    const trackingKey = `${req.ip}-${slug}-${platform || 'unknown'}`;
+    const now = Date.now();
+    const lastTracking = recentTrackingEvents.get(trackingKey);
+
+    if (lastTracking && (now - lastTracking) < 5000) {
+      console.log(`⚡ RATE LIMITED: Duplicate click from ${req.ip} for ${slug}/${platform} ignored`);
+      return res.json({
+        success: true,
+        message: 'Click already recorded recently',
+        rate_limited: true
+      });
+    }
+
+    recentTrackingEvents.set(trackingKey, now);
+
+    // Clean old entries (older than 10 seconds)
+    for (const [key, time] of recentTrackingEvents.entries()) {
+      if (now - time > 10000) {
+        recentTrackingEvents.delete(key);
+      }
+    }
 
     console.log(`🎯 TRACKING: Clic "${platform}" pour ${slug} - Body:`, JSON.stringify(req.body));
 
