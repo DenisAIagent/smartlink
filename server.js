@@ -375,11 +375,11 @@ app.get('/test-social-preview', (req, res) => {
 
 // User management interface route
 app.get('/users', (req, res) => {
-  res.sendFile(path.join(__dirname, 'pages', 'user-management.html'));
+  res.sendFile(path.join(__dirname, 'public', 'pages', 'user-management.html'));
 });
 
 app.get('/user-management', (req, res) => {
-  res.sendFile(path.join(__dirname, 'pages', 'user-management.html'));
+  res.sendFile(path.join(__dirname, 'public', 'pages', 'user-management.html'));
 });
 
 // Mock data for testing when DB is not available
