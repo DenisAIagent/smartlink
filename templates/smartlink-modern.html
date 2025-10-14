@@ -126,6 +126,7 @@
       transform: scale(1.1);
       z-index: 0;
       opacity: 1;
+      pointer-events: none; /* FIX: Permet aux clics de traverser */
     }
 
     /* Overlay gradient */
@@ -139,6 +140,7 @@
       background: rgba(255, 255, 255, 0.4);
       backdrop-filter: blur(10px);
       z-index: 1;
+      pointer-events: none; /* FIX: Permet aux clics de traverser */
     }
 
     /* Container principal */
