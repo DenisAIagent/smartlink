@@ -408,6 +408,9 @@ const smartlinks = {
         countryCode = clickData.country.substring(0, 2).toUpperCase();
       }
 
+      const platform = clickData.platform || 'unknown';
+      console.log(`📊 Recording click: SmartLink ${smartlinkId}, Platform: "${platform}", Data:`, clickData);
+
       // Use simple analytics table structure
       await query(
         `INSERT INTO analytics (
@@ -415,7 +418,7 @@ const smartlinks = {
         ) VALUES ($1, $2, $3, $4, $5, $6)`,
         [
           smartlinkId,
-          clickData.platform || 'unknown',
+          platform,
           clickData.user_agent || '',
           clickData.ip_address || '0.0.0.0',
           countryCode,
