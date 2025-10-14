@@ -118,14 +118,25 @@ function generateSmartLinkHTML(smartlink) {
     `;
   }).join('');
 
+  // JavaScript escape function to prevent injection
+  function escapeJS(str) {
+    if (!str) return '';
+    return str.replace(/\\/g, '\\\\')
+             .replace(/'/g, "\\'")
+             .replace(/"/g, '\\"')
+             .replace(/\n/g, '\\n')
+             .replace(/\r/g, '\\r')
+             .replace(/\t/g, '\\t');
+  }
+
   // Generate tracking scripts for this SmartLink
   const trackingScripts = generateTrackingScripts(tracking_pixels);
   const trackingEvents = generateTrackingEvents(tracking_pixels, smartlink);
 
   // Replace template placeholders
   template = template
-    .replace(/\{\{TITLE\}\}/g, title || 'Titre')
-    .replace(/\{\{ARTIST\}\}/g, artist || 'Artiste')
+    .replace(/\{\{TITLE\}\}/g, escapeJS(title) || 'Titre')
+    .replace(/\{\{ARTIST\}\}/g, escapeJS(artist) || 'Artiste')
     .replace(/\{\{COVER_URL\}\}/g, cover_url || '')
     .replace(/\{\{COVER_URL_ENCODED\}\}/g, encodeURIComponent(cover_url || ''))
     .replace(/\{\{SLUG\}\}/g, slug || '')
