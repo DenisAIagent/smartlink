@@ -852,19 +852,58 @@
             }
 
             try {
-                // Supprimer chaque SmartLink sélectionné
-                const deletePromises = Array.from(selectedIds).map(id =>
-                    mdmcAdmin.apiCall(`/api/smartlinks/${id}`, { method: 'DELETE' })
-                );
+                // Supprimer chaque SmartLink sélectionné avec gestion améliorée des erreurs
+                const deletePromises = Array.from(selectedIds).map(async (id) => {
+                    try {
+                        const response = await fetch(`/api/smartlinks/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                            }
+                        });
+
+                        const data = await response.json();
+
+                        // Traiter 200 et 404 comme des succès (404 = déjà supprimé)
+                        if (response.status === 200 || response.status === 404) {
+                            return { success: true, id, status: response.status };
+                        }
+
+                        return { success: false, id, status: response.status, error: data.error };
+                    } catch (error) {
+                        return { success: false, id, error: error.message };
+                    }
+                });
 
                 const results = await Promise.allSettled(deletePromises);
 
-                // Compter les succès et échecs
-                const successes = results.filter(r => r.status === 'fulfilled' && r.value?.success).length;
-                const failures = results.length - successes;
+                // Analyser les résultats
+                let actuallyDeleted = 0;
+                let alreadyDeleted = 0;
+                let failures = 0;
 
-                if (successes > 0) {
-                    mdmcAdmin.showNotification(`${successes} SmartLink(s) supprimé(s) avec succès`, 'success');
+                results.forEach(result => {
+                    if (result.status === 'fulfilled' && result.value) {
+                        if (result.value.success) {
+                            if (result.value.status === 200) {
+                                actuallyDeleted++;
+                            } else if (result.value.status === 404) {
+                                alreadyDeleted++;
+                            }
+                        } else {
+                            failures++;
+                        }
+                    } else {
+                        failures++;
+                    }
+                });
+
+                // Afficher les notifications appropriées
+                if (actuallyDeleted > 0) {
+                    mdmcAdmin.showNotification(`${actuallyDeleted} SmartLink(s) supprimé(s) avec succès`, 'success');
+                }
+                if (alreadyDeleted > 0) {
+                    console.log(`${alreadyDeleted} SmartLink(s) étaient déjà supprimés`);
                 }
                 if (failures > 0) {
                     mdmcAdmin.showNotification(`${failures} SmartLink(s) n'ont pas pu être supprimés`, 'warning');
