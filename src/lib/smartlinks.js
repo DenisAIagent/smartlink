@@ -526,13 +526,15 @@ const smartlinks = {
         }
       }
 
-      // Get general analytics
+      // Get general analytics (separate pageviews from platform clicks)
       const analytics = await queryOne(
         `SELECT
-          COUNT(*) as total_clicks,
+          COUNT(*) as total_events,
+          COUNT(CASE WHEN platform != 'pageview' THEN 1 END) as total_clicks,
+          COUNT(CASE WHEN platform = 'pageview' THEN 1 END) as pageviews,
           COUNT(DISTINCT ip_address) as unique_visitors,
           COUNT(DISTINCT DATE(clicked_at)) as active_days,
-          mode() WITHIN GROUP (ORDER BY platform) as top_platform,
+          mode() WITHIN GROUP (ORDER BY platform) FILTER (WHERE platform != 'pageview') as top_platform,
           mode() WITHIN GROUP (ORDER BY country) as top_country
          FROM analytics
          WHERE smartlink_id = $1
@@ -540,7 +542,7 @@ const smartlinks = {
         [smartlinkId]
       );
 
-      // Get platform-specific analytics
+      // Get platform-specific analytics (exclude pageviews from platform stats)
       const platformStats = await query(
         `SELECT
           platform,
@@ -550,6 +552,7 @@ const smartlinks = {
          WHERE smartlink_id = $1
          AND clicked_at >= NOW() - INTERVAL '${days} days'
          AND platform IS NOT NULL
+         AND platform != 'pageview'
          GROUP BY platform
          ORDER BY clicks DESC`,
         [smartlinkId]
@@ -568,13 +571,13 @@ const smartlinks = {
         [smartlinkId]
       );
 
-      // Calculate percentages for platforms
-      const totalClicks = parseInt(analytics.total_clicks);
+      // Calculate percentages for platforms (based on platform clicks only, not total events)
+      const totalPlatformClicks = parseInt(analytics.total_clicks);
       const platformsWithPercentage = platformStats.map(platform => ({
         platform: platform.platform,
         clicks: parseInt(platform.clicks),
         unique_clicks: parseInt(platform.unique_clicks),
-        percentage: totalClicks > 0 ? (parseInt(platform.clicks) / totalClicks) * 100 : 0
+        percentage: totalPlatformClicks > 0 ? (parseInt(platform.clicks) / totalPlatformClicks) * 100 : 0
       }));
 
       // Format timeline data
@@ -589,7 +592,9 @@ const smartlinks = {
       }));
 
       return {
-        total_clicks: totalClicks,
+        total_clicks: totalPlatformClicks,   // Clicks on platforms only
+        pageviews: parseInt(analytics.pageviews), // Separate pageviews count
+        total_events: parseInt(analytics.total_events), // Total events (clicks + pageviews)
         unique_visitors: parseInt(analytics.unique_visitors),
         active_days: parseInt(analytics.active_days),
         top_platform: analytics.top_platform,

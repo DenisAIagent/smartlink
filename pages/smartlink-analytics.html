@@ -171,13 +171,23 @@
             opacity: 1;
         }
 
+        /* Styles spéciaux pour les cartes principales */
+        .kpi-card.pageviews {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-color: #0ea5e9;
+        }
+
+        .kpi-card.pageviews .platform-icon {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+        }
+
         .kpi-card.total {
-            border: 2px solid rgba(255, 0, 0, 0.3);
-            background: linear-gradient(135deg,
-                rgba(255, 245, 245, 0.8) 0%,
-                rgba(255, 255, 255, 0.9) 50%,
-                rgba(255, 248, 248, 0.8) 100%);
-            backdrop-filter: blur(24px) saturate(200%);
+            background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+            border-color: #f59e0b;
+        }
+
+        .kpi-card.total .platform-icon {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
         }
 
         .kpi-card.total::before {
@@ -573,14 +583,25 @@
             const container = document.getElementById('kpiContainer');
             container.innerHTML = '';
 
-            // Carte TOTAL (toujours en premier)
+            // Carte PAGEVIEWS (première)
+            const pageviewCard = document.createElement('div');
+            pageviewCard.className = 'kpi-card pageviews';
+            pageviewCard.innerHTML = `
+                <div class="platform-icon">👀</div>
+                <div class="kpi-label">Vues de Page</div>
+                <div class="kpi-value">${formatNumber(analytics.pageviews || 0)}</div>
+                <div class="kpi-secondary">Affichages SmartLink</div>
+            `;
+            container.appendChild(pageviewCard);
+
+            // Carte TOTAL CLICS (deuxième)
             const totalCard = document.createElement('div');
             totalCard.className = 'kpi-card total';
             totalCard.innerHTML = `
-                <div class="platform-icon">📊</div>
-                <div class="kpi-label">Total Clics</div>
+                <div class="platform-icon">🎯</div>
+                <div class="kpi-label">Clics Plateformes</div>
                 <div class="kpi-value">${formatNumber(analytics.total_clicks)}</div>
-                <div class="kpi-secondary">Toutes plateformes</div>
+                <div class="kpi-secondary">Sur les plateformes</div>
             `;
             container.appendChild(totalCard);
 
