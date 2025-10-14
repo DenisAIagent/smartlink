@@ -94,7 +94,14 @@
       "Bash(unset GH_TOKEN)",
       "Bash(env)",
       "Bash(git checkout:*)",
-      "Bash(git remote set-url:*)"
+      "Bash(git remote set-url:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:mAeDxBiBAowyDrDDXGGVfMCkFnoRupne@switchyard.proxy.rlwy.net:42182/railway\" DATABASE_SSL=true node check-user-table.js)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:mAeDxBiBAowyDrDDXGGVfMCkFnoRupne@switchyard.proxy.rlwy.net:42182/railway\" DATABASE_SSL=true node test-admin-password.js)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:mAeDxBiBAowyDrDDXGGVfMCkFnoRupne@switchyard.proxy.rlwy.net:42182/railway\" DATABASE_SSL=true node reset-admin-password.js)",
+      "Bash(git tag:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:mAeDxBiBAowyDrDDXGGVfMCkFnoRupne@switchyard.proxy.rlwy.net:42182/railway\" DATABASE_SSL=true psql -c \"SELECT column_name, data_type FROM information_schema.columns WHERE table_name = ''smartlinks'' AND column_name IN (''id'', ''user_id'', ''slug'', ''title'')\")",
+      "Bash(open \"http://localhost:3003/pages/user-management.html\")",
+      "Bash(git merge:*)"
     ],
     "deny": [],
     "ask": []
