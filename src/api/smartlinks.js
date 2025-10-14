@@ -394,10 +394,13 @@ async function getSmartLinkAnalytics(req, res) {
 async function getPublicSmartLink(req, res) {
   try {
     const { slug } = req.params;
-    
+    console.log('🔍 getPublicSmartLink called with slug:', slug);
+
     const smartlink = await smartlinks.getBySlug(slug);
-    
+    console.log('📋 getBySlug result:', smartlink ? 'FOUND' : 'NOT FOUND');
+
     if (!smartlink) {
+      console.log('❌ SmartLink not found, returning 404');
       return res.status(404).json({
         success: false,
         error: 'SmartLink non trouvé'
@@ -426,9 +429,9 @@ async function getPublicSmartLink(req, res) {
 
     console.log('📊 Recording page view for SmartLink:', smartlink.slug, clickData);
 
-    // Record click asynchronously (don't wait)
-    smartlinks.recordClick(smartlink.id, clickData).catch(error => {
-      console.error('❌ Failed to record click:', error);
+    // Record page view
+    smartlinks.recordClick(smartlink.id, null).catch(error => {
+      console.error('❌ Failed to record page view:', error);
     });
     
     // Generate beautiful HTML page instead of JSON
@@ -450,50 +453,69 @@ async function trackPlatformClick(req, res) {
   try {
     const { slug } = req.params;
     const { platform, timestamp, userAgent } = req.body;
-    
+
     const smartlink = await smartlinks.getBySlug(slug);
-    
+
     if (!smartlink) {
       return res.status(404).json({
         success: false,
         error: 'SmartLink non trouvé'
       });
     }
-    
-    // Record platform-specific analytics
-    const userAgentString = userAgent || req.get('User-Agent') || '';
-    const clickData = {
-      ip_address: req.ip,
-      user_agent: userAgentString,
-      referrer: req.get('Referrer'),
-      platform,
-      device_type: userAgentString.includes('Mobile') ? 'mobile' : 'desktop',
-      browser: userAgentString.includes('Chrome') ? 'chrome' :
-               userAgentString.includes('Firefox') ? 'firefox' :
-               userAgentString.includes('Safari') ? 'safari' : 'other',
-      os: userAgentString.includes('Windows') ? 'windows' :
-          userAgentString.includes('Mac') ? 'macos' :
-          userAgentString.includes('Linux') ? 'linux' :
-          userAgentString.includes('Android') ? 'android' :
-          userAgentString.includes('iPhone') ? 'ios' : 'other',
-      session_id: req.sessionID || null,
-      timestamp: timestamp || new Date().toISOString()
-    };
 
-    console.log('📊 Recording platform click for SmartLink:', slug, 'Platform:', platform, clickData);
-    
-    await smartlinks.recordClick(smartlink.id, clickData);
-    
+    console.log('📊 Recording platform click for SmartLink:', slug, 'Platform:', platform);
+
+    // Record platform click with simple counter system
+    await smartlinks.recordClick(smartlink.id, platform);
+
     res.json({
       success: true,
       message: 'Click enregistré'
     });
-    
+
   } catch (error) {
     console.error('❌ Platform click tracking error:', error);
     res.status(500).json({
       success: false,
       error: 'Erreur tracking'
+    });
+  }
+}
+
+/**
+ * POST /api/smartlinks/track/:slug - Track platform click
+ * Public endpoint (no auth required)
+ */
+async function trackClick(req, res) {
+  try {
+    const { slug } = req.params;
+    const { platform } = req.body;
+
+    console.log('📊 Track click request:', { slug, platform });
+
+    // Get SmartLink
+    const smartlink = await smartlinks.getBySlug(slug);
+
+    if (!smartlink) {
+      return res.status(404).json({
+        success: false,
+        error: 'SmartLink not found'
+      });
+    }
+
+    // Record click
+    await smartlinks.recordClick(smartlink.id, platform);
+
+    res.json({
+      success: true,
+      message: 'Click recorded'
+    });
+
+  } catch (error) {
+    console.error('❌ Track click error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Tracking failed'
     });
   }
 }
@@ -506,5 +528,6 @@ module.exports = {
   deleteSmartLink,
   getSmartLinkAnalytics,
   getPublicSmartLink,
-  trackPlatformClick
+  trackPlatformClick,
+  trackClick
 };

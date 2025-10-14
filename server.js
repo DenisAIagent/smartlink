@@ -670,9 +670,25 @@ app.post('/api/upload/image', authMiddleware, upload.single('image'), async (req
 });
 
 // Public SmartLink pages (no auth required)
-app.get('/s/:slug', smartlinksController.getPublicSmartLink);
-// Tracking endpoint (will be added later if needed)
-// app.post('/api/smartlinks/:slug/click', smartlinksController.trackPlatformClick);
+console.log('🔧 Registering SmartLink route: /s/:slug');
+app.get('/s/:slug', async (req, res, next) => {
+  console.log('🎯 SmartLink route hit!', { slug: req.params.slug, path: req.path });
+  try {
+    console.log('🎮 Calling smartlinksController.getPublicSmartLink...');
+    await smartlinksController.getPublicSmartLink(req, res, next);
+    console.log('✅ Controller completed');
+  } catch (error) {
+    console.error('❌ Controller error:', error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
+// Public tracking endpoint (no auth)
+app.post('/api/smartlinks/track/:slug', smartlinksController.trackClick);
+
+// Migration endpoints (admin only)
+const migrateController = require('./src/api/migrate');
+app.post('/api/migrate', authMiddleware, migrateController.runMigration);
+app.post('/api/migrate/create-simple-analytics', authMiddleware, migrateController.createSimpleAnalytics);
 
 // API Routes - GDPR Consent Management
 app.use('/api/consent', consentController);

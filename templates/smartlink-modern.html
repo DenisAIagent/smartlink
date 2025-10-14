@@ -483,12 +483,12 @@
   <script>
     // Ouverture d'une plateforme
     window.openPlatform = function(platformId, url) {
-      // Analytics - tracking du clic
-      fetch('/api/smartlinks/{{SLUG}}/click', {
+      // Track platform click with new simple system
+      fetch('/api/smartlinks/track/{{SLUG}}', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ platform: platformId })
-      }).catch(() => {});
+      }).catch(error => console.error('Tracking error:', error));
 
       // Custom tracking events
       if (typeof trackPlatformClick === 'function') {
