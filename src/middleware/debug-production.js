@@ -20,14 +20,21 @@ const colors = {
  * Middleware de debug pour capturer l'état avant crash
  */
 function debugMiddleware(req, res, next) {
+  // Only log errors and critical requests to reduce noise
+  if (process.env.DEBUG_VERBOSE !== 'true' && !req.path.includes('/api/')) {
+    return next();
+  }
+
   const requestId = Math.random().toString(36).substring(7);
   const startTime = Date.now();
 
-  // Log de la requête entrante
-  console.log(`\n${colors.cyan}═══ REQUEST ${requestId} ═══${colors.reset}`);
-  console.log(`${colors.blue}[${new Date().toISOString()}]${colors.reset} ${req.method} ${req.path}`);
-  console.log(`${colors.yellow}Origin:${colors.reset}`, req.headers.origin || 'none');
-  console.log(`${colors.yellow}User-Agent:${colors.reset}`, req.headers['user-agent']?.substring(0, 50) || 'none');
+  // Reduced logging - only for API requests or when explicitly enabled
+  if (process.env.DEBUG_VERBOSE === 'true') {
+    console.log(`\n${colors.cyan}═══ REQUEST ${requestId} ═══${colors.reset}`);
+    console.log(`${colors.blue}[${new Date().toISOString()}]${colors.reset} ${req.method} ${req.path}`);
+    console.log(`${colors.yellow}Origin:${colors.reset}`, req.headers.origin || 'none');
+    console.log(`${colors.yellow}User-Agent:${colors.reset}`, req.headers['user-agent']?.substring(0, 50) || 'none');
+  }
 
   // Debug cookies spécifiquement
   console.log(`\n${colors.magenta}🍪 COOKIE DEBUG:${colors.reset}`);

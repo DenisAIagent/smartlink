@@ -76,7 +76,7 @@ app.use((req, res, next) => {
     })(req, res, next);
   } else {
     // CSP standard pour l'interface admin
-    console.log('🔒 Applying CSP with Google domains for path:', req.path);
+    // console.log('🔒 Applying CSP with Google domains for path:', req.path); // Disabled to reduce logging
     helmet({
       contentSecurityPolicy: {
         directives: {
@@ -153,8 +153,8 @@ const WHITELIST_IPS = getWhitelistIPs();
 const isWhitelisted = (req) => {
   const clientIp = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
 
-  // Log l'IP pour debug (vous pourrez voir votre vraie IP dans les logs)
-  if (process.env.NODE_ENV === 'development') {
+  // Log l'IP pour debug (réduit le logging)
+  if (process.env.NODE_ENV === 'development' && Math.random() < 0.1) {
     console.log('🔍 Client IP detected:', clientIp);
   }
 
@@ -230,14 +230,16 @@ app.use((req, res, next) => {
         const metaId = process.env.META_PIXEL_ID || '';
         const tiktokId = process.env.TIKTOK_PIXEL_ID || '';
 
-        // Debug logs for production
-        console.log('🔍 Processing HTML file:', req.path);
-        console.log('🔍 Environment variables:', {
+        // Debug logs for production (reduced)
+        if (process.env.DEBUG_HTML === 'true') {
+          console.log('🔍 Processing HTML file:', req.path);
+          console.log('🔍 Environment variables:', {
           GA: gaId ? gaId.substring(0, 10) + '...' : 'NOT SET',
           GTM: gtmId ? gtmId.substring(0, 10) + '...' : 'NOT SET',
           META: metaId ? 'SET' : 'NOT SET',
           TIKTOK: tiktokId ? 'SET' : 'NOT SET'
         });
+        }
 
         // Only replace placeholders if we have real values, otherwise remove the placeholders
         if (gaId && !gaId.includes('PLACEHOLDER')) {
@@ -390,12 +392,12 @@ app.get('/config.js', (req, res) => {
         ODESLI_INTEGRATION: true
       }
     };
-  console.log('Generated config:', config);
+  // console.log('Generated config:', config); // Disabled to reduce logging
   res.setHeader('Content-Type', 'application/javascript');
   res.send(`
     // MDMC Admin Configuration
     window.MDMC_CONFIG = ${JSON.stringify(config, null, 2)};
-    console.log('📋 MDMC Config loaded:', window.MDMC_CONFIG);
+    // console.log('📋 MDMC Config loaded:', window.MDMC_CONFIG); // Disabled to reduce logging
   `);
 });
 
@@ -418,10 +420,10 @@ app.delete('/api/odesli/cache', odesliController.cleanCache);
 app.get('/api/proxy/image', async (req, res) => {
   try {
     const { url } = req.query;
-    console.log('🖼️ Image proxy request for:', url);
+    // console.log('🖼️ Image proxy request for:', url); // Disabled to reduce logging
 
     if (!url) {
-      console.log('❌ No URL parameter provided');
+      // console.log('❌ No URL parameter provided'); // Error handled in response
       return res.status(400).json({ error: 'URL parameter required' });
     }
 
@@ -534,11 +536,14 @@ app.post('/api/upload/image', authMiddleware, upload.single('image'), async (req
       });
     }
 
-    console.log('📤 Upload image request:', {
-      originalname: req.file.originalname,
-      mimetype: req.file.mimetype,
-      size: req.file.size
-    });
+    // Reduced upload logging
+    if (process.env.DEBUG_UPLOAD === 'true') {
+      console.log('📤 Upload image request:', {
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size
+      });
+    }
 
     // Validation
     uploadService.validateImageFile(req.file);
@@ -549,7 +554,9 @@ app.post('/api/upload/image', authMiddleware, upload.single('image'), async (req
       folder: 'mdmc-smartlinks'
     });
 
-    console.log('✅ Image uploaded successfully:', result.url);
+    if (process.env.DEBUG_UPLOAD === 'true') {
+      console.log('✅ Image uploaded successfully:', result.url);
+    }
 
     res.json({
       success: true,
@@ -601,11 +608,14 @@ app.post('/api/upload/audio', authMiddleware, audioUpload.single('file'), async 
       });
     }
 
-    console.log('🎵 Upload audio request:', {
-      originalname: req.file.originalname,
-      mimetype: req.file.mimetype,
-      size: req.file.size
-    });
+    // Reduced audio upload logging
+    if (process.env.DEBUG_UPLOAD === 'true') {
+      console.log('🎵 Upload audio request:', {
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size
+      });
+    }
 
     // Validation
     uploadService.validateAudioFile(req.file);
@@ -617,7 +627,9 @@ app.post('/api/upload/audio', authMiddleware, audioUpload.single('file'), async 
       resource_type: 'video' // Cloudinary traite l'audio comme 'video'
     });
 
-    console.log('✅ Audio uploaded successfully:', result.url);
+    if (process.env.DEBUG_UPLOAD === 'true') {
+      console.log('✅ Audio uploaded successfully:', result.url);
+    }
 
     res.json({
       success: true,

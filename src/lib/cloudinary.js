@@ -39,7 +39,9 @@ const uploadService = {
               console.error('❌ Cloudinary upload error:', error);
               reject(error);
             } else {
-              console.log('✅ Image uploaded:', result.secure_url);
+              if (process.env.DEBUG_UPLOAD === 'true') {
+                console.log('✅ Image uploaded:', result.secure_url);
+              }
               resolve({
                 url: result.secure_url,
                 public_id: result.public_id,
@@ -70,7 +72,9 @@ const uploadService = {
       }
 
       const result = await cloudinary.uploader.destroy(publicId);
-      console.log('🗑️ Image supprimée:', publicId, result);
+      if (process.env.DEBUG_UPLOAD === 'true') {
+        console.log('🗑️ Image supprimée:', publicId, result);
+      }
       return result;
 
     } catch (error) {
@@ -123,7 +127,9 @@ const uploadService = {
               console.error('❌ Cloudinary audio upload error:', error);
               reject(error);
             } else {
-              console.log('✅ Audio uploaded:', result.secure_url);
+              if (process.env.DEBUG_UPLOAD === 'true') {
+                console.log('✅ Audio uploaded:', result.secure_url);
+              }
               resolve({
                 url: result.secure_url,
                 public_id: result.public_id,

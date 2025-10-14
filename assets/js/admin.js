@@ -93,9 +93,12 @@ class MDMCAdmin {
             defaultOptions.headers['Authorization'] = `Bearer ${token}`;
         }
 
-        console.log('🌐 API Call:', url, options.method || 'GET');
-        if (options.body) {
-            console.log('📤 Request payload:', JSON.parse(options.body));
+        // Reduced API logging for production
+        if (this.config.FEATURES && this.config.FEATURES.DEBUG_MODE) {
+            console.log('🌐 API Call:', url, options.method || 'GET');
+            if (options.body) {
+                console.log('📤 Request payload:', JSON.parse(options.body));
+            }
         }
         
         try {
@@ -116,7 +119,9 @@ class MDMCAdmin {
             }
 
             const data = await response.json();
-            console.log('✅ API Response:', data);
+            if (this.config.FEATURES && this.config.FEATURES.DEBUG_MODE) {
+                console.log('✅ API Response:', data);
+            }
             return data;
         } catch (error) {
             console.error('❌ API Error:', error);
