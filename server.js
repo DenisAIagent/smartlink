@@ -373,10 +373,19 @@ app.get('/test-social-preview', (req, res) => {
   res.sendFile(path.join(__dirname, 'pages', 'test-social-preview.html'));
 });
 
+// Mock data for testing when DB is not available
+const mockSmartLinks = [
+  { id: 1, title: 'Test Song 1', artist: 'Artist 1', user_id: 1, slug: 'test-song-1', created_at: new Date() },
+  { id: 42, title: 'Test Song 42', artist: 'Artist 42', user_id: 1, slug: 'test-song-42', created_at: new Date() },
+  { id: 43, title: 'Test Song 43', artist: 'Artist 43', user_id: 1, slug: 'test-song-43', created_at: new Date() }
+];
+
 // Configuration dynamique pour le frontend
 app.get('/config.js', (req, res) => {
+  const hasDatabase = !!process.env.DATABASE_URL;
+
   const config = {
-      API_BASE_URL: process.env.NODE_ENV === 'production' 
+      API_BASE_URL: process.env.NODE_ENV === 'production'
         ? `https://${req.get('host')}` // Use same domain in production
         : 'http://localhost:3003', // Local development
       ADMIN_VERSION: '2.0.0',
@@ -386,8 +395,9 @@ app.get('/config.js', (req, res) => {
         ANALYTICS: true,
         BULK_OPERATIONS: true,
         DEBUG_MODE: process.env.NODE_ENV === 'development',
-        POSTGRESQL_BACKEND: true,
-        ODESLI_INTEGRATION: true
+        POSTGRESQL_BACKEND: hasDatabase,
+        ODESLI_INTEGRATION: true,
+        MOCK_MODE: !hasDatabase // Add mock mode flag
       }
     };
   console.log('Generated config:', config);
@@ -497,12 +507,98 @@ if (process.env.NODE_ENV === 'production' || process.env.DEBUG_AUTH === 'true') 
   console.log('🔍 DEBUG AUTH MIDDLEWARE ACTIVATED');
 }
 
-app.post('/api/smartlinks', authMiddleware, smartlinksController.createSmartLink);
-app.get('/api/smartlinks', authMiddleware, smartlinksController.listSmartLinks);
-app.get('/api/smartlinks/:id', authMiddleware, smartlinksController.getSmartLink);
-app.put('/api/smartlinks/:id', authMiddleware, smartlinksController.updateSmartLink);
-app.delete('/api/smartlinks/:id', authMiddleware, smartlinksController.deleteSmartLink);
-app.get('/api/smartlinks/:id/analytics', authMiddleware, smartlinksController.getSmartLinkAnalytics);
+// Mock endpoints when DATABASE_URL is not available
+if (!process.env.DATABASE_URL) {
+  console.log('🧪 DATABASE_URL not found - enabling mock endpoints for testing');
+
+  // Mock GET /api/smartlinks
+  app.get('/api/smartlinks', authMiddleware, (req, res) => {
+    console.log('📋 Mock GET /api/smartlinks - returning test data');
+    res.json({
+      success: true,
+      isAdmin: true,
+      smartlinks: mockSmartLinks,
+      total: mockSmartLinks.length
+    });
+  });
+
+  // Mock DELETE /api/smartlinks/:id
+  app.delete('/api/smartlinks/:id', authMiddleware, (req, res) => {
+    const id = parseInt(req.params.id);
+    console.log(`🗑️ Mock DELETE /api/smartlinks/${id}`);
+
+    const index = mockSmartLinks.findIndex(sl => sl.id === id);
+    if (index !== -1) {
+      const deleted = mockSmartLinks.splice(index, 1)[0];
+      console.log(`✅ Mock deleted SmartLink:`, deleted.title);
+      res.json({
+        success: true,
+        message: `SmartLink "${deleted.title}" supprimé avec succès (MODE TEST)`
+      });
+    } else {
+      console.log(`❌ SmartLink ${id} not found in mock data`);
+      res.status(404).json({
+        success: false,
+        error: 'SmartLink non trouvé'
+      });
+    }
+  });
+
+  // Mock GET /api/smartlinks/:id
+  app.get('/api/smartlinks/:id', authMiddleware, (req, res) => {
+    const id = parseInt(req.params.id);
+    const smartlink = mockSmartLinks.find(sl => sl.id === id);
+    if (smartlink) {
+      res.json({ success: true, smartlink });
+    } else {
+      res.status(404).json({ success: false, error: 'SmartLink non trouvé' });
+    }
+  });
+
+  // Mock analytics endpoint
+  app.get('/api/smartlinks/:id/analytics', authMiddleware, (req, res) => {
+    const id = parseInt(req.params.id);
+    const smartlink = mockSmartLinks.find(sl => sl.id === id);
+    if (smartlink) {
+      const mockAnalytics = {
+        total_pageviews: 12,
+        total_clicks: 12,
+        top_platform: 'Spotify',
+        platform_stats: [
+          { platform: 'Spotify', clicks: 8 },
+          { platform: 'Apple Music', clicks: 3 },
+          { platform: 'YouTube', clicks: 1 }
+        ],
+        daily_clicks: [
+          { date: '2025-01-10', clicks: 4 },
+          { date: '2025-01-11', clicks: 5 },
+          { date: '2025-01-12', clicks: 3 }
+        ]
+      };
+      res.json({ success: true, analytics: mockAnalytics });
+    } else {
+      res.status(404).json({ success: false, error: 'SmartLink non trouvé' });
+    }
+  });
+
+  // Placeholder for other endpoints
+  app.post('/api/smartlinks', authMiddleware, (req, res) => {
+    res.status(501).json({ success: false, error: 'Création non implémentée en mode test' });
+  });
+
+  app.put('/api/smartlinks/:id', authMiddleware, (req, res) => {
+    res.status(501).json({ success: false, error: 'Modification non implémentée en mode test' });
+  });
+
+} else {
+  // Real API Routes - SmartLinks (when DB is available)
+  app.post('/api/smartlinks', authMiddleware, smartlinksController.createSmartLink);
+  app.get('/api/smartlinks', authMiddleware, smartlinksController.listSmartLinks);
+  app.get('/api/smartlinks/:id', authMiddleware, smartlinksController.getSmartLink);
+  app.put('/api/smartlinks/:id', authMiddleware, smartlinksController.updateSmartLink);
+  app.delete('/api/smartlinks/:id', authMiddleware, smartlinksController.deleteSmartLink);
+  app.get('/api/smartlinks/:id/analytics', authMiddleware, smartlinksController.getSmartLinkAnalytics);
+}
 
 // Upload endpoint with multer configuration
 const upload = multer({
