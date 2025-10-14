@@ -499,6 +499,10 @@ if (process.env.NODE_ENV === 'production' || process.env.DEBUG_AUTH === 'true') 
 
 app.post('/api/smartlinks', authMiddleware, smartlinksController.createSmartLink);
 app.get('/api/smartlinks', authMiddleware, smartlinksController.listSmartLinks);
+
+// Route batch-delete AVANT les routes avec :id pour éviter les conflits
+app.post('/api/smartlinks/batch-delete', authMiddleware, smartlinksController.batchDeleteSmartLinks);
+
 app.get('/api/smartlinks/:id', authMiddleware, smartlinksController.getSmartLink);
 app.put('/api/smartlinks/:id', authMiddleware, smartlinksController.updateSmartLink);
 app.delete('/api/smartlinks/:id', authMiddleware, smartlinksController.deleteSmartLink);

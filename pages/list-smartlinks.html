@@ -846,77 +846,82 @@
         async function bulkDelete() {
             if (selectedIds.size === 0) return;
 
-            const count = selectedIds.size;
-            if (!confirm(`Êtes-vous sûr de vouloir supprimer ${count} SmartLink(s) ? Cette action est irréversible.`)) {
+            const idsArray = Array.from(selectedIds);
+            const count = idsArray.length;
+
+            if (!confirm(`Êtes-vous sûr de vouloir supprimer ${count} SmartLink(s) ?\n\nCette action est irréversible.`)) {
                 return;
             }
 
+            // Désactiver le bouton pendant le traitement
+            const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+            const originalText = bulkDeleteBtn ? bulkDeleteBtn.textContent : '';
+            if (bulkDeleteBtn) {
+                bulkDeleteBtn.disabled = true;
+                bulkDeleteBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Suppression...';
+            }
+
             try {
-                // Supprimer chaque SmartLink sélectionné avec gestion améliorée des erreurs
-                const deletePromises = Array.from(selectedIds).map(async (id) => {
-                    try {
-                        const response = await fetch(`/api/smartlinks/${id}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                            }
-                        });
-
-                        const data = await response.json();
-
-                        // Traiter 200 et 404 comme des succès (404 = déjà supprimé)
-                        if (response.status === 200 || response.status === 404) {
-                            return { success: true, id, status: response.status };
-                        }
-
-                        return { success: false, id, status: response.status, error: data.error };
-                    } catch (error) {
-                        return { success: false, id, error: error.message };
-                    }
+                const response = await mdmcAdmin.apiCall('/api/smartlinks/batch-delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids: idsArray })
                 });
 
-                const results = await Promise.allSettled(deletePromises);
+                if (response.success) {
+                    const { summary, details } = response;
 
-                // Analyser les résultats
-                let actuallyDeleted = 0;
-                let alreadyDeleted = 0;
-                let failures = 0;
+                    // Message détaillé
+                    let message = '';
+                    let type = 'success';
 
-                results.forEach(result => {
-                    if (result.status === 'fulfilled' && result.value) {
-                        if (result.value.success) {
-                            if (result.value.status === 200) {
-                                actuallyDeleted++;
-                            } else if (result.value.status === 404) {
-                                alreadyDeleted++;
-                            }
-                        } else {
-                            failures++;
-                        }
-                    } else {
-                        failures++;
+                    if (summary.deleted > 0) {
+                        message = `${summary.deleted} SmartLink(s) supprimé(s) avec succès`;
                     }
-                });
 
-                // Afficher les notifications appropriées
-                if (actuallyDeleted > 0) {
-                    mdmcAdmin.showNotification(`${actuallyDeleted} SmartLink(s) supprimé(s) avec succès`, 'success');
-                }
-                if (alreadyDeleted > 0) {
-                    console.log(`${alreadyDeleted} SmartLink(s) étaient déjà supprimés`);
-                }
-                if (failures > 0) {
-                    mdmcAdmin.showNotification(`${failures} SmartLink(s) n'ont pas pu être supprimés`, 'warning');
+                    if (summary.notFound > 0) {
+                        if (message) message += ' • ';
+                        message += `${summary.notFound} déjà supprimé(s)`;
+                    }
+
+                    if (summary.unauthorized > 0) {
+                        if (message) message += ' • ';
+                        message += `${summary.unauthorized} non autorisé(s)`;
+                        type = 'warning';
+                    }
+
+                    if (summary.errors > 0) {
+                        if (message) message += ' • ';
+                        message += `${summary.errors} erreur(s)`;
+                        type = 'warning';
+                        console.error('Erreurs de suppression:', details.errors);
+                    }
+
+                    if (message) {
+                        mdmcAdmin.showNotification(message, type);
+                    }
+
+                } else {
+                    mdmcAdmin.showNotification('Erreur lors de la suppression', 'danger');
                 }
 
-                // Réinitialiser la sélection et recharger
+                // Réinitialiser et recharger
                 selectedIds.clear();
                 updateSelectionUI();
                 await loadSmartLinks();
 
             } catch (error) {
-                console.error('Erreur lors de la suppression groupée:', error);
-                mdmcAdmin.showNotification('Erreur lors de la suppression', 'danger');
+                console.error('Erreur suppression groupée:', error);
+                mdmcAdmin.showNotification(
+                    'Erreur réseau lors de la suppression. Veuillez réessayer.',
+                    'danger'
+                );
+            } finally {
+                // Réactiver le bouton
+                if (bulkDeleteBtn) {
+                    bulkDeleteBtn.disabled = false;
+                    bulkDeleteBtn.textContent = originalText;
+                }
             }
         }
 

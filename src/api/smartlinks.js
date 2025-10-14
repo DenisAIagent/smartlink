@@ -302,18 +302,22 @@ async function deleteSmartLink(req, res) {
     const deleted = await smartlinks.delete(parseInt(id), isAdmin ? null : userId);
 
     if (!deleted) {
-      // Not found or no permission - return 404 instead of 500
-      console.log(`SmartLink ${id} not found or no permission for user ${userId}`);
-      return res.status(404).json({
-        success: false,
-        error: 'SmartLink non trouvé ou vous n\'avez pas les droits pour le supprimer'
+      // SmartLink not found or no permission
+      // BUT we return 200 OK because from the user's perspective,
+      // the goal is achieved (the SmartLink doesn't exist)
+      console.log(`SmartLink ${id} not found or already deleted`);
+      return res.status(200).json({
+        success: true,
+        message: 'SmartLink supprimé ou déjà inexistant',
+        alreadyDeleted: true
       });
     }
 
     console.log('✅ SmartLink deleted successfully:', id);
     res.json({
       success: true,
-      message: 'SmartLink supprimé avec succès'
+      message: 'SmartLink supprimé avec succès',
+      alreadyDeleted: false
     });
 
   } catch (error) {
@@ -331,6 +335,92 @@ async function deleteSmartLink(req, res) {
       success: false,
       error: 'Une erreur inattendue s\'est produite lors de la suppression',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+}
+
+/**
+ * POST /api/smartlinks/batch-delete - Batch delete SmartLinks
+ */
+async function batchDeleteSmartLinks(req, res) {
+  console.log('🗑️ BATCH DELETE request by user:', req.user.id);
+  try {
+    const userId = req.user.id;
+    const isAdmin = req.user.is_admin;
+    const { ids } = req.body;
+
+    // Validation
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Liste d\'IDs invalide'
+      });
+    }
+
+    if (ids.length > 100) {
+      return res.status(400).json({
+        success: false,
+        error: 'Maximum 100 suppressions simultanées'
+      });
+    }
+
+    // Résultats détaillés
+    const results = {
+      deleted: [],
+      notFound: [],
+      unauthorized: [],
+      errors: []
+    };
+
+    // Suppression en parallèle avec contrôle d'accès
+    const deletePromises = ids.map(async id => {
+      try {
+        // Convertir en entier
+        const numId = parseInt(id);
+        if (isNaN(numId)) {
+          results.errors.push({ id, error: 'ID invalide' });
+          return;
+        }
+
+        // Supprimer (la fonction delete vérifie déjà l'existence et les droits)
+        const deleted = await smartlinks.delete(numId, isAdmin ? null : userId);
+
+        if (deleted) {
+          results.deleted.push(numId);
+        } else {
+          // Si null, c'est soit non trouvé, soit pas autorisé
+          results.notFound.push(numId);
+        }
+      } catch (error) {
+        console.error(`Error deleting SmartLink ${id}:`, error);
+        results.errors.push({ id, error: error.message });
+      }
+    });
+
+    await Promise.all(deletePromises);
+
+    // Réponse
+    const totalRemoved = results.deleted.length + results.notFound.length;
+    const hasErrors = results.errors.length > 0 || results.unauthorized.length > 0;
+
+    res.json({
+      success: true,
+      summary: {
+        total: ids.length,
+        deleted: results.deleted.length,
+        notFound: results.notFound.length,
+        unauthorized: results.unauthorized.length,
+        errors: results.errors.length,
+        totalRemoved
+      },
+      details: results
+    });
+
+  } catch (error) {
+    console.error('❌ Batch delete error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la suppression groupée'
     });
   }
 }
@@ -491,6 +581,7 @@ module.exports = {
   getSmartLink,
   updateSmartLink,
   deleteSmartLink,
+  batchDeleteSmartLinks,
   getSmartLinkAnalytics,
   getPublicSmartLink,
   trackPlatformClick
