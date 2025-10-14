@@ -488,13 +488,17 @@ async function getPublicSmartLink(req, res) {
     }
     
     // Record analytics (extract from user agent, IP, etc.)
+    // NOTE: This is the PAGEVIEW tracking, not platform click tracking
     const clickData = {
       ip_address: req.ip,
       user_agent: req.get('User-Agent'),
       referrer: req.get('Referrer'),
+      platform: 'pageview', // Mark this as a pageview, not a platform click
       // Add more analytics data as needed
     };
-    
+
+    console.log(`📄 PAGEVIEW: SmartLink ${smartlink.slug} accessed - IP: ${req.ip}, UA: ${req.get('User-Agent')?.substring(0, 50)}`);
+
     // Record click asynchronously (don't wait)
     smartlinks.recordClick(smartlink.id, clickData).catch(console.error);
     

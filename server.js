@@ -750,6 +750,59 @@ app.post('/api/emergency-init-db', async (req, res) => {
   }
 });
 
+// Debug endpoint pour voir les dernières entrées analytics
+app.get('/api/debug/recent-analytics/:id?', async (req, res) => {
+  try {
+    const { query } = require('./src/lib/db');
+    const smartlinkId = req.params.id;
+
+    let sql, params;
+    if (smartlinkId) {
+      sql = `
+        SELECT * FROM analytics
+        WHERE smartlink_id = $1
+        ORDER BY created_at DESC
+        LIMIT 20
+      `;
+      params = [smartlinkId];
+    } else {
+      sql = `
+        SELECT a.*, s.slug, s.title
+        FROM analytics a
+        LEFT JOIN smartlinks s ON a.smartlink_id = s.id
+        ORDER BY a.created_at DESC
+        LIMIT 20
+      `;
+      params = [];
+    }
+
+    const results = await query(sql, params);
+
+    res.json({
+      success: true,
+      count: results.length,
+      analytics: results.map(row => ({
+        id: row.id,
+        smartlink_id: row.smartlink_id,
+        slug: row.slug,
+        title: row.title,
+        platform: row.platform,
+        user_agent: row.user_agent?.substring(0, 100),
+        ip_address: row.ip_address,
+        country: row.country,
+        created_at: row.created_at
+      }))
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      message: 'Erreur lors de la récupération des analytics récentes'
+    });
+  }
+});
+
 // Debug endpoint pour tester le système de debug
 app.get('/api/debug/test-auth', (req, res) => {
   res.json({

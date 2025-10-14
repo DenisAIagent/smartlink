@@ -409,7 +409,16 @@ const smartlinks = {
       }
 
       const platform = clickData.platform || 'unknown';
-      console.log(`📊 Recording click: SmartLink ${smartlinkId}, Platform: "${platform}", Data:`, clickData);
+      const clickType = platform === 'pageview' ? 'PAGEVIEW' : (platform === 'unknown' ? 'UNKNOWN CLICK' : 'PLATFORM CLICK');
+
+      console.log(`📊 ${clickType}: SmartLink ${smartlinkId}, Platform: "${platform}"`);
+      console.log(`🔍 FULL CLICK DATA:`, JSON.stringify({
+        platform: clickData.platform,
+        ip_address: clickData.ip_address,
+        user_agent: clickData.user_agent?.substring(0, 100),
+        referrer: clickData.referrer,
+        timestamp: clickData.timestamp
+      }, null, 2));
 
       // Use simple analytics table structure
       await query(
