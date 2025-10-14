@@ -419,6 +419,7 @@ app.put('/api/auth/profile', authController.updateProfile);
 app.get('/api/admin/users', authController.listUsers);
 app.post('/api/admin/users', authController.createUser);
 
+
 // API Routes - Odesli Integration
 app.post('/api/odesli', odesliController.fetchMetadata);
 app.get('/api/odesli/stats', odesliController.getCacheStats);
@@ -595,6 +596,14 @@ if (!process.env.DATABASE_URL) {
   });
 
 } else {
+  // User management routes (admin only)
+  const usersController = require('./src/api/users');
+  app.get('/api/users', authMiddleware, usersController.getAllUsers);
+  app.get('/api/users/:id', authMiddleware, usersController.getUser);
+  app.post('/api/users', authMiddleware, usersController.createUser);
+  app.put('/api/users/:id', authMiddleware, usersController.updateUser);
+  app.delete('/api/users/:id', authMiddleware, usersController.deleteUser);
+
   // Real API Routes - SmartLinks (when DB is available)
   app.post('/api/smartlinks', authMiddleware, smartlinksController.createSmartLink);
   app.get('/api/smartlinks', authMiddleware, smartlinksController.listSmartLinks);

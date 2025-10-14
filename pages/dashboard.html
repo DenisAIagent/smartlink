@@ -1003,6 +1003,9 @@
                 <a href="/pages/create-smartlink.html" class="nav-item">
                     <span>Créer SmartLink</span>
                 </a>
+                <a href="/pages/user-management.html" class="nav-item" id="userManagementLink" style="display: none;">
+                    <span>👥 Gestion Utilisateurs</span>
+                </a>
                 <a href="/pages/settings.html" class="nav-item">
                     <span>Settings</span>
                 </a>
@@ -1472,6 +1475,11 @@
                 const userData = await response.json();
                 if (userData.success && userData.user) {
                     isUserAdmin = userData.user.is_admin || false;
+                    // Show/hide user management link based on admin status
+                    const userManagementLink = document.getElementById('userManagementLink');
+                    if (userManagementLink) {
+                        userManagementLink.style.display = isUserAdmin ? 'flex' : 'none';
+                    }
                 }
 
                 return true;
