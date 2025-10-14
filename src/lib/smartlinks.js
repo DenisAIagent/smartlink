@@ -333,26 +333,47 @@ const smartlinks = {
   async delete(id, userId) {
     try {
       const result = await transaction(async (client) => {
+        console.log('🗑️ Starting DELETE transaction for SmartLink:', { id, userId });
+
+        // CRITICAL: Delete analytics FIRST to avoid FK constraint violation
+        console.log('1️⃣ Deleting analytics for SmartLink ID:', id);
+        const analyticsResult = await client.query(
+          'DELETE FROM analytics WHERE smartlink_id = $1',
+          [id]
+        );
+        console.log(`✅ Deleted ${analyticsResult.rowCount} analytics records`);
+
         // Delete smartlink
+        console.log('2️⃣ Deleting SmartLink ID:', id);
         const { rows: [deleted] } = await client.query(
           'DELETE FROM smartlinks WHERE id = $1 AND user_id = $2 RETURNING *',
           [id, userId]
         );
-        
+
         if (deleted) {
+          console.log('3️⃣ Updating user count for user ID:', userId);
           // Update user count
           await client.query(
-            'UPDATE users SET smartlinks_count = smartlinks_count - 1 WHERE id = $1',
+            'UPDATE users SET smartlinks_count = GREATEST(0, smartlinks_count - 1) WHERE id = $1',
             [userId]
           );
+          console.log('✅ SmartLink deletion completed successfully');
+        } else {
+          console.log('❌ SmartLink not found or access denied');
         }
-        
+
         return deleted;
       });
-      
+
       return result;
     } catch (error) {
-      console.error('❌ SmartLink delete error:', error);
+      console.error('❌ SmartLink delete error:', {
+        message: error.message,
+        code: error.code,
+        detail: error.detail,
+        constraint: error.constraint,
+        table: error.table
+      });
       throw error;
     }
   },
