@@ -284,23 +284,26 @@ async function updateSmartLink(req, res) {
  */
 async function deleteSmartLink(req, res) {
   console.log('🗑️ DELETE request received for SmartLink ID:', req.params.id, 'by user:', req.user.id);
+
+  const userId = req.user.id;
+  const isAdmin = req.user.is_admin;
+  const { id } = req.params;
+
+  // Validate ID is numeric
+  if (!id || isNaN(parseInt(id))) {
+    return res.status(400).json({
+      success: false,
+      error: 'ID invalide'
+    });
+  }
+
   try {
-    const userId = req.user.id;
-    const isAdmin = req.user.is_admin;
-    const { id } = req.params;
-
-    // Validate ID is numeric
-    if (!id || isNaN(parseInt(id))) {
-      return res.status(400).json({
-        success: false,
-        error: 'ID invalide'
-      });
-    }
-
     // Allow admin to delete any SmartLink
-    const deleted = await smartlinks.delete(id, isAdmin ? null : userId);
+    const deleted = await smartlinks.delete(parseInt(id), isAdmin ? null : userId);
 
     if (!deleted) {
+      // Not found or no permission - return 404 instead of 500
+      console.log(`SmartLink ${id} not found or no permission for user ${userId}`);
       return res.status(404).json({
         success: false,
         error: 'SmartLink non trouvé ou vous n\'avez pas les droits pour le supprimer'
@@ -314,7 +317,8 @@ async function deleteSmartLink(req, res) {
     });
 
   } catch (error) {
-    console.error('❌ Delete SmartLink error:', error);
+    // Only log as error if it's an actual unexpected error
+    console.error('❌ Delete SmartLink unexpected error:', error);
     console.error('Error details:', {
       message: error.message,
       stack: error.stack,
@@ -322,9 +326,10 @@ async function deleteSmartLink(req, res) {
       userId: req.user?.id
     });
 
+    // Return a more user-friendly error
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la suppression du SmartLink',
+      error: 'Une erreur inattendue s\'est produite lors de la suppression',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }

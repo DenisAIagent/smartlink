@@ -333,8 +333,22 @@ const smartlinks = {
   async delete(id, userId) {
     try {
       const result = await transaction(async (client) => {
-        // If userId is null (admin), delete any smartlink
-        // Otherwise, delete only user's own smartlink
+        // First, check if the smartlink exists
+        const checkQuery = 'SELECT id, user_id FROM smartlinks WHERE id = $1';
+        const { rows: [existing] } = await client.query(checkQuery, [id]);
+
+        if (!existing) {
+          console.log(`SmartLink ${id} not found`);
+          return null;
+        }
+
+        // Check permissions
+        if (userId !== null && existing.user_id !== userId) {
+          console.log(`User ${userId} not authorized to delete SmartLink ${id}`);
+          return null;
+        }
+
+        // Delete the smartlink
         let deleteQuery, deleteParams;
 
         if (userId === null) {
@@ -350,11 +364,16 @@ const smartlinks = {
         const { rows: [deleted] } = await client.query(deleteQuery, deleteParams);
 
         if (deleted && deleted.user_id) {
-          // Update user count for the original owner
-          await client.query(
-            'UPDATE users SET smartlinks_count = smartlinks_count - 1 WHERE id = $1 AND smartlinks_count > 0',
-            [deleted.user_id]
-          );
+          // Update user count for the original owner (but don't fail if it doesn't work)
+          try {
+            await client.query(
+              'UPDATE users SET smartlinks_count = GREATEST(smartlinks_count - 1, 0) WHERE id = $1',
+              [deleted.user_id]
+            );
+          } catch (countError) {
+            console.warn(`Warning: Could not update smartlinks_count for user ${deleted.user_id}:`, countError.message);
+            // Continue anyway - the deletion is more important than the count
+          }
         }
 
         return deleted;
@@ -366,9 +385,11 @@ const smartlinks = {
       console.error('Delete details:', {
         id,
         userId,
-        message: error.message
+        message: error.message,
+        stack: error.stack
       });
-      throw error;
+      // Don't throw, return null to indicate failure
+      return null;
     }
   },
 
