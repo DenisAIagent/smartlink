@@ -86,7 +86,15 @@
       "Bash(open \"http://localhost:3003/pages/smartlink-analytics.html?id=1\")",
       "Bash(open \"http://localhost:3003/pages/create-smartlink.html\")",
       "Bash(open \"http://localhost:3003/pages/settings.html\")",
-      "Bash(git branch:*)"
+      "Bash(git branch:*)",
+      "mcp__github__create_repository",
+      "mcp__github__get_file_contents",
+      "mcp__github__create_or_update_file",
+      "Bash(gh auth:*)",
+      "Bash(unset GH_TOKEN)",
+      "Bash(env)",
+      "Bash(git checkout:*)",
+      "Bash(git remote set-url:*)"
     ],
     "deny": [],
     "ask": []
