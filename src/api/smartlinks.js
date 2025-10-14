@@ -550,6 +550,16 @@ async function trackPlatformClick(req, res) {
 
     console.log(`🎯 TRACKING: Clic "${platform}" pour ${slug} - Body:`, JSON.stringify(req.body));
 
+    // Ignore clicks without valid platform information
+    if (!platform || platform === 'undefined' || platform === 'null' || platform.trim() === '') {
+      console.log(`❌ IGNORED: Click without valid platform for ${slug} - Platform: "${platform}"`);
+      return res.json({
+        success: false,
+        message: 'Invalid platform - click ignored',
+        ignored: true
+      });
+    }
+
     // Test mode: simulate success for test slugs
     if (slug === 'test-demo' || slug === 'test-tracking') {
       console.log(`🧪 TEST MODE: Clic simulé ${platform} pour ${slug}`);

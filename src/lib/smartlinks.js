@@ -408,7 +408,18 @@ const smartlinks = {
         countryCode = clickData.country.substring(0, 2).toUpperCase();
       }
 
+      // Validate platform data
       const platform = clickData.platform || 'unknown';
+
+      // Skip invalid platform data (except pageviews)
+      if (!platform ||
+          platform === 'undefined' ||
+          platform === 'null' ||
+          (platform.trim() === '' && platform !== 'pageview')) {
+        console.log(`❌ SKIPPING: Invalid platform data for SmartLink ${smartlinkId}:`, platform);
+        return; // Don't record invalid clicks
+      }
+
       const clickType = platform === 'pageview' ? 'PAGEVIEW' : (platform === 'unknown' ? 'UNKNOWN CLICK' : 'PLATFORM CLICK');
 
       console.log(`📊 ${clickType}: SmartLink ${smartlinkId}, Platform: "${platform}"`);
