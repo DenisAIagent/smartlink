@@ -43,19 +43,19 @@
         }
 
         .dashboard-container {
-            display: grid;
-            grid-template-columns: 280px 1fr;
+            display: flex;
             min-height: 100vh;
-            gap: 0;
         }
 
         /* Sidebar */
         .sidebar {
+            width: 280px;
             background: var(--bg-white);
             border-right: 1px solid rgba(0,0,0,0.06);
             padding: 32px 24px;
             position: relative;
             box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            flex-shrink: 0;
         }
 
         .logo {
@@ -893,7 +893,7 @@
         /* Responsive */
         @media (max-width: 768px) {
             .dashboard-container {
-                grid-template-columns: 1fr;
+                flex-direction: column;
             }
 
             .sidebar {
@@ -964,6 +964,14 @@
         }
 
         @media (max-width: 480px) {
+            .header {
+                padding: 12px;
+            }
+
+            .content {
+                padding: 12px;
+            }
+
             .metrics-grid {
                 gap: 12px;
             }
@@ -988,11 +996,51 @@
                 padding: 10px 14px;
                 font-size: 13px;
             }
+
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .select-wrapper {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .select-button {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+
+            .insights-panel {
+                padding: 16px;
+                margin-bottom: 24px;
+            }
+
+            .insights-content {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .header-title {
+                font-size: 20px;
+            }
+
+            .header-subtitle {
+                font-size: 13px;
+            }
+
+            .dashboard-header {
+                margin-bottom: 16px;
+            }
+
+            .chart-container {
+                padding: 16px;
+                height: 250px;
+            }
         }
     </style>
-    <!-- Navigation Hotfix -->
-    <link rel="stylesheet" href="/hotfix-nav.css">
-    <script src="/public/nav-hotfix.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
