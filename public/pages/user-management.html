@@ -581,8 +581,8 @@
                     }
                     return false;
                 }
-                const user = await response.json();
-                if (!user.is_admin) {
+                const response_data = await response.json();
+                if (!response_data.user || !response_data.user.is_admin) {
                     showMessage('Accès réservé aux administrateurs', 'error');
                     setTimeout(() => window.location.href = '/pages/dashboard.html', 2000);
                     return false;
