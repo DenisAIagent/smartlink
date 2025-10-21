@@ -566,6 +566,74 @@ async function resetPassword(req, res) {
   }
 }
 
+/**
+ * POST /api/auth/set-password - Set password for new user with setup token
+ */
+async function setPassword(req, res) {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({
+        success: false,
+        error: 'Token et mot de passe requis'
+      });
+    }
+
+    // Find user with valid setup token
+    const user = await queryOne(`
+      SELECT id, email, display_name, reset_token_expires
+      FROM users
+      WHERE reset_token = $1 AND reset_token_expires > NOW() AND password_hash = ''
+    `, [token]);
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        error: 'Token invalide ou expiré'
+      });
+    }
+
+    // Validate password strength
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: 'Le mot de passe doit contenir au moins 6 caractères'
+      });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(password, parseInt(process.env.BCRYPT_ROUNDS) || 12);
+
+    // Update user with password and clear the setup token
+    await query(`
+      UPDATE users
+      SET password_hash = $1,
+          reset_token = NULL,
+          reset_token_expires = NULL,
+          email_verified = true,
+          updated_at = NOW()
+      WHERE id = $2
+    `, [hashedPassword, user.id]);
+
+    res.json({
+      success: true,
+      message: 'Mot de passe défini avec succès. Vous pouvez maintenant vous connecter.',
+      user: {
+        email: user.email,
+        display_name: user.display_name
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Set password error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la définition du mot de passe'
+    });
+  }
+}
+
 module.exports = {
   login,
   logout,
@@ -575,5 +643,6 @@ module.exports = {
   listUsers,
   authMiddleware,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  setPassword
 };

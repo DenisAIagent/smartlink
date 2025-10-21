@@ -363,6 +363,11 @@ app.get('/reset-password', (req, res) => {
   res.sendFile(path.join(__dirname, 'pages', 'reset-password.html'));
 });
 
+// Route définition mot de passe pour nouveaux utilisateurs
+app.get('/set-password', (req, res) => {
+  res.sendFile(path.join(__dirname, 'pages', 'set-password.html'));
+});
+
 // Route politique de confidentialité (RGPD)
 app.get('/privacy-policy', (req, res) => {
   res.sendFile(path.join(__dirname, 'pages', 'privacy-policy.html'));
@@ -435,6 +440,7 @@ app.get('/api/auth/me', authController.getCurrentUser);
 app.put('/api/auth/profile', authController.updateProfile);
 app.post('/api/auth/forgot-password', authController.forgotPassword);
 app.post('/api/auth/reset-password', authController.resetPassword);
+app.post('/api/auth/set-password', authController.setPassword);
 
 // API Routes - Authentication
 

@@ -1,5 +1,7 @@
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const { query, queryOne } = require('../lib/db');
+const { sendWelcomeEmail } = require('../services/email');
 
 /**
  * User Management API
@@ -80,7 +82,7 @@ async function createUser(req, res) {
       return res.status(403).json({ error: 'Access denied. Admin only.' });
     }
 
-    const { email, password, display_name, plan = 'free', is_admin = false } = req.body;
+    const { email, display_name, plan = 'free', is_admin = false } = req.body;
 
     // Validate required fields
     if (!email || !display_name) {
@@ -93,30 +95,39 @@ async function createUser(req, res) {
       return res.status(400).json({ error: 'Email already exists' });
     }
 
-    // Generate password if not provided
-    const finalPassword = password || generateRandomPassword();
-    const hashedPassword = await bcrypt.hash(finalPassword, 10);
+    // Generate setup token for password creation
+    const setupToken = crypto.randomBytes(32).toString('hex');
+    const setupTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    // Create user
+    // Create user without password (will be set via email link)
     const newUser = await queryOne(`
       INSERT INTO users (
         email,
-        password_hash,
         display_name,
         plan,
         is_admin,
         email_verified,
+        reset_token,
+        reset_token_expires,
+        password_hash,
         created_at,
         updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, true, NOW(), NOW())
+      VALUES ($1, $2, $3, $4, false, $5, $6, '', NOW(), NOW())
       RETURNING id, email, display_name, plan, is_admin, created_at
-    `, [email, hashedPassword, display_name, plan, is_admin]);
+    `, [email, display_name, plan, is_admin, setupToken, setupTokenExpiry]);
+
+    // Send welcome email with password setup link
+    const emailSent = await sendWelcomeEmail(email, display_name, setupToken);
+
+    if (!emailSent) {
+      console.warn(`Failed to send welcome email to ${email}, but user was created`);
+    }
 
     res.json({
       user: newUser,
-      message: `User created successfully`,
-      temporaryPassword: !password ? finalPassword : undefined
+      message: `Utilisateur créé avec succès. Un email avec un lien pour définir le mot de passe a été envoyé à ${email}`,
+      emailSent: emailSent
     });
 
   } catch (error) {
