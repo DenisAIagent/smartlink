@@ -913,14 +913,6 @@
                 gap: 16px;
             }
 
-            .insights-content {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-
-            .insight-item {
-                padding: 12px;
-            }
 
             .platform-grid {
                 grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -943,13 +935,6 @@
                 font-size: 28px;
             }
 
-            .insights-panel {
-                padding: 16px;
-            }
-
-            .insights-title {
-                font-size: 16px;
-            }
         }
 
         @media (max-width: 480px) {
@@ -1080,10 +1065,10 @@
                     <div class="insights-panel" id="insightsPanel">
                         <div class="insights-header">
                             <span>🧠</span>
-                            <h3 class="insights-title">Recommandations intelligentes</h3>
+                            <h3 class="insights-title">Vue d'ensemble - Recommandations intelligentes</h3>
                         </div>
                         <div class="insights-content" id="insightsContent">
-                            <!-- Insights will be populated dynamically -->
+                            <!-- Global insights will be populated dynamically -->
                         </div>
                     </div>
 
@@ -1695,11 +1680,11 @@
             // Update metrics and insights
             updateMetrics(analyticsData);
             updatePlatformStats(analyticsData);
-            generateSmartInsights(analyticsData);
+            generateGlobalInsights(analyticsData);
         }
 
-        // Generate smart insights based on data analysis
-        function generateSmartInsights(data) {
+        // Generate global insights based on overall data analysis
+        function generateGlobalInsights(data) {
             const insights = [];
             const totalClicks = data.total_clicks || 0;
             const uniqueVisitors = data.unique_visitors || 0;
@@ -1709,46 +1694,35 @@
             // Performance insights
             if (performanceScore < 40) {
                 insights.push({
-                    type: 'OPTIMISATION',
-                    text: 'Votre score de performance peut être amélioré. Concentrez-vous sur la diversification des plateformes et l\'engagement.',
+                    type: 'OPTIMISATION GLOBALE',
+                    text: 'Votre performance globale peut être améliorée. Concentrez-vous sur la diversification des plateformes et l\'engagement.',
                     action: 'Voir les recommandations',
                     actionUrl: '/pages/create-smartlink.html'
                 });
             } else if (performanceScore >= 80) {
                 insights.push({
-                    type: 'SUCCÈS',
-                    text: 'Excellent ! Vos performances sont exceptionnelles. Continuez sur cette lancée.',
+                    type: 'EXCELLENT',
+                    text: 'Performances globales exceptionnelles ! Continuez sur cette lancée et explorez de nouvelles stratégies.',
                     action: 'Créer un nouveau SmartLink',
                     actionUrl: '/pages/create-smartlink.html'
                 });
             }
 
-            // Platform insights
+            // Platform coverage insights
             if (platformStats.length === 0) {
                 insights.push({
                     type: 'ACTION REQUISE',
-                    text: 'Aucune donnée de plateforme. Ajoutez des plateformes à vos SmartLinks pour maximiser votre portée.',
-                    action: 'Modifier un SmartLink',
+                    text: 'Aucune donnée de plateforme détectée. Ajoutez des plateformes à vos SmartLinks pour maximiser votre portée globale.',
+                    action: 'Configurer les plateformes',
                     actionUrl: '/pages/list-smartlinks.html'
                 });
-            } else if (platformStats.length === 1) {
+            } else if (platformStats.length < 3) {
                 insights.push({
                     type: 'DIVERSIFICATION',
-                    text: 'Vous utilisez une seule plateforme. Diversifiez pour toucher plus d\'audience.',
+                    text: `Vous utilisez ${platformStats.length} plateforme(s). Diversifiez davantage pour toucher une audience plus large.`,
                     action: 'Ajouter des plateformes',
                     actionUrl: '/pages/list-smartlinks.html'
                 });
-            } else if (platformStats.length >= 2) {
-                const topPlatform = platformStats[0];
-                const secondPlatform = platformStats[1];
-                if (topPlatform && secondPlatform && topPlatform.clicks > secondPlatform.clicks * 3) {
-                    insights.push({
-                        type: 'ANALYSE',
-                        text: `${platformConfig[topPlatform.platform]?.name || topPlatform.platform} domine largement. Optimisez les autres plateformes.`,
-                        action: 'Analyser les plateformes',
-                        actionUrl: '#'
-                    });
-                }
             }
 
             // Traffic insights
@@ -1757,63 +1731,37 @@
                     type: 'DÉMARRAGE',
                     text: 'Prêt à commencer ? Partagez vos SmartLinks sur les réseaux sociaux pour obtenir vos premiers clics.',
                     action: 'Guide de promotion',
-                    actionUrl: '#'
-                });
-            } else if (totalClicks > 0 && totalClicks < 10) {
-                insights.push({
-                    type: 'PROMOTION',
-                    text: 'Premiers clics enregistrés ! Intensifiez vos efforts de promotion pour accélérer la croissance.',
-                    action: 'Stratégies de promotion',
-                    actionUrl: '#'
+                    actionUrl: '/pages/create-smartlink.html'
                 });
             } else if (totalClicks >= 100) {
                 insights.push({
                     type: 'CROISSANCE',
-                    text: 'Excellent trafic ! Analysez vos heures de pointe pour optimiser le timing de vos publications.',
-                    action: 'Voir les analytics détaillées',
+                    text: 'Excellent trafic global ! Analysez vos performances par SmartLink pour optimiser individuellement.',
+                    action: 'Voir les SmartLinks',
                     actionUrl: '/pages/list-smartlinks.html'
                 });
             }
 
-            // Engagement insights
-            if (totalClicks > 0 && uniqueVisitors > 0) {
-                const engagement = totalClicks / uniqueVisitors;
-                if (engagement > 2.5) {
-                    insights.push({
-                        type: 'ENGAGEMENT',
-                        text: 'Excellente fidélisation ! Vos visiteurs reviennent plusieurs fois. Votre contenu plaît.',
-                        action: 'Créer plus de contenu',
-                        actionUrl: '/pages/create-smartlink.html'
-                    });
-                } else if (engagement < 1.2) {
-                    insights.push({
-                        type: 'ENGAGEMENT',
-                        text: 'Faible taux de retour. Améliorez vos call-to-action et l\'expérience utilisateur.',
-                        action: 'Optimiser l\'expérience',
-                        actionUrl: '#'
-                    });
-                }
-            }
-
-            // Show only top 3 insights
+            // Show top 3 insights
             const topInsights = insights.slice(0, 3);
 
             // Add default insight if none generated
             if (topInsights.length === 0) {
                 topInsights.push({
                     type: 'CONSEIL',
-                    text: 'Continuez à créer des SmartLinks et analyser vos performances pour optimiser votre stratégie musicale.',
+                    text: 'Vue d\'ensemble de vos performances. Continuez à créer des SmartLinks et analyser vos métriques globales.',
                     action: 'Créer un SmartLink',
                     actionUrl: '/pages/create-smartlink.html'
                 });
             }
 
-            displayInsights(topInsights);
+            displayGlobalInsights(topInsights);
         }
 
-        // Display insights in the panel
-        function displayInsights(insights) {
+        // Display global insights in the panel
+        function displayGlobalInsights(insights) {
             const insightsContent = document.getElementById('insightsContent');
+            if (!insightsContent) return;
 
             insightsContent.innerHTML = insights.map(insight => `
                 <div class="insight-item">
