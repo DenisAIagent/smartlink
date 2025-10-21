@@ -403,16 +403,35 @@
 
         .metric-card {
             background: white;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 28px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.05);
             position: relative;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary) 0%, rgba(229, 9, 20, 0.7) 50%, var(--primary) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .metric-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border-color: rgba(229, 9, 20, 0.1);
+        }
+
+        .metric-card:hover::before {
+            opacity: 1;
         }
 
         .metric-header {
@@ -429,13 +448,23 @@
         }
 
         .metric-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 16px;
+            background: linear-gradient(135deg, rgba(229, 9, 20, 0.1) 0%, rgba(229, 9, 20, 0.05) 100%);
+            border: 1px solid rgba(229, 9, 20, 0.1);
+        }
+
+        .metric-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--primary);
+            fill: none;
+            stroke-width: 2;
         }
 
         .metric-value {
@@ -480,14 +509,33 @@
         /* Chart Container */
         .chart-container {
             background: white;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.05);
             margin-bottom: 32px;
-            height: 400px;
+            height: 420px;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .chart-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary) 0%, rgba(229, 9, 20, 0.3) 50%, var(--primary) 100%);
+        }
+
+        .chart-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
         }
 
         .chart-placeholder {
@@ -598,10 +646,23 @@
 
         .skeleton-metric-card {
             background: white;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.05);
             margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skeleton-metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%);
         }
 
         .skeleton-metric-header {
@@ -1289,7 +1350,11 @@
                         <div class="metric-card">
                             <div class="metric-header">
                                 <div class="metric-label">Clics Totaux</div>
-                                <div class="metric-icon" style="background: rgba(229, 9, 20, 0.1); color: var(--primary);">📊</div>
+                                <div class="metric-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M8 12L12 8L16 12M8 12L12 16L16 12M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
                             </div>
                             <div class="metric-value" id="totalClicks">-</div>
                             <span class="metric-change" id="clicksChange" style="display: none;">
@@ -1301,7 +1366,12 @@
                         <div class="metric-card">
                             <div class="metric-header">
                                 <div class="metric-label">Visiteurs Uniques</div>
-                                <div class="metric-icon" style="background: rgba(16, 185, 129, 0.1); color: #10B981;">👥</div>
+                                <div class="metric-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M12 14C8.13401 14 5 17.134 5 21H19C19 17.134 15.866 14 12 14Z" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                </div>
                             </div>
                             <div class="metric-value" id="uniqueVisitors">-</div>
                             <span class="metric-change" id="visitorsChange" style="display: none;">
@@ -1313,7 +1383,11 @@
                         <div class="metric-card">
                             <div class="metric-header">
                                 <div class="metric-label">Score Performance</div>
-                                <div class="metric-icon" style="background: rgba(245, 158, 11, 0.1); color: #F59E0B;">⚡</div>
+                                <div class="metric-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
                             </div>
                             <div class="metric-value" id="performanceScore">-</div>
                             <div class="performance-score" id="performanceScoreDetails" style="display: none;">
@@ -1325,7 +1399,12 @@
                         <div class="metric-card">
                             <div class="metric-header">
                                 <div class="metric-label">Plateforme Leader</div>
-                                <div class="metric-icon" style="background: rgba(139, 92, 246, 0.1); color: #8B5CF6;">🎵</div>
+                                <div class="metric-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9 18V5L12.5 3L16 5V6M9 13H16.5M9 9H16.5M4 19H20C20.5523 19 21 19.4477 21 20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20C3 19.4477 3.44772 19 4 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                </div>
                             </div>
                             <div class="metric-value" id="topPlatform">-</div>
                             <div class="metric-insight" id="platformInsight">Concentrez vos efforts</div>

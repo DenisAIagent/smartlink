@@ -388,14 +388,7 @@ app.get('/test-social-preview', (req, res) => {
   res.sendFile(path.join(__dirname, 'pages', 'test-social-preview.html'));
 });
 
-// User management interface route (admin only)
-app.get('/users', authMiddleware, authController.adminRequired, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'pages', 'user-management.html'));
-});
-
-app.get('/user-management', authMiddleware, authController.adminRequired, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'pages', 'user-management.html'));
-});
+// User management interface routes will be defined after authMiddleware declaration
 
 // Mock data for testing when DB is not available
 const mockSmartLinks = [
@@ -536,6 +529,15 @@ if (process.env.NODE_ENV === 'development' && process.env.DEBUG_AUTH === 'true')
   authMiddleware = authController.authMiddleware;
   console.log('🔒 Production auth middleware active');
 }
+
+// User management interface routes (admin only) - After authMiddleware declaration
+app.get('/users', authMiddleware, authController.adminRequired, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'pages', 'user-management.html'));
+});
+
+app.get('/user-management', authMiddleware, authController.adminRequired, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'pages', 'user-management.html'));
+});
 
 // Mock endpoints when DATABASE_URL is not available
 if (!process.env.DATABASE_URL) {
