@@ -6,6 +6,19 @@
     <title>Gestion des Utilisateurs - SmartLink Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #E50914;
+            --primary-hover: #d40812;
+            --bg-main: #F8F9FA;
+            --bg-white: #ffffff;
+            --border: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --success: #10b981;
+            --danger: #ef4444;
+            --sidebar-width: 260px;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,77 +26,166 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
             min-height: 100vh;
-            padding: 20px;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-white);
+            border-right: 1px solid rgba(0,0,0,0.06);
+            padding: 32px 24px;
+            position: relative;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 48px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo-main {
+            width: 40px;
+            height: auto;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 8px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(229, 9, 20, 0.08);
+            color: var(--primary);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            opacity: 0.7;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
         }
 
         .header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: var(--bg-white);
             border-radius: 16px;
             padding: 24px;
             margin-bottom: 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
         }
 
         .header h1 {
             font-size: 24px;
-            color: #1a1a1a;
+            color: var(--text-primary);
             font-weight: 700;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary);
             color: white;
             border: none;
             padding: 12px 24px;
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.2s ease;
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
+            background: var(--primary-hover);
+            transform: translateY(-1px);
         }
 
         .btn-secondary {
-            background: #e5e7eb;
-            color: #374151;
-            border: none;
+            background: var(--bg-white);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
             padding: 8px 16px;
-            border-radius: 6px;
+            border-radius: 8px;
             font-weight: 500;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s ease;
         }
 
         .btn-secondary:hover {
-            background: #d1d5db;
+            background: var(--bg-main);
+            border-color: var(--primary);
+            color: var(--primary);
         }
 
         .btn-danger {
-            background: #ef4444;
+            background: var(--danger);
             color: white;
             border: none;
             padding: 8px 16px;
-            border-radius: 6px;
+            border-radius: 8px;
             font-weight: 500;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s ease;
         }
 
         .btn-danger:hover {
             background: #dc2626;
+            transform: translateY(-1px);
         }
 
         .user-grid {
@@ -92,18 +194,21 @@
         }
 
         .user-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: var(--bg-white);
+            border: 1px solid var(--border);
             border-radius: 12px;
             padding: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: transform 0.2s;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
         .user-card:hover {
-            transform: translateY(-2px);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            border-color: rgba(229, 9, 20, 0.2);
         }
 
         .user-info {
@@ -212,25 +317,34 @@
         .form-input {
             width: 100%;
             padding: 12px;
-            border: 1px solid #d1d5db;
+            border: 1px solid var(--border);
             border-radius: 8px;
             font-size: 14px;
-            transition: border-color 0.2s;
+            transition: all 0.2s ease;
+            background: var(--bg-white);
         }
 
         .form-input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.1);
         }
 
         .form-select {
             width: 100%;
             padding: 12px;
-            border: 1px solid #d1d5db;
+            border: 1px solid var(--border);
             border-radius: 8px;
             font-size: 14px;
-            background: white;
+            background: var(--bg-white);
             cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.1);
         }
 
         .form-checkbox {
@@ -252,42 +366,52 @@
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: var(--bg-white);
+            border: 1px solid var(--border);
             border-radius: 12px;
             padding: 20px;
             text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            border-color: rgba(229, 9, 20, 0.2);
         }
 
         .stat-value {
             font-size: 32px;
             font-weight: 700;
-            color: #667eea;
+            color: var(--primary);
             margin-bottom: 4px;
         }
 
         .stat-label {
             font-size: 14px;
-            color: #6b7280;
+            color: var(--text-secondary);
         }
 
         .back-link {
-            color: #667eea;
+            color: var(--primary);
             text-decoration: none;
             font-weight: 500;
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            font-size: 14px;
         }
 
         .back-link:hover {
+            color: var(--primary-hover);
             text-decoration: underline;
         }
 
         .loading {
             text-align: center;
             padding: 40px;
-            color: white;
+            color: var(--text-secondary);
             font-size: 18px;
         }
 
@@ -309,14 +433,56 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div>
-                <h1>👥 Gestion des Utilisateurs</h1>
-                <a href="/pages/dashboard.html" class="back-link">← Retour au Dashboard</a>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <img src="/images/logo-mdmc.svg" alt="MDMC" class="logo-main">
+                <span class="logo-text">MDMC</span>
             </div>
-            <button class="btn-primary" onclick="openCreateModal()">+ Nouvel Utilisateur</button>
-        </div>
+
+            <nav class="nav-menu">
+                <li class="nav-item">
+                    <a href="/pages/dashboard.html" class="nav-link">
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/pages/smartlinks.html" class="nav-link">
+                        <span>SmartLinks</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/pages/create.html" class="nav-link">
+                        <span>Créer SmartLink</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/pages/user-management.html" class="nav-link active">
+                        <span>Gestion Utilisateurs</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/pages/settings.html" class="nav-link">
+                        <span>Settings</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="logout()">
+                        <span>Déconnexion</span>
+                    </a>
+                </li>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <div>
+                    <h1>Gestion des Utilisateurs</h1>
+                </div>
+                <button class="btn-primary" onclick="openCreateModal()">+ Nouvel Utilisateur</button>
+            </div>
 
         <div class="stats-container">
             <div class="stat-card">
@@ -339,9 +505,10 @@
 
         <div id="messageContainer"></div>
 
-        <div id="userList" class="user-grid">
-            <div class="loading">Chargement des utilisateurs...</div>
-        </div>
+            <div id="userList" class="user-grid">
+                <div class="loading">Chargement des utilisateurs...</div>
+            </div>
+        </main>
     </div>
 
     <!-- Modal Création/Édition -->
@@ -402,7 +569,16 @@
             try {
                 const response = await fetch('/api/auth/me');
                 if (!response.ok) {
-                    window.location.href = '/pages/login.html';
+                    if (response.status === 401) {
+                        // User not authenticated
+                        window.location.href = '/pages/login.html';
+                    } else if (response.status === 403) {
+                        // User authenticated but not admin
+                        showMessage('Accès réservé aux administrateurs', 'error');
+                        setTimeout(() => window.location.href = '/pages/dashboard.html', 2000);
+                    } else {
+                        window.location.href = '/pages/login.html';
+                    }
                     return false;
                 }
                 const user = await response.json();
@@ -562,6 +738,15 @@
             const container = document.getElementById('messageContainer');
             container.innerHTML = `<div class="${type}">${message}</div>`;
             setTimeout(() => container.innerHTML = '', 5000);
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+            window.location.href = '/pages/login.html';
         }
 
         // Initialize

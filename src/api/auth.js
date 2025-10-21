@@ -214,6 +214,27 @@ function authMiddleware(req, res, next) {
 }
 
 /**
+ * Admin required middleware - Must be used after authMiddleware
+ */
+function adminRequired(req, res, next) {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      error: 'Authentification requise'
+    });
+  }
+
+  if (!req.user.is_admin) {
+    return res.status(403).json({
+      success: false,
+      error: 'Accès réservé aux administrateurs'
+    });
+  }
+
+  next();
+}
+
+/**
  * PUT /api/auth/profile - Update user profile
  */
 async function updateProfile(req, res) {
@@ -642,6 +663,7 @@ module.exports = {
   createUser,
   listUsers,
   authMiddleware,
+  adminRequired,
   forgotPassword,
   resetPassword,
   setPassword

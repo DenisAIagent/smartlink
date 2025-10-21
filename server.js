@@ -388,12 +388,12 @@ app.get('/test-social-preview', (req, res) => {
   res.sendFile(path.join(__dirname, 'pages', 'test-social-preview.html'));
 });
 
-// User management interface route
-app.get('/users', (req, res) => {
+// User management interface route (admin only)
+app.get('/users', authMiddleware, authController.adminRequired, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'pages', 'user-management.html'));
 });
 
-app.get('/user-management', (req, res) => {
+app.get('/user-management', authMiddleware, authController.adminRequired, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'pages', 'user-management.html'));
 });
 
