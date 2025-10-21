@@ -353,6 +353,16 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'pages', 'login.html'));
 });
 
+// Route mot de passe oublié
+app.get('/forgot-password', (req, res) => {
+  res.sendFile(path.join(__dirname, 'pages', 'forgot-password.html'));
+});
+
+// Route réinitialisation mot de passe
+app.get('/reset-password', (req, res) => {
+  res.sendFile(path.join(__dirname, 'pages', 'reset-password.html'));
+});
+
 // Route politique de confidentialité (RGPD)
 app.get('/privacy-policy', (req, res) => {
   res.sendFile(path.join(__dirname, 'pages', 'privacy-policy.html'));
@@ -423,6 +433,8 @@ app.post('/api/auth/login', authController.login);
 app.post('/api/auth/logout', authController.logout);
 app.get('/api/auth/me', authController.getCurrentUser);
 app.put('/api/auth/profile', authController.updateProfile);
+app.post('/api/auth/forgot-password', authController.forgotPassword);
+app.post('/api/auth/reset-password', authController.resetPassword);
 
 // API Routes - Authentication
 

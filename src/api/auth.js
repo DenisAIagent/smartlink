@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const { queryOne, query } = require('../lib/db');
 
 // Debug: Check if we have required environment variables
@@ -435,6 +436,136 @@ async function createUser(req, res) {
   }
 }
 
+/**
+ * POST /api/auth/forgot-password - Request password reset
+ */
+async function forgotPassword(req, res) {
+  try {
+    const { email } = req.body;
+
+    // Validation
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: 'L\'adresse email est requise'
+      });
+    }
+
+    // Find user
+    const user = await queryOne(
+      'SELECT id, email, display_name FROM users WHERE email = $1',
+      [email.toLowerCase()]
+    );
+
+    // Always return success (don't reveal if email exists)
+    if (!user) {
+      return res.json({
+        success: true,
+        message: 'Si votre email existe dans notre système, vous recevrez un lien de réinitialisation.'
+      });
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour
+
+    // Store reset token in database
+    await query(
+      'UPDATE users SET reset_token = $1, reset_token_expires = $2 WHERE id = $3',
+      [resetToken, resetTokenExpiry, user.id]
+    );
+
+    // In development, return the reset link
+    if (process.env.NODE_ENV !== 'production') {
+      const resetUrl = `${req.protocol}://${req.get('host')}/reset-password?token=${resetToken}`;
+
+      return res.json({
+        success: true,
+        message: 'Email de réinitialisation envoyé.',
+        resetUrl: resetUrl, // Only in dev mode
+        devInfo: {
+          token: resetToken,
+          email: user.email
+        }
+      });
+    }
+
+    // TODO: In production, send actual email here
+    // Example with nodemailer or your email service
+
+    res.json({
+      success: true,
+      message: 'Si votre email existe dans notre système, vous recevrez un lien de réinitialisation.'
+    });
+
+  } catch (error) {
+    console.error('❌ Forgot password error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur serveur'
+    });
+  }
+}
+
+/**
+ * POST /api/auth/reset-password - Reset password with token
+ */
+async function resetPassword(req, res) {
+  try {
+    const { token, password } = req.body;
+
+    // Validation
+    if (!token || !password) {
+      return res.status(400).json({
+        success: false,
+        error: 'Token et nouveau mot de passe requis'
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: 'Le mot de passe doit contenir au moins 6 caractères'
+      });
+    }
+
+    // Find user with valid token
+    const user = await queryOne(
+      'SELECT id, email, reset_token_expires FROM users WHERE reset_token = $1 AND reset_token_expires > NOW()',
+      [token]
+    );
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        error: 'Token invalide ou expiré'
+      });
+    }
+
+    // Hash new password
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Update password and clear reset token
+    await query(
+      'UPDATE users SET password_hash = $1, reset_token = NULL, reset_token_expires = NULL WHERE id = $2',
+      [hashedPassword, user.id]
+    );
+
+    res.json({
+      success: true,
+      message: 'Mot de passe réinitialisé avec succès'
+    });
+
+  } catch (error) {
+    console.error('❌ Reset password error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur serveur'
+    });
+  }
+}
+
 module.exports = {
   login,
   logout,
@@ -442,5 +573,7 @@ module.exports = {
   updateProfile,
   createUser,
   listUsers,
-  authMiddleware
+  authMiddleware,
+  forgotPassword,
+  resetPassword
 };
