@@ -144,11 +144,77 @@
             min-width: 0;
         }
 
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            color: var(--text-primary);
+        }
+
+        .mobile-menu-btn:hover {
+            background: var(--bg-main);
+        }
+
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .mobile-sidebar {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 280px;
+            height: 100vh;
+            background: var(--bg-white);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: left 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .mobile-sidebar.open {
+            left: 0;
+        }
+
+        .mobile-sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .mobile-close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px;
+            color: var(--text-secondary);
+        }
+
+        .mobile-sidebar-content {
+            padding: 32px 24px;
+        }
+
         /* Header */
         .header {
             background: white;
             border-bottom: 1px solid var(--border);
             padding: 24px 32px;
+            position: relative;
         }
 
         .dashboard-header {
@@ -900,8 +966,21 @@
                 display: none;
             }
 
+            .mobile-menu-btn {
+                display: block;
+                position: absolute;
+                top: 50%;
+                left: 16px;
+                transform: translateY(-50%);
+            }
+
             .header {
                 padding: 16px;
+                padding-left: 60px;
+            }
+
+            .mobile-overlay.show {
+                display: block;
             }
 
             .content {
@@ -1090,10 +1169,65 @@
             </ul>
         </aside>
 
+        <!-- Mobile Menu Overlay -->
+        <div class="mobile-overlay" id="mobileOverlay"></div>
+
+        <!-- Mobile Sidebar -->
+        <div class="mobile-sidebar" id="mobileSidebar">
+            <div class="mobile-sidebar-header">
+                <div class="logo">
+                    <img src="/public/assets/MDMC_logo_noir fond transparent.png" alt="MDMC" class="logo-main">
+                    <span class="logo-text">Admin</span>
+                </div>
+                <button class="mobile-close-btn" id="mobileCloseBtn">✕</button>
+            </div>
+            <div class="mobile-sidebar-content">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="/pages/dashboard.html" class="nav-link active">
+                            <span class="nav-icon">📊</span>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/pages/list-smartlinks.html" class="nav-link">
+                            <span class="nav-icon">🔗</span>
+                            <span>SmartLinks</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/pages/create-smartlink.html" class="nav-link">
+                            <span class="nav-icon">✨</span>
+                            <span>Créer SmartLink</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" id="mobileUserManagementLink" style="display: none;">
+                        <a href="/users" class="nav-link">
+                            <span class="nav-icon">👥</span>
+                            <span>Gestion Utilisateurs</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/pages/settings.html" class="nav-link">
+                            <span class="nav-icon">⚙️</span>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="logout()">
+                            <span class="nav-icon">🚪</span>
+                            <span>Déconnexion</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
         <!-- Main Content -->
         <main class="main-content">
             <!-- Header -->
             <header class="header">
+                <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
                 <div class="dashboard-header">
                     <div class="header-main">
                         <h1 class="header-title" id="dynamicTitle">Analytics SmartLinks</h1>
@@ -2175,12 +2309,56 @@
             return num.toString();
         }
 
+        // Mobile menu functionality
+        function setupMobileMenu() {
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileCloseBtn = document.getElementById('mobileCloseBtn');
+            const mobileSidebar = document.getElementById('mobileSidebar');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+
+            // Open mobile menu
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileSidebar.classList.add('open');
+                mobileOverlay.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            });
+
+            // Close mobile menu
+            function closeMobileMenu() {
+                mobileSidebar.classList.remove('open');
+                mobileOverlay.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+
+            mobileCloseBtn.addEventListener('click', closeMobileMenu);
+            mobileOverlay.addEventListener('click', closeMobileMenu);
+
+            // Close on link click
+            const mobileNavLinks = mobileSidebar.querySelectorAll('.nav-link');
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (!link.getAttribute('onclick')) { // Don't close on logout link
+                        closeMobileMenu();
+                    }
+                });
+            });
+
+            // Handle mobile user management link visibility
+            if (isUserAdmin) {
+                const mobileUserLink = document.getElementById('mobileUserManagementLink');
+                if (mobileUserLink) {
+                    mobileUserLink.style.display = 'block';
+                }
+            }
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
             // Check auth first
             if (await checkAuth()) {
                 await loadSmartLinks();
                 await loadAnalytics();
+                setupMobileMenu(); // Setup mobile menu after auth check
             }
         });
 
