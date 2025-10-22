@@ -640,6 +640,7 @@ if (!process.env.DATABASE_URL) {
   app.post('/api/smartlinks', authMiddleware, smartlinksController.createSmartLink);
   app.get('/api/smartlinks', authMiddleware, smartlinksController.listSmartLinks);
   app.get('/api/smartlinks/:id', authMiddleware, smartlinksController.getSmartLink);
+  app.get('/api/smartlinks/:id/check', authMiddleware, smartlinksController.checkSmartLink);
   app.put('/api/smartlinks/:id', authMiddleware, smartlinksController.updateSmartLink);
   app.delete('/api/smartlinks/:id', authMiddleware, smartlinksController.deleteSmartLink);
   app.get('/api/smartlinks/:id/analytics', authMiddleware, smartlinksController.getSmartLinkAnalytics);

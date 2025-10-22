@@ -414,6 +414,48 @@ async function getSmartLinkAnalytics(req, res) {
 }
 
 /**
+ * GET /api/smartlinks/:id/check - Check if SmartLink exists and ownership
+ */
+async function checkSmartLink(req, res) {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    console.log('🔍 Checking SmartLink existence:', { smartlinkId: id, userId });
+
+    const smartlink = await smartlinks.getById(id, userId);
+
+    if (!smartlink) {
+      return res.json({
+        success: false,
+        exists: false,
+        owned: false,
+        message: 'SmartLink not found or access denied'
+      });
+    }
+
+    res.json({
+      success: true,
+      exists: true,
+      owned: smartlink.user_id === userId,
+      smartlink: {
+        id: smartlink.id,
+        title: smartlink.title,
+        user_id: smartlink.user_id,
+        created_at: smartlink.created_at
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Check SmartLink error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error checking SmartLink'
+    });
+  }
+}
+
+/**
  * GET /s/:slug - Public SmartLink page (no auth required)
  */
 async function getPublicSmartLink(req, res) {
@@ -551,6 +593,7 @@ module.exports = {
   getSmartLink,
   updateSmartLink,
   deleteSmartLink,
+  checkSmartLink,
   getSmartLinkAnalytics,
   getPublicSmartLink,
   trackPlatformClick,

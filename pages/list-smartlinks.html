@@ -760,7 +760,14 @@
                 }
             } catch (error) {
                 console.error('Erreur suppression:', error);
-                mdmcAdmin.showNotification('Impossible de supprimer le SmartLink', 'danger');
+                // If it's a 404, treat as already deleted
+                if (error.status === 404) {
+                    mdmcAdmin.showNotification('SmartLink déjà supprimé', 'warning');
+                    closeDeleteModal();
+                    loadSmartLinks(); // Refresh to remove from UI
+                } else {
+                    mdmcAdmin.showNotification('Impossible de supprimer le SmartLink', 'danger');
+                }
             }
         }
 
