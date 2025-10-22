@@ -282,18 +282,15 @@ const smartlinks = {
       const validSmartlinks = [];
       for (const smartlink of allSmartlinks) {
         try {
-          // Verify SmartLink actually exists and is accessible
-          const verifyResult = await queryOne(
-            'SELECT id FROM smartlinks WHERE id = $1',
-            [smartlink.id]
-          );
-          if (verifyResult) {
+          // More comprehensive verification - check if SmartLink can actually be accessed by getById
+          const fullSmartlink = await this.getById(smartlink.id);
+          if (fullSmartlink) {
             validSmartlinks.push(smartlink);
           } else {
-            console.warn(`🚨 SmartLink ${smartlink.id} found in listing but not accessible - filtering out`);
+            console.warn(`🚨 SmartLink ${smartlink.id} found in listing but getById failed - filtering out`);
           }
         } catch (error) {
-          console.warn(`🚨 SmartLink ${smartlink.id} verification failed - filtering out:`, error.message);
+          console.warn(`🚨 SmartLink ${smartlink.id} getById verification failed - filtering out:`, error.message);
         }
       }
 
@@ -345,18 +342,15 @@ const smartlinks = {
       const validSmartlinks = [];
       for (const smartlink of allSmartlinks) {
         try {
-          // Verify SmartLink actually exists and is accessible
-          const verifyResult = await queryOne(
-            'SELECT id FROM smartlinks WHERE id = $1 AND user_id = $2',
-            [smartlink.id, userId]
-          );
-          if (verifyResult) {
+          // More comprehensive verification - check if SmartLink can actually be accessed by getById
+          const fullSmartlink = await this.getById(smartlink.id, userId);
+          if (fullSmartlink) {
             validSmartlinks.push(smartlink);
           } else {
-            console.warn(`🚨 SmartLink ${smartlink.id} found in user listing but not accessible - filtering out`);
+            console.warn(`🚨 SmartLink ${smartlink.id} found in user listing but getById failed - filtering out`);
           }
         } catch (error) {
-          console.warn(`🚨 SmartLink ${smartlink.id} verification failed for user ${userId} - filtering out:`, error.message);
+          console.warn(`🚨 SmartLink ${smartlink.id} getById verification failed for user ${userId} - filtering out:`, error.message);
         }
       }
 
