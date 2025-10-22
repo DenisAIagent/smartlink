@@ -749,7 +749,14 @@
                     loadSmartLinks(); // Recharger la liste
                 } else {
                     console.log('❌ Delete failed:', response);
-                    mdmcAdmin.showNotification('Erreur lors de la suppression', 'danger');
+                    // Handle 404 specifically - SmartLink already gone
+                    if (response.error && response.error.includes('non trouvé')) {
+                        mdmcAdmin.showNotification('SmartLink déjà supprimé', 'warning');
+                        closeDeleteModal();
+                        loadSmartLinks(); // Refresh to remove from UI
+                    } else {
+                        mdmcAdmin.showNotification(response.error || 'Erreur lors de la suppression', 'danger');
+                    }
                 }
             } catch (error) {
                 console.error('Erreur suppression:', error);
