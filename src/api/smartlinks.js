@@ -350,13 +350,27 @@ async function deleteSmartLink(req, res) {
       error: error.message,
       code: error.code,
       detail: error.detail,
+      constraint: error.constraint,
+      table: error.table,
       smartlinkId: req.params.id,
       userId: req.user.id,
       stack: error.stack
     });
+
+    // More specific error messages
+    let errorMessage = 'Erreur lors de la suppression du SmartLink';
+    if (error.code === '23503') {
+      errorMessage = 'Impossible de supprimer : des données liées existent encore';
+    } else if (error.code === '23505') {
+      errorMessage = 'Conflit de données lors de la suppression';
+    } else if (error.message?.includes('not found')) {
+      errorMessage = 'SmartLink introuvable ou accès refusé';
+    }
+
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la suppression du SmartLink'
+      error: errorMessage,
+      debug: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 }
