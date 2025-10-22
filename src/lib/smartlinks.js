@@ -264,7 +264,8 @@ const smartlinks = {
         ? [limit, searchParam, offset]
         : [limit, offset];
 
-      const smartlinks = await query(
+      // Get all SmartLinks with validation check
+      const allSmartlinks = await query(
         `SELECT
           s.id, s.slug, s.title, s.artist, s.cover_url,
           s.is_active, s.click_count, s.created_at, s.updated_at,
@@ -277,6 +278,25 @@ const smartlinks = {
         params
       );
 
+      // Filter out any SmartLinks that might have integrity issues
+      const validSmartlinks = [];
+      for (const smartlink of allSmartlinks) {
+        try {
+          // Verify SmartLink actually exists and is accessible
+          const verifyResult = await queryOne(
+            'SELECT id FROM smartlinks WHERE id = $1',
+            [smartlink.id]
+          );
+          if (verifyResult) {
+            validSmartlinks.push(smartlink);
+          } else {
+            console.warn(`🚨 SmartLink ${smartlink.id} found in listing but not accessible - filtering out`);
+          }
+        } catch (error) {
+          console.warn(`🚨 SmartLink ${smartlink.id} verification failed - filtering out:`, error.message);
+        }
+      }
+
       const total = await queryOne(
         `SELECT COUNT(*) as count
          FROM smartlinks s
@@ -286,9 +306,9 @@ const smartlinks = {
       );
 
       return {
-        smartlinks,
+        smartlinks: validSmartlinks,
         total: parseInt(total.count),
-        hasMore: offset + smartlinks.length < total.count
+        hasMore: offset + validSmartlinks.length < total.count
       };
     } catch (error) {
       console.error('❌ SmartLinks list all error:', error);
@@ -301,37 +321,56 @@ const smartlinks = {
    */
   async listByUser(userId, { limit = 20, offset = 0, search = '' } = {}) {
     try {
-      const searchCondition = search 
-        ? 'AND (title ILIKE $3 OR artist ILIKE $3)' 
+      const searchCondition = search
+        ? 'AND (title ILIKE $3 OR artist ILIKE $3)'
         : '';
       const searchParam = search ? `%${search}%` : null;
-      
-      const params = searchParam 
+
+      const params = searchParam
         ? [userId, limit, searchParam, offset]
         : [userId, limit, offset];
-      
-      const smartlinks = await query(
-        `SELECT 
-          id, slug, title, artist, cover_url, 
+
+      const allSmartlinks = await query(
+        `SELECT
+          id, slug, title, artist, cover_url,
           is_active, click_count, created_at, updated_at
-         FROM smartlinks 
+         FROM smartlinks
          WHERE user_id = $1 ${searchCondition}
          ORDER BY created_at DESC
          LIMIT $2 OFFSET $${searchParam ? 4 : 3}`,
         params
       );
-      
+
+      // Filter out any SmartLinks that might have integrity issues
+      const validSmartlinks = [];
+      for (const smartlink of allSmartlinks) {
+        try {
+          // Verify SmartLink actually exists and is accessible
+          const verifyResult = await queryOne(
+            'SELECT id FROM smartlinks WHERE id = $1 AND user_id = $2',
+            [smartlink.id, userId]
+          );
+          if (verifyResult) {
+            validSmartlinks.push(smartlink);
+          } else {
+            console.warn(`🚨 SmartLink ${smartlink.id} found in user listing but not accessible - filtering out`);
+          }
+        } catch (error) {
+          console.warn(`🚨 SmartLink ${smartlink.id} verification failed for user ${userId} - filtering out:`, error.message);
+        }
+      }
+
       const total = await queryOne(
-        `SELECT COUNT(*) as count 
-         FROM smartlinks 
+        `SELECT COUNT(*) as count
+         FROM smartlinks
          WHERE user_id = $1 ${searchCondition}`,
         searchParam ? [userId, searchParam] : [userId]
       );
-      
+
       return {
-        smartlinks,
+        smartlinks: validSmartlinks,
         total: parseInt(total.count),
-        hasMore: offset + smartlinks.length < total.count
+        hasMore: offset + validSmartlinks.length < total.count
       };
     } catch (error) {
       console.error('❌ SmartLinks list error:', error);
