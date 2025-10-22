@@ -556,10 +556,11 @@ if (!process.env.DATABASE_URL) {
 
   // Mock DELETE /api/smartlinks/:id
   app.delete('/api/smartlinks/:id', authMiddleware, (req, res) => {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     console.log(`🗑️ Mock DELETE /api/smartlinks/${id}`);
 
-    const index = mockSmartLinks.findIndex(sl => sl.id === id);
+    // Support both numeric and string IDs
+    const index = mockSmartLinks.findIndex(sl => sl.id == id || sl.id.toString() === id);
     if (index !== -1) {
       const deleted = mockSmartLinks.splice(index, 1)[0];
       console.log(`✅ Mock deleted SmartLink:`, deleted.title);
