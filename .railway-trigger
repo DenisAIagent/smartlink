@@ -1,2 +1,2 @@
-# Trigger Railway redeploy - Lun 21 oct 2025 21:00:00 WEST
-# Fix authMiddleware initialization order for /users routes
+# Trigger Railway redeploy - Mer 6 nov 2025 16:54:00 WEST
+# Deploy admin permissions fix for SmartLinks editing (Google Ads issue)
