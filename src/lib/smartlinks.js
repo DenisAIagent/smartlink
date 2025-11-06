@@ -141,6 +141,24 @@ const smartlinks = {
         }
       }
       
+      // Admin can update any SmartLink (userId = null), regular users only their own
+      const whereClause = userId ? 'id = $9 AND user_id = $10' : 'id = $9';
+      const params = [
+        data.title,
+        data.artist,
+        data.description,
+        data.platforms ? JSON.stringify(data.platforms) : null,
+        data.customization ? JSON.stringify(data.customization) : null,
+        data.coverUrl,
+        data.previewAudioUrl,
+        data.trackingPixels ? JSON.stringify(data.trackingPixels) : null,
+        id
+      ];
+
+      if (userId) {
+        params.push(userId);
+      }
+
       const smartlink = await queryOne(
         `UPDATE smartlinks SET
           title = COALESCE($1, title),
@@ -152,20 +170,9 @@ const smartlinks = {
           preview_audio_url = COALESCE($7, preview_audio_url),
           tracking_pixels = COALESCE($8, tracking_pixels),
           updated_at = NOW()
-         WHERE id = $9 AND user_id = $10
+         WHERE ${whereClause}
          RETURNING *`,
-        [
-          data.title,
-          data.artist,
-          data.description,
-          data.platforms ? JSON.stringify(data.platforms) : null,
-          data.customization ? JSON.stringify(data.customization) : null,
-          data.coverUrl,
-          data.previewAudioUrl,
-          data.trackingPixels ? JSON.stringify(data.trackingPixels) : null,
-          id,
-          userId
-        ]
+        params
       );
       
       return smartlink;
@@ -391,20 +398,26 @@ const smartlinks = {
         );
         console.log(`✅ Deleted ${analyticsResult.rowCount} analytics records`);
 
-        // Delete smartlink
-        console.log('2️⃣ Deleting SmartLink ID:', id);
-        const { rows: [deleted] } = await client.query(
-          'DELETE FROM smartlinks WHERE id = $1 AND user_id = $2 RETURNING *',
-          [id, userId]
-        );
+        // Delete smartlink - Admin can delete any SmartLink (userId = null)
+        console.log('2️⃣ Deleting SmartLink ID:', id, 'for user:', userId);
+        const deleteQuery = userId
+          ? 'DELETE FROM smartlinks WHERE id = $1 AND user_id = $2 RETURNING *'
+          : 'DELETE FROM smartlinks WHERE id = $1 RETURNING *';
+        const deleteParams = userId ? [id, userId] : [id];
+
+        const { rows: [deleted] } = await client.query(deleteQuery, deleteParams);
 
         if (deleted) {
-          console.log('3️⃣ Updating user count for user ID:', userId);
-          // Update user count
-          await client.query(
-            'UPDATE users SET smartlinks_count = GREATEST(0, smartlinks_count - 1) WHERE id = $1',
-            [userId]
-          );
+          // Update user count only if userId is provided (not admin operation)
+          if (userId) {
+            console.log('3️⃣ Updating user count for user ID:', userId);
+            await client.query(
+              'UPDATE users SET smartlinks_count = GREATEST(0, smartlinks_count - 1) WHERE id = $1',
+              [userId]
+            );
+          } else {
+            console.log('3️⃣ Admin deletion - skipping user count update');
+          }
           console.log('✅ SmartLink deletion completed successfully');
         } else {
           console.log('❌ SmartLink not found or access denied');
