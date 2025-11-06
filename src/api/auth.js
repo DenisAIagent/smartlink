@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { queryOne, query } = require('../lib/db');
+const { sendPasswordResetEmail } = require('../services/email');
 
 // Debug: Check if we have required environment variables
 if (!process.env.JWT_SECRET) {
@@ -496,7 +497,17 @@ async function forgotPassword(req, res) {
       [resetToken, resetTokenExpiry, user.id]
     );
 
-    // In development, return the reset link
+    // Send reset email
+    const emailSent = await sendPasswordResetEmail(user.email, user.display_name, resetToken);
+
+    if (!emailSent) {
+      console.error('Failed to send password reset email to:', user.email);
+      // Continue anyway to not reveal if email exists
+    } else {
+      console.log('Password reset email sent to:', user.email);
+    }
+
+    // In development, also return the reset link for debugging
     if (process.env.NODE_ENV !== 'production') {
       const resetUrl = `${req.protocol}://${req.get('host')}/reset-password?token=${resetToken}`;
 
@@ -510,9 +521,6 @@ async function forgotPassword(req, res) {
         }
       });
     }
-
-    // TODO: In production, send actual email here
-    // Example with nodemailer or your email service
 
     res.json({
       success: true,
