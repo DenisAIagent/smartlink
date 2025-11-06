@@ -231,22 +231,26 @@ async function listSmartLinks(req, res) {
 async function getSmartLink(req, res) {
   try {
     const userId = req.user.id;
+    const isAdmin = req.user.is_admin;
     const { id } = req.params;
-    
-    const smartlink = await smartlinks.getById(id, userId);
-    
+
+    // Admin can access any SmartLink, regular users only their own
+    const smartlink = isAdmin
+      ? await smartlinks.getById(id, null) // Admin: no user restriction
+      : await smartlinks.getById(id, userId); // User: restrict to their own
+
     if (!smartlink) {
       return res.status(404).json({
         success: false,
         error: 'SmartLink non trouvé'
       });
     }
-    
+
     res.json({
       success: true,
       smartlink
     });
-    
+
   } catch (error) {
     console.error('❌ Get SmartLink error:', error);
     res.status(500).json({
@@ -262,11 +266,18 @@ async function getSmartLink(req, res) {
 async function updateSmartLink(req, res) {
   try {
     const userId = req.user.id;
+    const isAdmin = req.user.is_admin;
     const { id } = req.params;
     const data = req.body;
     const refreshOdesli = req.query.refreshOdesli === 'true';
-    
-    const smartlink = await smartlinks.update(id, userId, data, refreshOdesli);
+
+    // Admin can update any SmartLink, regular users only their own
+    const smartlink = await smartlinks.update(
+      id,
+      isAdmin ? null : userId, // Admin: no user restriction, User: restrict to their own
+      data,
+      refreshOdesli
+    );
     
     if (!smartlink) {
       return res.status(404).json({
@@ -304,10 +315,11 @@ async function deleteSmartLink(req, res) {
 
   try {
     const userId = req.user.id;
+    const isAdmin = req.user.is_admin;
     const { id } = req.params;
 
-    // Vérifier existence avant suppression
-    const existing = await smartlinks.getById(id, userId);
+    // Vérifier existence avant suppression - Admin can delete any SmartLink
+    const existing = await smartlinks.getById(id, isAdmin ? null : userId);
     if (!existing) {
       console.log('❌ SmartLink not found or access denied:', {
         smartlinkId: id,
@@ -325,7 +337,7 @@ async function deleteSmartLink(req, res) {
       ownerId: existing.user_id
     });
 
-    const deleted = await smartlinks.delete(id, userId);
+    const deleted = await smartlinks.delete(id, isAdmin ? null : userId);
 
     if (!deleted) {
       console.log('❌ Delete operation returned null/false');
