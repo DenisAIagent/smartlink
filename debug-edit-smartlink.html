@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Edit SmartLink</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        .info { background: #d1ecf1; border-color: #bee5eb; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Edit SmartLink</h1>
+
+    <div class="debug-section info">
+        <h3>URL Parameters</h3>
+        <div id="urlParams"></div>
+    </div>
+
+    <div class="debug-section info">
+        <h3>Authentication Status</h3>
+        <div id="authStatus"></div>
+        <button onclick="checkAuth()">Vérifier Auth</button>
+    </div>
+
+    <div class="debug-section info">
+        <h3>API Test</h3>
+        <button onclick="testAPICall()">Test API Call</button>
+        <div id="apiResult"></div>
+    </div>
+
+    <div class="debug-section info">
+        <h3>SmartLink Load Test</h3>
+        <input type="number" id="smartlinkId" value="1" placeholder="SmartLink ID">
+        <button onclick="loadSmartLink()">Load SmartLink</button>
+        <div id="smartlinkResult"></div>
+    </div>
+
+    <script src="/config.js"></script>
+    <script>
+        // Display URL parameters
+        function showUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const params = {};
+            for (const [key, value] of urlParams) {
+                params[key] = value;
+            }
+            document.getElementById('urlParams').innerHTML = `<pre>${JSON.stringify(params, null, 2)}</pre>`;
+        }
+
+        // Check authentication
+        async function checkAuth() {
+            const statusDiv = document.getElementById('authStatus');
+
+            try {
+                // Check local storage
+                const token = localStorage.getItem('authToken');
+                const user = localStorage.getItem('user');
+
+                let html = '<h4>Local Storage:</h4>';
+                html += `<p>Token: ${token ? '✅ Present' : '❌ Missing'}</p>`;
+                html += `<p>User: ${user ? '✅ Present' : '❌ Missing'}</p>`;
+
+                if (user) {
+                    try {
+                        const userData = JSON.parse(user);
+                        html += `<p>User Data: <pre>${JSON.stringify(userData, null, 2)}</pre></p>`;
+                    } catch (e) {
+                        html += `<p>User Data: ❌ Invalid JSON</p>`;
+                    }
+                }
+
+                // Test API auth
+                html += '<h4>API Auth Test:</h4>';
+                const response = await fetch('/api/auth/profile', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                const result = await response.json();
+                html += `<p>Status: ${response.status}</p>`;
+                html += `<p>Response: <pre>${JSON.stringify(result, null, 2)}</pre></p>`;
+
+                statusDiv.innerHTML = html;
+                statusDiv.className = 'debug-section ' + (response.ok ? 'success' : 'error');
+
+            } catch (error) {
+                statusDiv.innerHTML = `<p>❌ Error: ${error.message}</p>`;
+                statusDiv.className = 'debug-section error';
+            }
+        }
+
+        // Test generic API call
+        async function testAPICall() {
+            const resultDiv = document.getElementById('apiResult');
+
+            try {
+                const response = await fetch('/api/smartlinks', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                const result = await response.json();
+
+                let html = `<h4>GET /api/smartlinks Result:</h4>`;
+                html += `<p>Status: ${response.status}</p>`;
+                html += `<p>Response: <pre>${JSON.stringify(result, null, 2)}</pre></p>`;
+
+                resultDiv.innerHTML = html;
+                resultDiv.className = 'debug-section ' + (response.ok ? 'success' : 'error');
+
+            } catch (error) {
+                resultDiv.innerHTML = `<p>❌ Error: ${error.message}</p>`;
+                resultDiv.className = 'debug-section error';
+            }
+        }
+
+        // Load specific smartlink
+        async function loadSmartLink() {
+            const id = document.getElementById('smartlinkId').value;
+            const resultDiv = document.getElementById('smartlinkResult');
+
+            try {
+                const response = await fetch(`/api/smartlinks/${id}`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
+                const result = await response.json();
+
+                let html = `<h4>GET /api/smartlinks/${id} Result:</h4>`;
+                html += `<p>Status: ${response.status}</p>`;
+                html += `<p>Response: <pre>${JSON.stringify(result, null, 2)}</pre></p>`;
+
+                resultDiv.innerHTML = html;
+                resultDiv.className = 'debug-section ' + (response.ok ? 'success' : 'error');
+
+            } catch (error) {
+                resultDiv.innerHTML = `<p>❌ Error: ${error.message}</p>`;
+                resultDiv.className = 'debug-section error';
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            showUrlParams();
+            checkAuth();
+        });
+    </script>
+</body>
+</html>
