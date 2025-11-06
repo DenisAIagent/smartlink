@@ -412,6 +412,10 @@
                         <input type="text" id="gtm" class="form-control">
                     </div>
                     <div class="form-group">
+                        <label for="googleAds">Google Ads (AW-XXXXXXXXX)</label>
+                        <input type="text" id="googleAds" class="form-control" placeholder="AW-XXXXXXXXX">
+                    </div>
+                    <div class="form-group">
                         <label for="metaPixel">Meta Pixel</label>
                         <input type="text" id="metaPixel" class="form-control">
                     </div>
@@ -467,6 +471,7 @@
                     const trackingPixels = smartlink.tracking_pixels || {};
                     document.getElementById('ga4').value = trackingPixels.google_analytics || '';
                     document.getElementById('gtm').value = trackingPixels.google_tag_manager || '';
+                    document.getElementById('googleAds').value = trackingPixels.google_ads || '';
                     document.getElementById('metaPixel').value = trackingPixels.meta_pixel || '';
                     document.getElementById('tiktokPixel').value = trackingPixels.tiktok_pixel || '';
 
@@ -616,6 +621,7 @@
                 trackingPixels: {
                     google_analytics: document.getElementById('ga4').value || null,
                     google_tag_manager: document.getElementById('gtm').value || null,
+                    google_ads: document.getElementById('googleAds').value || null,
                     meta_pixel: document.getElementById('metaPixel').value || null,
                     tiktok_pixel: document.getElementById('tiktokPixel').value || null,
                     custom_scripts: []

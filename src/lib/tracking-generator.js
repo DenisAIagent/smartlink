@@ -90,6 +90,23 @@ function generateTikTokPixel(pixelId) {
 }
 
 /**
+ * Generate Google Ads script
+ */
+function generateGoogleAds(conversionId) {
+  if (!conversionId || conversionId === 'null' || conversionId === 'undefined' || conversionId.includes('PLACEHOLDER')) return '';
+
+  return `
+    <!-- Google Ads Conversion Tracking -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=${conversionId}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '${conversionId}');
+    </script>`;
+}
+
+/**
  * Generate custom scripts
  */
 function generateCustomScripts(customScripts) {
@@ -176,6 +193,27 @@ function generateGDPRTrackingSetup(trackingPixels) {
           const noscript = document.createElement('noscript');
           noscript.innerHTML = '<iframe src="https://www.googletagmanager.com/ns.html?id=${trackingPixels.google_tag_manager}" height="0" width="0" style="display:none;visibility:hidden"></iframe>';
           document.body.appendChild(noscript);
+        }` : ''}
+
+        ${trackingPixels.google_ads ? `
+        // Load Google Ads
+        if (!window.gtag) {
+          const gadsScript = document.createElement('script');
+          gadsScript.async = true;
+          gadsScript.src = 'https://www.googletagmanager.com/gtag/js?id=${trackingPixels.google_ads}';
+          document.head.appendChild(gadsScript);
+
+          const gadsConfig = document.createElement('script');
+          gadsConfig.innerHTML = \`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${trackingPixels.google_ads}');
+          \`;
+          document.head.appendChild(gadsConfig);
+        } else {
+          // If gtag already loaded, just add the config
+          gtag('config', '${trackingPixels.google_ads}');
         }` : ''}
       }
 
@@ -294,6 +332,27 @@ function generateTrackingEvents(trackingPixels, smartlinkData) {
     `);
   }
 
+  // Google Ads events
+  if (trackingPixels.google_ads) {
+    events.push(`
+      // Track SmartLink view on Google Ads
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'conversion', {
+          'send_to': '${trackingPixels.google_ads}/conversion',
+          'value': 1.0,
+          'currency': 'EUR',
+          'transaction_id': '${smartlinkData.slug}_' + Date.now()
+        });
+
+        // Track page view
+        gtag('event', 'page_view', {
+          'send_to': '${trackingPixels.google_ads}',
+          'value': '${smartlinkData.title}'
+        });
+      }
+    `);
+  }
+
   if (events.length === 0) return '';
 
   return `
@@ -336,6 +395,7 @@ module.exports = {
   generateTrackingEvents,
   generateGoogleAnalytics,
   generateGoogleTagManager,
+  generateGoogleAds,
   generateMetaPixel,
   generateTikTokPixel,
   generateCustomScripts

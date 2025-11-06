@@ -80,6 +80,7 @@ const smartlinks = {
             JSON.stringify(data.trackingPixels || {
               google_analytics: null,
               google_tag_manager: null,
+              google_ads: null,
               meta_pixel: null,
               tiktok_pixel: null,
               custom_scripts: []
