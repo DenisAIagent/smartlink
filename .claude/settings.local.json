@@ -101,7 +101,10 @@
       "Bash(git tag:*)",
       "Bash(DATABASE_URL=\"postgresql://postgres:mAeDxBiBAowyDrDDXGGVfMCkFnoRupne@switchyard.proxy.rlwy.net:42182/railway\" DATABASE_SSL=true psql -c \"SELECT column_name, data_type FROM information_schema.columns WHERE table_name = ''smartlinks'' AND column_name IN (''id'', ''user_id'', ''slug'', ''title'')\")",
       "Bash(open \"http://localhost:3003/pages/user-management.html\")",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(railway status:*)",
+      "Bash(RAILWAY_NO_CONFIRM=1 railway redeploy)",
+      "Bash(open \"http://localhost:3003/pages/edit-smartlink.html?id=1\")"
     ],
     "deny": [],
     "ask": []
