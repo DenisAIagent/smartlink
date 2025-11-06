@@ -149,8 +149,9 @@ const smartlinks = {
           customization = COALESCE($5, customization),
           cover_url = COALESCE($6, cover_url),
           preview_audio_url = COALESCE($7, preview_audio_url),
+          tracking_pixels = COALESCE($8, tracking_pixels),
           updated_at = NOW()
-         WHERE id = $8 AND user_id = $9
+         WHERE id = $9 AND user_id = $10
          RETURNING *`,
         [
           data.title,
@@ -160,6 +161,7 @@ const smartlinks = {
           data.customization ? JSON.stringify(data.customization) : null,
           data.coverUrl,
           data.previewAudioUrl,
+          data.trackingPixels ? JSON.stringify(data.trackingPixels) : null,
           id,
           userId
         ]
